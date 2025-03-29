@@ -339,7 +339,7 @@ QString toString(const QByteArray &byteArray)
 {
     QStringList result;
     for (auto byte : byteArray)
-        result << QStringLiteral("%1").arg(byte, 2, 16, QChar('0'));
+        result << QStringLiteral("%1").arg(static_cast<uchar>(byte), 2, 16, QChar(u'0'));
     return QStringLiteral("[") % result.join(QStringLiteral(", ")) % QStringLiteral("]");
 }
 
