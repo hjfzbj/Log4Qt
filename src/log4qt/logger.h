@@ -23,6 +23,11 @@
 
 #include <QObject>
 
+#ifndef _MSC_VER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 #include "helpers/logerror.h"
 #include "helpers/classlogger.h"
 #include "helpers/appenderattachable.h"
@@ -400,5 +405,9 @@ private:
 };
 
 } // namespace Log4Qt
+
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif
 
 #endif // LOG4QT_LOGGER_H

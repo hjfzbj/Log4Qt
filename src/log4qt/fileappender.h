@@ -21,6 +21,11 @@
 #ifndef LOG4QT_FILEAPPENDER_H
 #define LOG4QT_FILEAPPENDER_H
 
+#ifndef _MSC_VER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
+#endif
+
 #include "writerappender.h"
 
 class QFile;
@@ -190,5 +195,9 @@ inline void FileAppender::setFile(const QString &fileName)
 
 
 } // namespace Log4Qt
+
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif
 
 #endif // LOG4QT_FILEAPPENDER_H
