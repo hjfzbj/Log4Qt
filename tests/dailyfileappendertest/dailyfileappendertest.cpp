@@ -153,7 +153,7 @@ namespace
 void createFile(const QString& fileName)
 {
     QFile file(fileName);
-    file.open(QFile::WriteOnly);
+    QVERIFY(file.open(QFile::WriteOnly));
     file.close();
     QVERIFY2(file.exists(), qPrintable(fileName));
 }
