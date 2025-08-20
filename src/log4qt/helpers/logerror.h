@@ -183,28 +183,28 @@ public:
      *
      * \sa setCode()
      */
-    int code() const;
+    inline int code() const;
 
     /*!
      * Returns the context for the error.
      *
      * \sa setContext()
      */
-    QString context() const;
+    inline QString context() const;
 
     /*!
      * Returns the error message.
      *
      * \sa setMessage()
      */
-    QString message() const;
+    inline QString message() const;
 
     /*!
      * Returns the symbol for the error code.
      *
      * \sa setSymbol()
      */
-    QString symbol() const;
+    inline QString symbol() const;
 
     /*!
      * Returns the translated error message.
@@ -222,7 +222,7 @@ public:
      *
      * \sa code()
      */
-    void setCode(int code);
+    inline void setCode(int code);
 
     /*!
      * Sets the context to \a className.
@@ -234,21 +234,21 @@ public:
      *
     * \sa context(), translatedMessage(), translatedMessageWithArgs()
      */
-    void setContext(const QString &className);
+    inline void setContext(const QString &className);
 
     /*!
      * Sets the error message to \a message
      *
      * \sa message()
      */
-    void setMessage(const QString &message);
+    inline void setMessage(const QString &message);
 
     /*!
      * Sets the symbol for the error code to \a symbol.
      *
      * \sa symbol()
      */
-    void setSymbol(const QString &symbol);
+    inline void setSymbol(const QString &symbol);
 
     /*!
      * Returns the last error set for the current thread using
@@ -275,17 +275,17 @@ public:
      *
      * \sa operator<<(), args(), clearArgs()
      */
-    LogError &addArg(const QVariant &arg);
+    inline LogError &addArg(const QVariant &arg);
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    LogError &addArg(int arg);
+    inline LogError &addArg(int arg);
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    LogError &addArg(const QString &arg);
+    inline LogError &addArg(const QString &arg);
 
     /*!
      * Appends \a logError to the list of causing errors and returns a
@@ -293,35 +293,35 @@ public:
      *
      * \sa causingErrors(), clearCausingErrors()
      */
-    LogError &addCausingError(const LogError &logError);
+    inline LogError &addCausingError(const LogError &logError);
 
     /*!
      * Returns the list of arguments that have been added to this error.
      *
      * \sa addArg(), operator<<(), clearArgs()
      */
-    QList<QVariant> args() const;
+    inline QList<QVariant> args() const;
 
     /*!
      * Returns the list of causing errors that have been added to this error.
      *
      * \sa addArg(), operator<<(), clearArgs()
      */
-    QList<LogError> causingErrors() const;
+    inline QList<LogError> causingErrors() const;
 
     /*!
      * Clears the list of arguments that have been added to this error.
      *
      * \sa addArg(), operator<<(), args()
      */
-    void clearArgs();
+    inline void clearArgs();
 
     /*!
      * Clears the list of causing errors that have been added to this error.
      *
      * \sa addCausingError(), causingErrors()
      */
-    void clearCausingErrors();
+    inline void clearCausingErrors();
 
     /*!
      * Returns true, if the error code is 0 and the message is empty.
@@ -329,7 +329,7 @@ public:
      *
      * \sa code(), message()
      */
-    bool isEmpty() const;
+    inline bool isEmpty() const;
 
     /*!
      * Returns the message with arguments. The arguments are incoorporated
@@ -337,7 +337,7 @@ public:
      *
      * \sa QString::arg(), translatedMessageWithArgs()
      */
-    QString messageWithArgs() const;
+    inline QString messageWithArgs() const;
 
     /*!
      * Returns the translated message with arguments. The arguments are
@@ -345,7 +345,7 @@ public:
      *
      * \sa QString::arg(), messageWithArgs(), translatedMessage()
      */
-    QString translatedMessageWithArgs() const;
+    inline QString translatedMessageWithArgs() const;
 
     /*!
      * Appends \a rArg to the list of arguments and returns a reference to
@@ -353,17 +353,17 @@ public:
      *
      * \sa addArg()
      */
-    LogError &operator<<(const QVariant &arg);
+    inline LogError &operator<<(const QVariant &arg);
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    LogError &operator<<(int arg);
+    inline LogError &operator<<(int arg);
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    LogError &operator<<(const QString &arg);
+    inline LogError &operator<<(const QString &arg);
 
     /*!
      * Returns a string representation of the error.
