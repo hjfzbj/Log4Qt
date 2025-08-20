@@ -80,15 +80,15 @@ protected:
     ~AppenderSkeleton() override;
 
 public:
-    FilterSharedPtr filter() const override;
+    inline FilterSharedPtr filter() const override;
     LayoutSharedPtr layout() const override;
-    bool isActive() const;
-    bool isClosed() const;
-    QString name() const override;
-    Level threshold() const;
+    inline bool isActive() const;
+    inline bool isClosed() const;
+    inline QString name() const override;
+    inline Level threshold() const;
     void setLayout(const LayoutSharedPtr &layout) override;
-    void setName(const QString &name) override;
-    void setThreshold(Level level);
+    inline void setName(const QString &name) override;
+    inline void setThreshold(Level level);
 
     virtual void activateOptions();
     void addFilter(const FilterSharedPtr &filter) override;
@@ -103,8 +103,8 @@ public:
      */
     void doAppend(const LoggingEvent &event) override;
 
-    FilterSharedPtr firstFilter() const;
-    bool isAsSevereAsThreshold(Level level) const;
+    inline FilterSharedPtr firstFilter() const;
+    inline bool isAsSevereAsThreshold(Level level) const;
 
 protected:
     virtual void append(const LoggingEvent &event) = 0;
