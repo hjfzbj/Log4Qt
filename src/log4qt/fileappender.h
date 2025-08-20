@@ -86,12 +86,12 @@ private:
     Q_DISABLE_COPY_MOVE(FileAppender)
 
 public:
-    bool appendFile() const;
-    QString file() const;
-    bool bufferedIo() const;
-    void setAppendFile(bool append);
-    void setBufferedIo(bool buffered);
-    void setFile(const QString &fileName);
+    inline bool appendFile() const;
+    inline QString file() const;
+    inline bool bufferedIo() const;
+    inline void setAppendFile(bool append);
+    inline void setBufferedIo(bool buffered);
+    inline void setFile(const QString &fileName);
 
     void activateOptions() override;
     void close() override;
