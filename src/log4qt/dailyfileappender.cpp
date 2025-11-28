@@ -96,9 +96,6 @@ void deleteObsoleteFiles(
         int keepDays,
         const QString &originalFilename)
 {
-    if (keepDays <= 0) return;
-    if (originalFilename.isEmpty()) return;
-
     const QFileInfo fi(originalFilename);
     const QDir logDir(fi.absolutePath());
     const auto logFileNames(
@@ -149,7 +146,8 @@ void DailyFileAppender::activateOptions()
 
     closeFile();
     setLogFileForCurrentDay();
-    deleteObsoleteFiles(mDateRetriever->currentDate(), mDatePattern, mKeepDays, mOriginalFilename);
+    if (mKeepDays > 0 && !mOriginalFilename.isEmpty())
+        deleteObsoleteFiles(mDateRetriever->currentDate(), mDatePattern, mKeepDays, mOriginalFilename);
     FileAppender::activateOptions();
 }
 
@@ -171,10 +169,13 @@ void DailyFileAppender::append(const LoggingEvent &event)
 
         // schedule check for obsolete files for asynchronous execution, destructor will wait for
         // completion of each executor
-        mDeleteObsoleteFilesExecutors.addFuture(
-                    QtConcurrent::run(
-                        deleteObsoleteFiles,
-                        currentDate, mDatePattern, mKeepDays, mOriginalFilename));
+        if (mKeepDays > 0 && !mOriginalFilename.isEmpty())
+        {
+            mDeleteObsoleteFilesExecutors.addFuture(
+                        QtConcurrent::run(
+                            deleteObsoleteFiles,
+                            currentDate, mDatePattern, mKeepDays, mOriginalFilename));
+        }
     }
     FileAppender::append(event);
 }
