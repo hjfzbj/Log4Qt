@@ -31,10 +31,6 @@
 #include <QThread>
 #include <QCoreApplication>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
@@ -72,11 +68,7 @@ void Logger::callAppenders(const LoggingEvent &event) const
 {
     QReadLocker locker(&mAppenderGuard);
 
-#if (__cplusplus >= 201703L)
-    for (auto &&appender : std::as_const(mAppenders))
-#else
-    for (auto &&appender : qAsConst(mAppenders))
-#endif
+    for (const auto& appender : mAppenders)
         appender->doAppend(event);
     if (additivity() && (parentLogger() != nullptr))
         parentLogger()->callAppenders(event);

@@ -24,6 +24,8 @@
 #include "binarylogger.h"
 #include "helpers/optionconverter.h"
 
+#include <algorithm>
+
 namespace Log4Qt
 {
 
@@ -77,12 +79,23 @@ void Hierarchy::resetConfiguration()
     Logger *p_qt_logger = logger(QStringLiteral("Qt"));
     Logger *p_root_logger = rootLogger();
 
-    for (const auto& p_logger : mLoggers)
-    {
-        if ((p_logger == p_logging_logger) || (p_logger == p_qt_logger) || (p_logger == p_root_logger))
-            continue;
-        resetLogger(p_logger, Level::NULL_INT);
-    }
+    // Define predicate for regular (non-special) loggers
+    auto isRegularLogger = [=](Logger* logger) {
+        return logger != p_logging_logger && 
+               logger != p_qt_logger && 
+               logger != p_root_logger;
+    };
+
+    // Reset all regular loggers
+    auto loggers = mLoggers.values();
+    std::for_each(loggers.begin(), loggers.end(), 
+                  [&](Logger* logger) {
+                      if (isRegularLogger(logger)) {
+                          resetLogger(logger, Level::NULL_INT);
+                      }
+                  });
+    
+    // Reset special loggers
     resetLogger(p_qt_logger, Level::NULL_INT);
     resetLogger(p_logging_logger, Level::NULL_INT);
     resetLogger(p_root_logger, Level::DEBUG_INT);

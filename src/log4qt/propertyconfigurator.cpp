@@ -33,10 +33,6 @@
 
 #include <QFile>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
@@ -269,11 +265,7 @@ void PropertyConfigurator::configureNonRootElements(const Properties &properties
 
     QStringList keys = properties.propertyNames();
 
-#if (__cplusplus >= 201703L)
-    for (const auto &key : std::as_const(keys))
-#else
-    for (const auto &key : qAsConst(keys))
-#endif
+    for (const auto &key : keys)
     {
         QString java_name;
         if (key.startsWith(logger_prefix))
@@ -527,11 +519,7 @@ void PropertyConfigurator::setProperties(const Properties &properties,
 
     QStringList keys = properties.propertyNames();
 
-#if (__cplusplus >= 201703L)
-    for (const auto &key : std::as_const(keys))
-#else
-    for (const auto &key : qAsConst(keys))
-#endif
+    for (const auto &key : keys)
     {
         if (!key.startsWith(prefix))
             continue;

@@ -31,9 +31,7 @@
 #include <QtConcurrentRun>
 #include <QStringBuilder>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
+#include <algorithm>
 
 namespace Log4Qt
 {
@@ -108,32 +106,25 @@ void deleteObsoleteFiles(
 
     const auto startOfLogging(currentDate.addDays(-keepDays));
 
-    QStringList obsoleteLogFileNames;
-
-    for (const auto &fileName : logFileNames)
-    {
+    // Helper to check if file is obsolete
+    auto isObsolete = [&](const QString& fileName) -> bool {
         // determine creation date from file name instead of using file attributes, since file might
         // have been moved around, modified by user etc.
-        const auto match(creationDateExtractor.match(fileName));
-        if (match.hasMatch())
-        {
-            const auto creationDate(QDate::fromString(match.captured(1), datePattern));
+        const auto match = creationDateExtractor.match(fileName);
+        if (!match.hasMatch())
+            return false;
+        
+        const auto creationDate = QDate::fromString(match.captured(1), datePattern);
+        return creationDate.isValid() && creationDate < startOfLogging;
+    };
 
-            if (creationDate.isValid() && creationDate < startOfLogging)
-            {
-                obsoleteLogFileNames += fileName;
-            }
-        }
-    }
-
-#if (__cplusplus >= 201703L)
-    for (const auto &fileName : std::as_const(obsoleteLogFileNames))
-#else
-    for (const auto &fileName : qAsConst(obsoleteLogFileNames))
-#endif
-    {
-        QFile::remove(logDir.filePath(fileName));
-    }
+    // Single-pass: filter and delete in one go
+    std::for_each(logFileNames.begin(), logFileNames.end(),
+                  [&](const QString& fileName) {
+                      if (isObsolete(fileName)) {
+                          QFile::remove(logDir.filePath(fileName));
+                      }
+                  });
 }
 
 }
