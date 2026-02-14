@@ -24,7 +24,7 @@
 #include "layout.h"
 #include "helpers/patternformatter.h"
 
-#include <QScopedPointer>
+#include <memory>
 
 namespace Log4Qt
 {
@@ -93,7 +93,7 @@ private:
     Q_DISABLE_COPY_MOVE(PatternLayout)
 
 public:
-    QString conversionPattern() const;
+    [[nodiscard]] QString conversionPattern() const;
     void setConversionPattern(const QString &pattern);
 
     /*!
@@ -102,14 +102,14 @@ public:
      */
     void setConversionPattern(ConversionPattern conversionPattern);
 
-    QString format(const LoggingEvent &event) override;
+    [[nodiscard]] QString format(const LoggingEvent &event) override;
 
 private:
     void updatePatternFormatter();
 
 private:
     QString mPattern;
-    QScopedPointer<PatternFormatter> mPatternFormatter;
+    std::unique_ptr<PatternFormatter> mpPatternFormatter;
 };
 
 inline QString PatternLayout::conversionPattern() const

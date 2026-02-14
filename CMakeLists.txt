@@ -50,8 +50,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(LOG4QT_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-# We need C++11 and don't want to export all symbols, only the ones we mark for export
-set(CMAKE_CXX_STANDARD 17)
+# We need C++20 and don't want to export all symbols, only the ones we mark for export
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
@@ -109,23 +111,23 @@ add_definitions(-DLOG4QT_VERSION_STR="${Log4Qt_VERSION_MAJOR}.${Log4Qt_VERSION_M
                 -DLOG4QT_VERSION_PATCH=${Log4Qt_VERSION_PATCH}
                 )
 
-# We need gcc >= 4.8 or clang >= 3.3 or msvc >= 2015
+# We need gcc >= 10 or clang >= 10 or msvc >= 19.29 (VS 2019 16.11) for C++20
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.8.0)
-    message(FATAL_ERROR "gcc 4.8 or higher required!")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+    message(FATAL_ERROR "gcc 10.0 or higher required for C++20!")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
   if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9.99)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override")
   endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3.0)
-    message(FATAL_ERROR "llvm/clang 3.3 or higher required!")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+    message(FATAL_ERROR "llvm/clang 10.0 or higher required for C++20!")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  if(MSVC_VERSION LESS 1900)
-    message(FATAL_ERROR "msvc 2015 or higher required!")
+  if(MSVC_VERSION LESS 1929)
+    message(FATAL_ERROR "msvc 19.29 (Visual Studio 2019 16.11) or higher required for C++20!")
   endif()
   # disable common warnings in Qt/stdlib
   # disable 4127: conditional expression is constant

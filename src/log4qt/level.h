@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <QMetaType>
+#include <compare>
 
 namespace Log4Qt
 {
@@ -44,7 +45,7 @@ public:
     /*!
      * The enumeration Value contains all possible Level values.
      */
-    enum Value
+    enum Value : uint8_t
     {
         /*! NULL_INT is used for no level has been specified */
         NULL_INT = 0,
@@ -59,52 +60,26 @@ public:
     };
 
 public:
-    Level(Value value = NULL_INT)
+    constexpr Level(Value value = NULL_INT) noexcept
         : mValue(value)
+    {}
+
+    [[nodiscard]] int syslogEquivalent() const;
+    
+    [[nodiscard]] constexpr int toInt() const noexcept
     {
+        return static_cast<int>(mValue);
     }
 
-    int syslogEquivalent() const;
-    int toInt() const
-    {
-        return mValue;
-    }
+    // C++20 spaceship operator replaces all comparison operators
+    [[nodiscard]] constexpr auto operator<=>(const Level& other) const noexcept = default;
 
-    bool operator==(const Level other) const
-    {
-        return mValue == other.mValue;
-    }
-
-    bool operator!=(const Level other) const
-    {
-        return mValue != other.mValue;
-    }
-
-    bool operator<(const Level other) const
-    {
-        return mValue < other.mValue;
-    }
-
-    bool operator<=(const Level other) const
-    {
-        return mValue <= other.mValue;
-    }
-
-    bool operator>(const Level other) const
-    {
-        return mValue > other.mValue;
-    }
-
-    bool operator>=(const Level other) const
-    {
-        return mValue >= other.mValue;
-    }
-    QString toString() const;
+    [[nodiscard]] QString toString() const;
 
     static Level fromString(const QString &level, bool *ok = nullptr);
 
 private:
-    volatile Value mValue;
+    Value mValue;
 
 #ifndef QT_NO_DATASTREAM
     // Needs to be friend to stream objects
@@ -138,7 +113,7 @@ LOG4QT_EXPORT QDataStream &operator>>(QDataStream &in,
 } // namespace Log4Qt
 
 Q_DECLARE_METATYPE(Log4Qt::Level)
-Q_DECLARE_TYPEINFO(Log4Qt::Level, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Log4Qt::Level, Q_PRIMITIVE_TYPE);
 
 
 #endif // LOG4QT_LEVEL_H

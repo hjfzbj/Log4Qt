@@ -31,7 +31,9 @@ LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::Level)
 
 int Level::syslogEquivalent() const
 {
-    switch (mValue)
+    const int value = toInt();
+    
+    switch (value)
     {
     case NULL_INT:
     case ALL_INT:
@@ -56,8 +58,9 @@ int Level::syslogEquivalent() const
 QString Level::toString() const
 {
     const char *p_context = "Level";
+    const int value = toInt();
 
-    switch (mValue)
+    switch (value)
     {
     case NULL_INT:
         return QCoreApplication::translate(p_context, "NULL");
@@ -127,7 +130,7 @@ Level Level::fromString(const QString &level, bool *ok)
 QDataStream &operator<<(QDataStream &out,
                         Log4Qt::Level level)
 {
-    quint8 l = level.mValue;
+    const quint8 l = static_cast<quint8>(level.toInt());
     out << l;
     return out;
 }

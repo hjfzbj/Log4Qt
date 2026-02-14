@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ----
 ## [v1.6.0] - ??
 ### Improvements
+- Modernize codebase to C++20 standard
 - qmake: Make database, telnet appender and qml logger optional depending on CONFIG
 - cmake: Make database, telnet appender and qml logger optional depending on option
 - Use std::as_const instead of deprecated qAsConst for c++17 and greater

@@ -65,14 +65,14 @@ void PatternLayout::setConversionPattern(ConversionPattern conversionPattern)
 
 QString PatternLayout::format(const LoggingEvent &event)
 {
-    Q_ASSERT_X(mPatternFormatter, "PatternLayout::format()", "mpPatternConverter must not be null");
+    Q_ASSERT_X(mpPatternFormatter, "PatternLayout::format()", "mpPatternConverter must not be null");
 
-    return mPatternFormatter->format(event);
+    return mpPatternFormatter->format(event);
 }
 
 void PatternLayout::updatePatternFormatter()
 {
-    mPatternFormatter.reset(new PatternFormatter(mPattern));
+    mpPatternFormatter = std::make_unique<PatternFormatter>(mPattern);
 }
 
 } // namespace Log4Qt

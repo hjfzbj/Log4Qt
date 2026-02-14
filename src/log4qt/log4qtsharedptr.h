@@ -29,14 +29,33 @@
 namespace Log4Qt
 {
 
+/*!
+ * \brief A shared pointer for Log4Qt QObject-derived classes.
+ *
+ * This class provides a QSharedPointer that automatically uses
+ * deleteLater() for cleanup, ensuring proper Qt object lifecycle
+ * management.
+ *
+ * \note Only accepts QObject-derived types (enforced at construction time).
+ */
 template<typename Log4QtClass>
 class Log4QtSharedPtr : public QSharedPointer<Log4QtClass>
 {
 public:
+    /*!
+     * Constructs a Log4QtSharedPtr that takes ownership of \a ptr.
+     * The object will be deleted via deleteLater() when the last
+     * reference is destroyed.
+     * 
+     * \note Not explicit to allow implicit conversions from raw pointers,
+     * maintaining compatibility with existing code.
+     */
     Log4QtSharedPtr(Log4QtClass *ptr)
         : QSharedPointer<Log4QtClass>(ptr, &Log4QtClass::deleteLater)
     {
-        static_assert(std::is_base_of<QObject, Log4QtClass>::value, "Need a QObject derived class here");
+        // C++20: Check at construction time when type is fully defined
+        static_assert(std::is_base_of_v<QObject, Log4QtClass>, 
+                      "Log4QtClass must be derived from QObject");
     }
 
     Log4QtSharedPtr()
