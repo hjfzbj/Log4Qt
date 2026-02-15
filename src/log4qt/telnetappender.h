@@ -168,7 +168,7 @@ private:
     QTcpServer     *mTcpServer;
     QList<QTcpSocket *> mTcpSockets;
     QString         mWelcomeMessage;
-    volatile bool   mImmediateFlush;
+    std::atomic<bool> mImmediateFlush;
 
     void sendWelcomeMessage(QTcpSocket *clientConnection);
 };

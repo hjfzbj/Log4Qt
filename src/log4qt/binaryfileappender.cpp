@@ -127,7 +127,7 @@ void BinaryFileAppender::closeInternal()
 
 bool BinaryFileAppender::checkEntryConditions() const
 {
-    if ((mFile == nullptr) || (mDataStream == nullptr))
+    if (!mFile || !mDataStream)
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without open file"),
                                          APPENDER_NO_OPEN_FILE_ERROR);
@@ -142,14 +142,12 @@ bool BinaryFileAppender::checkEntryConditions() const
 
 void BinaryFileAppender::closeFile()
 {
-    if (mFile != nullptr)
+    if (mFile)
         logger()->debug(u"Closing file '%1' for appender '%2'"_s, mFile->fileName(), name());
 
     setWriter(nullptr);
-    delete mDataStream;
-    mDataStream = nullptr;
-    delete mFile;
-    mFile = nullptr;
+    mDataStream.reset();
+    mFile.reset();
 }
 
 bool BinaryFileAppender::handleIoErrors() const
@@ -167,7 +165,7 @@ bool BinaryFileAppender::handleIoErrors() const
 
 void BinaryFileAppender::createDataStream()
 {
-    mDataStream = new QDataStream(mFile);
+    mDataStream = std::make_unique<QDataStream>(mFile.get());
     mDataStream->setByteOrder(mByteOrder);
     mDataStream->setFloatingPointPrecision(mFloatingPointPrecision);
     mDataStream->setVersion(mStreamVersion);
@@ -175,7 +173,7 @@ void BinaryFileAppender::createDataStream()
 
 void BinaryFileAppender::openFile()
 {
-    Q_ASSERT_X(mFile == nullptr && mDataStream == nullptr, "BinaryFileAppender::openFile()", "Opening file without closing previous file");
+    Q_ASSERT_X(!mFile && !mDataStream, "BinaryFileAppender::openFile()", "Opening file without closing previous file");
 
     QFileInfo file_info(mFileName);
     QDir parent_dir = file_info.dir();
@@ -194,7 +192,7 @@ void BinaryFileAppender::openFile()
         mFileName = QString::fromWCharArray(buffer);
 #endif
 
-    mFile = new QFile(mFileName);
+    mFile = std::make_unique<QFile>(mFileName);
     QFile::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
     if (mAppendFile)
         mode |= QIODevice::Append;
@@ -213,7 +211,7 @@ void BinaryFileAppender::openFile()
     }
 
     createDataStream();
-    setWriter(mDataStream);
+    setWriter(mDataStream.get());
     logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 }
 

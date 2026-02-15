@@ -27,6 +27,9 @@
 #include <QList>
 #include <QString>
 
+#include <memory>
+#include <vector>
+
 namespace Log4Qt
 {
 
@@ -127,7 +130,7 @@ private:
     const QString mConversionCharacters;
     const QString mOptionCharacters;
     QString mPattern;
-    QList<PatternConverter *> mPatternConverters;
+    std::vector<std::unique_ptr<PatternConverter>> mPatternConverters;
 };
 
 

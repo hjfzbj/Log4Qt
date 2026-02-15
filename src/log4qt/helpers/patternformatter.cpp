@@ -271,10 +271,7 @@ PatternFormatter::PatternFormatter(const QString &pattern) :
 }
 
 
-PatternFormatter::~PatternFormatter()
-{
-    qDeleteAll(mPatternConverters);
-}
+PatternFormatter::~PatternFormatter() = default;
 
 
 QString PatternFormatter::format(const LoggingEvent &loggingEvent) const
@@ -324,8 +321,8 @@ void PatternFormatter::createConverter(QChar character,
     switch (character.toLatin1())
     {
     case 'c':
-        mPatternConverters << new LoggepatternConverter(formattingInfo,
-                           parseIntegeoption(option));
+        mPatternConverters.push_back(std::make_unique<LoggepatternConverter>(formattingInfo,
+                           parseIntegeoption(option)));
         break;
     case 'd':
     {
@@ -340,49 +337,49 @@ void PatternFormatter::createConverter(QChar character,
             format = QLocale().dateTimeFormat(QLocale::NarrowFormat);
         else if (option == QLatin1String("locale"))
             format = QLocale().dateTimeFormat(QLocale::ShortFormat);
-        mPatternConverters << new DatePatternConverter(formattingInfo,
-                                                       format);
+        mPatternConverters.push_back(std::make_unique<DatePatternConverter>(formattingInfo,
+                                                       format));
         break;
     }
     case 'm':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::MESSAGE_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::MESSAGE_CONVERTER));
         break;
     case 'p':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::LEVEL_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::LEVEL_CONVERTER));
         break;
     case 'r':
-        mPatternConverters << new DatePatternConverter(formattingInfo,
-                                                       u"RELATIVE"_s);
+        mPatternConverters.push_back(std::make_unique<DatePatternConverter>(formattingInfo,
+                                                       u"RELATIVE"_s));
         break;
     case 't':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::THREAD_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::THREAD_CONVERTER));
         break;
     case 'x':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::NDC_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::NDC_CONVERTER));
         break;
     case 'X':
-        mPatternConverters << new MDCPatternConverter(formattingInfo,
-                                                      option);
+        mPatternConverters.push_back(std::make_unique<MDCPatternConverter>(formattingInfo,
+                                                      option));
         break;
     case 'F':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::FILENAME_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::FILENAME_CONVERTER));
         break;
     case 'M':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::FUNCTIONNAME_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::FUNCTIONNAME_CONVERTER));
         break;
     case 'L':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::LINENUMBER_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::LINENUMBER_CONVERTER));
         break;
     case 'l':
-        mPatternConverters << new BasicPatternConverter(formattingInfo,
-                                                        BasicPatternConverter::LOCATION_CONVERTER);
+        mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
+                                                        BasicPatternConverter::LOCATION_CONVERTER));
         break;
     default:
         Q_ASSERT_X(false, "PatternFormatter::createConverter", "Unknown pattern character");
@@ -394,7 +391,7 @@ void PatternFormatter::createLiteralConverter(const QString &literal)
 {
     logger()->trace(u"Creating literal LiteralConverter with Literal '%1'"_s,
                     literal);
-    mPatternConverters << new LiteralPatternConverter(literal);
+    mPatternConverters.push_back(std::make_unique<LiteralPatternConverter>(literal));
 }
 
 

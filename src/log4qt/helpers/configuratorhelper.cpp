@@ -38,10 +38,7 @@ ConfiguratorHelper::ConfiguratorHelper(QObject *parent) :
 }
 
 
-ConfiguratorHelper::~ConfiguratorHelper()
-{
-    delete mConfigurationFileWatch;
-}
+ConfiguratorHelper::~ConfiguratorHelper() = default;
 
 LOG4QT_IMPLEMENT_INSTANCE(ConfiguratorHelper)
 
@@ -72,20 +69,19 @@ void ConfiguratorHelper::doSetConfigurationFile(const QString &fileName,
     QMutexLocker locker(&mObjectGuard);
     mConfigurationFile.setFile(fileName);
     mConfigureFunc = nullptr;
-    delete mConfigurationFileWatch;
-    mConfigurationFileWatch = nullptr;
+    mConfigurationFileWatch.reset();
     if (fileName.isEmpty() || !QFileInfo::exists(fileName))
         return;
 
     mConfigureFunc = pConfigureFunc;
-    mConfigurationFileWatch = new QFileSystemWatcher();
+    mConfigurationFileWatch = std::make_unique<QFileSystemWatcher>();
 
     if (mConfigurationFileWatch->addPath(mConfigurationFile.absoluteFilePath()))
     {
         mConfigurationFileWatch->addPath(mConfigurationFile.absolutePath());
-        connect(mConfigurationFileWatch, &QFileSystemWatcher::fileChanged,
+        connect(mConfigurationFileWatch.get(), &QFileSystemWatcher::fileChanged,
                 this, &ConfiguratorHelper::doConfigurationFileChanged);
-        connect(mConfigurationFileWatch, &QFileSystemWatcher::directoryChanged,
+        connect(mConfigurationFileWatch.get(), &QFileSystemWatcher::directoryChanged,
                 this, &ConfiguratorHelper::doConfigurationFileDirectoryChanged);
     }
     else

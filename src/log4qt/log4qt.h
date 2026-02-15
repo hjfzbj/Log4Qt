@@ -439,7 +439,7 @@
  *
  * The following assumptions are used throughout the package:
  *
- * - Reading / writing of bool or int is thread-safe, if declared volatile
+ * - Reading / writing of bool or int is thread-safe using std::atomic
  *   - \ref Log4Qt::ListAppender "ListAppender"
  *   - \ref Log4Qt::AppenderSkeleton "AppenderSkeleton"
  *   - \ref Log4Qt::ConsoleAppender "ConsoleAppender"

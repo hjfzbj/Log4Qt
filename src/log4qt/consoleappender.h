@@ -23,6 +23,8 @@
 
 #include "writerappender.h"
 
+#include <memory>
+
 class QTextStream;
 
 namespace Log4Qt
@@ -102,8 +104,8 @@ protected:
     void append(const LoggingEvent &event) override;
 
 private:
-    volatile Target mTarget;
-    QTextStream *mtextStream;
+    std::atomic<Target> mTarget;
+    std::unique_ptr<QTextStream> mtextStream;
     void closeInternal();
 };
 

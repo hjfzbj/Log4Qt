@@ -30,6 +30,8 @@
 #include <QMutex>
 #include <QFileInfo>
 
+#include <memory>
+
 class QFileSystemWatcher;
 
 namespace Log4Qt
@@ -137,7 +139,7 @@ private:
     mutable QMutex mObjectGuard;
     QFileInfo mConfigurationFile;
     ConfigureFunc mConfigureFunc;
-    QFileSystemWatcher *mConfigurationFileWatch;
+    std::unique_ptr<QFileSystemWatcher> mConfigurationFileWatch;
     QList<LoggingEvent> mConfigureError;
 };
 

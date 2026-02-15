@@ -24,6 +24,7 @@
 #include "layout.h"
 
 #include <QTextStream>
+#include <vector>
 
 #define NIX_BACK_BLACK      40
 #define NIX_BACK_RED        41
@@ -97,8 +98,6 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
         return;
     }
 
-    wchar_t *wideMessage;
-
     QStringList colorizedMessage = message.split('\033');
 
     int actualSize;
@@ -110,10 +109,9 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
     // display first part of message
     if (!colorizedMessage.at(0).isEmpty())
     {
-        wideMessage = new wchar_t [colorizedMessage.at(0).size()];
-        actualSize = colorizedMessage.at(0).toWCharArray(wideMessage);
-        WriteConsoleW(hConsole, wideMessage, actualSize, &out, nullptr);
-        delete [] wideMessage;
+        std::vector<wchar_t> wideBuf(colorizedMessage.at(0).size());
+        actualSize = colorizedMessage.at(0).toWCharArray(wideBuf.data());
+        WriteConsoleW(hConsole, wideBuf.data(), actualSize, &out, nullptr);
         colorizedMessage.removeAt(0);
     }
     for (QString it : colorizedMessage)
@@ -199,10 +197,9 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
             }
         }
 
-        wideMessage = new wchar_t [it.size()];
-        actualSize = it.toWCharArray(wideMessage);
-        WriteConsoleW(hConsole, wideMessage, actualSize, &out, nullptr);
-        delete [] wideMessage;
+        std::vector<wchar_t> wideBuf(it.size());
+        actualSize = it.toWCharArray(wideBuf.data());
+        WriteConsoleW(hConsole, wideBuf.data(), actualSize, &out, nullptr);
     }
     // load old colors
     SetConsoleTextAttribute(hConsole, cbi.wAttributes);

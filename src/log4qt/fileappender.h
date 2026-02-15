@@ -23,6 +23,8 @@
 
 #include "writerappender.h"
 
+#include <memory>
+
 class QFile;
 class QTextStream;
 
@@ -148,11 +150,11 @@ protected:
                     const QString &fileName) const;
 
 private:
-    volatile bool mAppendFile;
-    volatile bool mBufferedIo;
+    std::atomic<bool> mAppendFile;
+    std::atomic<bool> mBufferedIo;
     QString mFileName;
-    QFile *mFile;
-    QTextStream *mTextStream;
+    std::unique_ptr<QFile> mFile;
+    std::unique_ptr<QTextStream> mTextStream;
     void closeInternal();
 };
 

@@ -25,6 +25,8 @@
 
 #include <QDataStream>
 
+#include <memory>
+
 class QFile;
 
 namespace Log4Qt
@@ -85,11 +87,11 @@ private:
     BinaryFileAppender &operator=(const BinaryFileAppender &other); // Not implemented
     void createDataStream();
 
-    volatile bool mAppendFile;
-    volatile bool mBufferedIo;
+    std::atomic<bool> mAppendFile;
+    std::atomic<bool> mBufferedIo;
     QString mFileName;
-    QFile *mFile;
-    QDataStream *mDataStream;
+    std::unique_ptr<QFile> mFile;
+    std::unique_ptr<QDataStream> mDataStream;
     QDataStream::ByteOrder mByteOrder;
     QDataStream::FloatingPointPrecision mFloatingPointPrecision;
     QDataStream::Version mStreamVersion;

@@ -391,7 +391,7 @@ protected:
 private:
     const QString mName;
     LoggerRepository *mLoggerRepository;
-    volatile bool mAdditivity;
+    std::atomic<bool> mAdditivity;
     Level mLevel;
     Logger *mParentLogger;
 

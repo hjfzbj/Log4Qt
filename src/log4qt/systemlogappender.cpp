@@ -89,15 +89,12 @@ static QString encodeName(const QString &name, bool allowUpper = false)
 namespace Log4Qt
 {
 SystemLogAppender::SystemLogAppender(QObject *parent) :
-    AppenderSkeleton(parent), ident(nullptr)
+    AppenderSkeleton(parent)
 {
     setServiceName(QCoreApplication::applicationName());
 }
 
-SystemLogAppender::~SystemLogAppender()
-{
-    delete[] ident;
-}
+SystemLogAppender::~SystemLogAppender() = default;
 
 void SystemLogAppender::append(const LoggingEvent &event)
 {
@@ -157,7 +154,7 @@ void SystemLogAppender::append(const LoggingEvent &event)
         st = LOG_INFO;
     }
 
-    openlog(ident, LOG_PID, LOG_DAEMON);
+    openlog(mIdent.c_str(), LOG_PID, LOG_DAEMON);
 
 #if QT_VERSION >= 0x050e00
     for (const auto &line : message.split('\n', Qt::SkipEmptyParts))
@@ -180,12 +177,7 @@ void SystemLogAppender::setServiceName(const QString &serviceName)
     mServiceName = serviceName;
 
 #if !defined(Q_OS_WIN)
-    delete[] ident;
-    QString tmp = encodeName(mServiceName, true);
-    int len = tmp.toLocal8Bit().size();
-    ident = new char[len + 1];
-    ident[len] = '\0';
-    ::memcpy(ident, tmp.toLocal8Bit().constData(), len);
+    mIdent = encodeName(mServiceName, true).toLocal8Bit().constData();
 #endif
 }
 

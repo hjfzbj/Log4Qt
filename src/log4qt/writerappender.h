@@ -154,7 +154,7 @@ private:
     QStringConverter::Encoding mEncoding;
 #endif
     QTextStream *mWriter;
-    volatile bool mImmediateFlush;
+    std::atomic<bool> mImmediateFlush;
     void closeInternal();
 };
 
