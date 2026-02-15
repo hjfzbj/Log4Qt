@@ -29,6 +29,7 @@
 #include "log4qt/varia/nullappender.h"
 #include "log4qt/varia/levelmatchfilter.h"
 #include "log4qt/helpers/datetime.h"
+#include "log4qt/helpers/timestampprovider.h"
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
@@ -338,6 +339,61 @@ void PerformanceTest::testFilteringPerformance()
     }
     
     logger->removeAllAppenders();
+}
+
+void PerformanceTest::testTimestampCacheWindowPerformance_data()
+{
+    QTest::addColumn<int>("cacheWindowMs");
+    QTest::addColumn<int>("messageCount");
+    
+    // Test different cache windows with various message counts
+    QTest::newRow("0ms (no cache), 1000 msgs") << 0 << 1000;
+    QTest::newRow("1ms (default), 1000 msgs") << 1 << 1000;
+    QTest::newRow("10ms, 1000 msgs") << 10 << 1000;
+    QTest::newRow("100ms, 1000 msgs") << 100 << 1000;
+    
+    QTest::newRow("0ms (no cache), 10000 msgs") << 0 << 10000;
+    QTest::newRow("1ms (default), 10000 msgs") << 1 << 10000;
+    QTest::newRow("10ms, 10000 msgs") << 10 << 10000;
+    QTest::newRow("100ms, 10000 msgs") << 100 << 10000;
+    
+    QTest::newRow("0ms (no cache), 100000 msgs") << 0 << 100000;
+    QTest::newRow("1ms (default), 100000 msgs") << 1 << 100000;
+    QTest::newRow("10ms, 100000 msgs") << 10 << 100000;
+    QTest::newRow("100ms, 100000 msgs") << 100 << 100000;
+}
+
+void PerformanceTest::testTimestampCacheWindowPerformance()
+{
+    QFETCH(int, cacheWindowMs);
+    QFETCH(int, messageCount);
+    
+    // Configure timestamp cache window
+    Log4Qt::TimestampProvider::setCacheWindow(cacheWindowMs);
+    
+    // Create a null appender (discards all output - pure LoggingEvent creation benchmark)
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->setLevel(Log4Qt::Level::DEBUG_INT);
+    logger->removeAllAppenders();
+    
+    auto nullAppender = new Log4Qt::NullAppender();
+    nullAppender->setName("NullAppender");
+    nullAppender->activateOptions();
+    logger->addAppender(nullAppender);
+    
+    // Benchmark pure logging event creation with different cache windows
+    QBENCHMARK
+    {
+        for (int i = 0; i < messageCount; ++i)
+        {
+            logger->debug("Timestamp benchmark message %1", i);
+        }
+    }
+    
+    logger->removeAllAppenders();
+    
+    // Reset to default
+    Log4Qt::TimestampProvider::setCacheWindow(1);
 }
 
 QTEST_MAIN(PerformanceTest)

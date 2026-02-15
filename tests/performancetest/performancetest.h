@@ -51,6 +51,9 @@ private slots:
     
     void testFilteringPerformance();
     void testFilteringPerformance_data();
+    
+    void testTimestampCacheWindowPerformance();
+    void testTimestampCacheWindowPerformance_data();
 
 private:
     QString mTestDir;

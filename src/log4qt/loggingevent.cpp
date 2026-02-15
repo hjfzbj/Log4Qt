@@ -22,6 +22,7 @@
 
 #include "helpers/datetime.h"
 #include "helpers/initialisationhelper.h"
+#include "helpers/timestampprovider.h"
 #include "logger.h"
 #include "mdc.h"
 #include "ndc.h"
@@ -44,7 +45,7 @@ LoggingEvent::LoggingEvent() :
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(QDateTime::currentMSecsSinceEpoch())
+    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch())
 {
     setThreadNameToCurrent();
 }
@@ -62,7 +63,7 @@ LoggingEvent::LoggingEvent(const Logger *logger,
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(QDateTime::currentMSecsSinceEpoch())
+    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch())
 {
     setThreadNameToCurrent();
 }
@@ -80,7 +81,7 @@ LoggingEvent::LoggingEvent(const Logger *logger,
        mProperties(MDC::context()),
        mSequenceNumber(nextSequenceNumber()),
        mThreadName(),
-       mTimeStamp(QDateTime::currentMSecsSinceEpoch()),
+       mTimeStamp(TimestampProvider::currentMSecsSinceEpoch()),
        mContext(context),
        mCategoryName(categoryName)
 {
@@ -185,7 +186,7 @@ LoggingEvent::LoggingEvent(const Logger *logger,
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(QDateTime::currentMSecsSinceEpoch())
+    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch())
 {
     setThreadNameToCurrent();
 }
@@ -203,7 +204,7 @@ LoggingEvent::LoggingEvent(const Logger *logger,
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(QDateTime::currentMSecsSinceEpoch()),
+    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch()),
     mContext(context),
     mCategoryName(std::move(categoryName))
 {
