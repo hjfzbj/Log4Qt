@@ -280,6 +280,8 @@ PatternFormatter::~PatternFormatter()
 QString PatternFormatter::format(const LoggingEvent &loggingEvent) const
 {
     QString result;
+    // Optimize: reserve capacity to avoid reallocations during string building
+    result.reserve(256);
 #if (__cplusplus >= 201703L)
     for (auto &&p_converter : std::as_const(mPatternConverters))
 #else
@@ -620,11 +622,11 @@ void PatternConverter::format(QString &format, const LoggingEvent &loggingEvent)
     // If the data item is longer than the maximum field, then the extra characters
     // are removed from the beginning of the data item and not from the end.
     if (s.length() > mFormattingInfo.mMaxLength)
-        format += s.right(mFormattingInfo.mMaxLength);
+        format.append(s.right(mFormattingInfo.mMaxLength));
     else if (mFormattingInfo.mLeftAligned)
-        format += s.leftJustified(mFormattingInfo.mMinLength, space, false);
+        format.append(s.leftJustified(mFormattingInfo.mMinLength, space, false));
     else
-        format += s.rightJustified(mFormattingInfo.mMinLength, space, false);
+        format.append(s.rightJustified(mFormattingInfo.mMinLength, space, false));
 }
 
 QString BasicPatternConverter::convert(const LoggingEvent &loggingEvent) const
