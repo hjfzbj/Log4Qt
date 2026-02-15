@@ -173,6 +173,43 @@ LoggingEvent::LoggingEvent(const Logger *logger,
 {
 }
 
+// Move-enabled constructors for zero-copy construction
+LoggingEvent::LoggingEvent(const Logger *logger,
+                           Level level,
+                           QString &&message) :
+    QEvent(eventId),
+    mLevel(level),
+    mLogger(logger),
+    mMessage(std::move(message)),
+    mNdc(NDC::peek()),
+    mProperties(MDC::context()),
+    mSequenceNumber(nextSequenceNumber()),
+    mThreadName(),
+    mTimeStamp(QDateTime::currentMSecsSinceEpoch())
+{
+    setThreadNameToCurrent();
+}
+
+LoggingEvent::LoggingEvent(const Logger *logger,
+                           Level level,
+                           QString &&message,
+                           const MessageContext &context,
+                           QString &&categoryName) :
+    QEvent(eventId),
+    mLevel(level),
+    mLogger(logger),
+    mMessage(std::move(message)),
+    mNdc(NDC::peek()),
+    mProperties(MDC::context()),
+    mSequenceNumber(nextSequenceNumber()),
+    mThreadName(),
+    mTimeStamp(QDateTime::currentMSecsSinceEpoch()),
+    mContext(context),
+    mCategoryName(std::move(categoryName))
+{
+    setThreadNameToCurrent();
+}
+
 QString LoggingEvent::loggename() const
 {
     if (mLogger)
@@ -183,7 +220,7 @@ QString LoggingEvent::loggename() const
 
 QString LoggingEvent::toString() const
 {
-    return level().toString() + QLatin1Char(':') + message();
+    return level().toString() % QLatin1Char(':') % message();
 }
 
 

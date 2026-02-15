@@ -60,6 +60,14 @@ public:
     static const QEvent::Type eventId;
     LoggingEvent();
     virtual ~LoggingEvent();
+    
+    // Explicitly default copy operations
+    LoggingEvent(const LoggingEvent &other) = default;
+    LoggingEvent &operator=(const LoggingEvent &other) = default;
+    
+    // Move semantics for performance
+    LoggingEvent(LoggingEvent &&other) noexcept = default;
+    LoggingEvent &operator=(LoggingEvent &&other) noexcept = default;
 
     LoggingEvent(const Logger *logger,
                  Level level,
@@ -97,6 +105,16 @@ public:
                  qint64 timeStamp,
                  const MessageContext &context,
                  const QString &categoryName);
+    
+    // Move-enabled constructors for zero-copy construction
+    LoggingEvent(const Logger *logger,
+                 Level level,
+                 QString &&message);
+    LoggingEvent(const Logger *logger,
+                 Level level,
+                 QString &&message,
+                 const MessageContext &context,
+                 QString &&categoryName);
 
     inline Level level() const;
     // LocationInformation locationInformation() const;
