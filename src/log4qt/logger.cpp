@@ -48,7 +48,7 @@ Logger::Logger(LoggerRepository *loggerRepository, Level level,
 
 Logger::~Logger()
 {
-    logger()->warn(QStringLiteral("Unexpected destruction of Logger"));
+    logger()->warn(u"Unexpected destruction of Logger"_s);
 }
 
 void Logger::setLevel(Level level)
@@ -56,7 +56,7 @@ void Logger::setLevel(Level level)
     if ((parentLogger() == nullptr) && (level == Level::NULL_INT))
     {
         logger()->warn(
-            QStringLiteral("Invalid root logger level NULL_INT. Using DEBUG_INT instead"));
+            u"Invalid root logger level NULL_INT. Using DEBUG_INT instead"_s);
         level = Level::DEBUG_INT;
     }
     mLevel = level;

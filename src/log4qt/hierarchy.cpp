@@ -39,7 +39,7 @@ Hierarchy::Hierarchy()
 
 Hierarchy::~Hierarchy()
 {
-    static_logger()->warn(QStringLiteral("Unexpected destruction of Hierarchy"));
+    static_logger()->warn(u"Unexpected destruction of Hierarchy"_s);
 }
 
 bool Hierarchy::exists(const QString &name) const
@@ -76,7 +76,7 @@ void Hierarchy::resetConfiguration()
     // Leave log, qt and root logger to the last to allow debugging of shutdown.
 
     Logger *p_logging_logger = logger(QLatin1String(""));
-    Logger *p_qt_logger = logger(QStringLiteral("Qt"));
+    Logger *p_qt_logger = logger(u"Qt"_s);
     Logger *p_root_logger = rootLogger();
 
     // Define predicate for regular (non-special) loggers
@@ -103,7 +103,7 @@ void Hierarchy::resetConfiguration()
 
 void Hierarchy::shutdown()
 {
-    static_logger()->debug(QStringLiteral("Shutting down Hierarchy"));
+    static_logger()->debug(u"Shutting down Hierarchy"_s);
     resetConfiguration();
 }
 
@@ -124,7 +124,7 @@ Logger *Hierarchy::createLogger(const QString &orgName)
 
     if (name.isEmpty())
     {
-        logger = new Logger(this, Level::DEBUG_INT, QStringLiteral("root"), nullptr);
+        logger = new Logger(this, Level::DEBUG_INT, u"root"_s, nullptr);
         mLoggers.insert(QString(), logger);
         return logger;
     }

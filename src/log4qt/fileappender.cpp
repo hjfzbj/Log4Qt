@@ -140,7 +140,7 @@ bool FileAppender::checkEntryConditions() const
 void FileAppender::closeFile()
 {
     if (mFile != nullptr)
-        logger()->debug(QStringLiteral("Closing file '%1' for appender '%2'"), mFile->fileName(), name());
+        logger()->debug(u"Closing file '%1' for appender '%2'"_s, mFile->fileName(), name());
 
     setWriter(nullptr);
     delete mTextStream;
@@ -171,7 +171,7 @@ void FileAppender::openFile()
     QDir parent_dir = file_info.dir();
     if (!parent_dir.exists())
     {
-        logger()->trace(QStringLiteral("Creating missing parent directory for file %1"), mFileName);
+        logger()->trace(u"Creating missing parent directory for file %1"_s, mFileName);
         QString name = parent_dir.dirName();
         parent_dir.cdUp();
         parent_dir.mkdir(name);
@@ -203,7 +203,7 @@ void FileAppender::openFile()
     }
     mTextStream = new QTextStream(mFile);
     setWriter(mTextStream);
-    logger()->debug(QStringLiteral("Opened file '%1' for appender '%2'"), mFile->fileName(), name());
+    logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 }
 
 
@@ -223,7 +223,7 @@ bool FileAppender::removeFile(QFile &file) const
 bool FileAppender::renameFile(QFile &file,
                               const QString &fileName) const
 {
-    logger()->debug(QStringLiteral("Renaming file '%1' to '%2'"), file.fileName(), fileName);
+    logger()->debug(u"Renaming file '%1' to '%2'"_s, file.fileName(), fileName);
     if (file.rename(fileName))
         return true;
 

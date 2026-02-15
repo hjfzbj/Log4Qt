@@ -64,19 +64,19 @@ void TTCCLayout::setDateFormat(DateFormat dateFormat)
     switch (dateFormat)
     {
     case NONE:
-        setDateFormat(QStringLiteral("NONE"));
+        setDateFormat(u"NONE"_s);
         break;
     case ISO8601:
-        setDateFormat(QStringLiteral("ISO8601"));
+        setDateFormat(u"ISO8601"_s);
         break;
     case ABSOLUTE:
-        setDateFormat(QStringLiteral("ABSOLUTE"));
+        setDateFormat(u"ABSOLUTE"_s);
         break;
     case DATE:
-        setDateFormat(QStringLiteral("DATE"));
+        setDateFormat(u"DATE"_s);
         break;
     case RELATIVE:
-        setDateFormat(QStringLiteral("RELATIVE"));
+        setDateFormat(u"RELATIVE"_s);
         break;
     default:
         Q_ASSERT_X(false, "TTCCLayout::setDateFormat", "Unknown DateFormat");
@@ -97,15 +97,15 @@ void TTCCLayout::updatePatternFormatter()
 {
     QString pattern;
 
-    pattern += QStringLiteral("%d{") +  mDateFormat + QStringLiteral("}");
+    pattern += u"%d{"_s +  mDateFormat + u"}"_s;
     if (mThreadPrinting)
-        pattern += QStringLiteral(" [%t]");
-    pattern += QStringLiteral(" %-5p");
+        pattern += u" [%t]"_s;
+    pattern += u" %-5p"_s;
     if (mCategoryPrefixing)
-        pattern += QStringLiteral(" %c");
+        pattern += u" %c"_s;
     if (mContextPrinting)
-        pattern += QStringLiteral(" %x");
-    pattern += QStringLiteral(" - %m%n");
+        pattern += u" %x"_s;
+    pattern += u" - %m%n"_s;
 
     mPatternFormatter.reset(new PatternFormatter(pattern));
 }

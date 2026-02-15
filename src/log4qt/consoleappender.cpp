@@ -79,8 +79,8 @@ ConsoleAppender::~ConsoleAppender()
 QString ConsoleAppender::target() const
 {
     if (mTarget == STDOUT_TARGET)
-        return QStringLiteral("STDOUT_TARGET");
-    return QStringLiteral("STDERR_TARGET");
+        return u"STDOUT_TARGET"_s;
+    return u"STDERR_TARGET"_s;
 }
 
 void ConsoleAppender::setTarget(const QString &target)

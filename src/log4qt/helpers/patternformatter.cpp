@@ -262,9 +262,9 @@ private:
 LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::PatternFormatter)
 
 PatternFormatter::PatternFormatter(const QString &pattern) :
-    mIgnoreCharacters(QStringLiteral("C")),
-    mConversionCharacters(QStringLiteral("cdmprtxXFMLl")),
-    mOptionCharacters(QStringLiteral("cd")),
+    mIgnoreCharacters(u"C"_s),
+    mConversionCharacters(u"cdmprtxXFMLl"_s),
+    mOptionCharacters(u"cd"_s),
     mPattern(pattern)
 {
     parse();
@@ -331,7 +331,7 @@ void PatternFormatter::createConverter(QChar character,
     {
         QString format = option;
         if (option.isEmpty())
-            format = QStringLiteral("ISO8601");
+            format = u"ISO8601"_s;
         else if (option == QLatin1String("locale:long"))
             format = QLocale().dateTimeFormat(QLocale::LongFormat);
         else if (option == QLatin1String("locale:short"))
@@ -354,7 +354,7 @@ void PatternFormatter::createConverter(QChar character,
         break;
     case 'r':
         mPatternConverters << new DatePatternConverter(formattingInfo,
-                                                       QStringLiteral("RELATIVE"));
+                                                       u"RELATIVE"_s);
         break;
     case 't':
         mPatternConverters << new BasicPatternConverter(formattingInfo,
@@ -392,7 +392,7 @@ void PatternFormatter::createConverter(QChar character,
 
 void PatternFormatter::createLiteralConverter(const QString &literal)
 {
-    logger()->trace(QStringLiteral("Creating literal LiteralConverter with Literal '%1'"),
+    logger()->trace(u"Creating literal LiteralConverter with Literal '%1'"_s,
                     literal);
     mPatternConverters << new LiteralPatternConverter(literal);
 }
@@ -522,7 +522,7 @@ void PatternFormatter::parse()
             }
             else
             {
-                logger()->warn(QStringLiteral("Invalid conversion character '%1' at %2 in pattern '%3'"),
+                logger()->warn(u"Invalid conversion character '%1' at %2 in pattern '%3'"_s,
                                c, i, mPattern);
                 createLiteralConverter(mPattern.mid(converter_start, i - converter_start + 1));
                 state = LITERAL_STATE;
@@ -560,7 +560,7 @@ void PatternFormatter::parse()
 
     if (state != LITERAL_STATE)
     {
-        logger()->warn(QStringLiteral("Unexptected end of pattern '%1'"), mPattern);
+        logger()->warn(u"Unexptected end of pattern '%1'"_s, mPattern);
         if (state == ESCAPE_STATE)
             literal += c;
         else
@@ -610,7 +610,7 @@ void FormattingInfo::clear()
 QString FormattingInfo::intToString(int i)
 {
     if (i == INT_MAX)
-        return QStringLiteral("INT_MAX");
+        return u"INT_MAX"_s;
     return QString::number(i);
 }
 
@@ -648,7 +648,7 @@ QString BasicPatternConverter::convert(const LoggingEvent &loggingEvent) const
     case FUNCTIONNAME_CONVERTER:
         return loggingEvent.context().function;
     case LOCATION_CONVERTER:
-        return QStringLiteral("%1:%2 - %3").arg(loggingEvent.context().file, QString::number(loggingEvent.context().line), loggingEvent.context().function);
+        return u"%1:%2 - %3"_s.arg(loggingEvent.context().file, QString::number(loggingEvent.context().line), loggingEvent.context().function);
     case CATEGORYNAME_CONVERTER:
         return loggingEvent.categoryName();
     default:
@@ -685,7 +685,7 @@ QString LoggepatternConverter::convert(const LoggingEvent &loggingEvent) const
     if (mPrecision <= 0 || (name.isEmpty()))
         return name;
 
-    const QString separator(QStringLiteral("::"));
+    const QString separator(u"::"_s);
 
     int i = mPrecision;
     int begin = name.length();

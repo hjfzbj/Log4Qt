@@ -37,7 +37,7 @@ BinaryLogger *BinaryClassLogger::logger(const QObject *object)
 {
     Q_ASSERT_X(object, "BinaryClassLogger::logger()", "object must not be null");
     QString loggename(object->metaObject()->className());
-    loggename += QStringLiteral("@@binary@@");
+    loggename += u"@@binary@@"_s;
     if (!mLogger.loadAcquire())
         mLogger.testAndSetOrdered(nullptr, qobject_cast<BinaryLogger *>(LogManager::logger(loggename)));
     return mLogger.loadAcquire();

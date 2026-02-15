@@ -98,11 +98,11 @@ void deleteObsoleteFiles(
     const QDir logDir(fi.absolutePath());
     const auto logFileNames(
                 logDir.entryList(
-                    QStringList(QStringLiteral("*.") + fi.completeSuffix()),
+                    QStringList(u"*."_s + fi.completeSuffix()),
                     QDir::NoSymLinks | QDir::Files));
 
     const QRegularExpression creationDateExtractor(
-                fi.baseName() % QStringLiteral("(.*)") % QStringLiteral(".") % fi.completeSuffix());
+                fi.baseName() % u"(.*)"_s % u"."_s % fi.completeSuffix());
 
     const auto startOfLogging(currentDate.addDays(-keepDays));
 
@@ -145,7 +145,7 @@ void DailyFileAppender::activateOptions()
 QString DailyFileAppender::appendDateToFilename() const
 {
     QFileInfo fi(mOriginalFilename);
-    return fi.absolutePath() % QStringLiteral("/") % fi.baseName() %  mLastDate.toString(mDatePattern) % QStringLiteral(".") % fi.completeSuffix();
+    return fi.absolutePath() % u"/"_s % fi.baseName() %  mLastDate.toString(mDatePattern) % u"."_s % fi.completeSuffix();
 }
 
 void DailyFileAppender::append(const LoggingEvent &event)

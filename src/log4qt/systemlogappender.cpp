@@ -49,7 +49,7 @@ static bool winServiceInit()
 {
     if (pDeregisterEventSource == nullptr)
     {
-        QLibrary lib(QStringLiteral("advapi32"));
+        QLibrary lib(u"advapi32"_s);
 
         // only resolve unicode versions
         RESOLVE(DeregisterEventSource);
@@ -72,9 +72,9 @@ static bool winServiceInit()
 static QString encodeName(const QString &name, bool allowUpper = false)
 {
     QString n = name.toLower();
-    QString legal = QStringLiteral("abcdefghijklmnopqrstuvwxyz1234567890");
+    QString legal = u"abcdefghijklmnopqrstuvwxyz1234567890"_s;
     if (allowUpper)
-        legal += QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        legal += u"ABCDEFGHIJKLMNOPQRSTUVWXYZ"_s;
     int pos = 0;
     while (pos < n.size())
     {

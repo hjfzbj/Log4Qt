@@ -34,7 +34,7 @@ Layout::~Layout() = default;
 
 QString Layout::contentType() const
 {
-    return QStringLiteral("text/plain");
+    return u"text/plain"_s;
 }
 
 void Layout::activateOptions()
@@ -44,7 +44,7 @@ void Layout::activateOptions()
 QString Layout::endOfLine()
 {
     // There seams to be no function in Qt for this. MinGW enter '\r\n' automatically
-    return QStringLiteral("\n");
+    return u"\n"_s;
 }
 
 } // namespace Log4Qt

@@ -41,7 +41,7 @@ void Properties::load(QIODevice *pDevice)
 
     if (pDevice == nullptr)
     {
-        logger()->warn(QStringLiteral("No device specified for load."));
+        logger()->warn(u"No device specified for load."_s);
         return;
     }
 
@@ -221,7 +221,7 @@ void Properties::parseProperty(const QString &property,
                 *p_string += key_escape_chars.at(convert);
             else
             {
-                logger()->warn(QStringLiteral("Unknown escape sequence '\\%1' in key of property starting at line %2"),
+                logger()->warn(u"Unknown escape sequence '\\%1' in key of property starting at line %2"_s,
                                QString(c),
                                line);
                 *p_string += c;
@@ -245,7 +245,7 @@ void Properties::parseProperty(const QString &property,
             }
             else
             {
-                logger()->warn(QStringLiteral("Unknown escape sequence '\\%1' in value of property starting at line %2"), QString(c), line);
+                logger()->warn(u"Unknown escape sequence '\\%1' in value of property starting at line %2"_s, QString(c), line);
                 *p_string += c;
                 state = VALUE_STATE;
             }
@@ -281,9 +281,9 @@ void Properties::parseProperty(const QString &property,
     }
 
     if (key.isEmpty() && !value.isEmpty())
-        logger()->warn(QStringLiteral("Found value with no key in property starting at line %1"), line);
+        logger()->warn(u"Found value with no key in property starting at line %1"_s, line);
 
-    logger()->trace(QStringLiteral("Loaded property '%1' : '%2'"), key, value);
+    logger()->trace(u"Loaded property '%1' : '%2'"_s, key, value);
     insert(key, value);
 }
 

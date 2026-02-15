@@ -92,35 +92,35 @@ Level Level::fromString(const QString &level, bool *ok)
     if (ok != nullptr)
         *ok = true;
 
-    if (level == QStringLiteral("OFF") ||
+    if (level == u"OFF"_s ||
             level == QCoreApplication::translate(context, "OFF"))
         return OFF_INT;
-    if (level == QStringLiteral("FATAL") ||
+    if (level == u"FATAL"_s ||
             level == QCoreApplication::translate(context, "FATAL"))
         return FATAL_INT;
-    if (level == QStringLiteral("ERROR") ||
+    if (level == u"ERROR"_s ||
             level == QCoreApplication::translate(context, "ERROR"))
         return ERROR_INT;
-    if (level == QStringLiteral("WARN") ||
+    if (level == u"WARN"_s ||
             level == QCoreApplication::translate(context, "WARN"))
         return WARN_INT;
-    if (level == QStringLiteral("INFO") ||
+    if (level == u"INFO"_s ||
             level == QCoreApplication::translate(context, "INFO"))
         return INFO_INT;
-    if (level == QStringLiteral("DEBUG") ||
+    if (level == u"DEBUG"_s ||
             level == QCoreApplication::translate(context, "DEBUG"))
         return DEBUG_INT;
-    if (level == QStringLiteral("TRACE") ||
+    if (level == u"TRACE"_s ||
             level == QCoreApplication::translate(context, "TRACE"))
         return TRACE_INT;
-    if (level == QStringLiteral("ALL") ||
+    if (level == u"ALL"_s ||
             level == QCoreApplication::translate(context, "ALL"))
         return ALL_INT;
-    if (level == QStringLiteral("NULL") ||
+    if (level == u"NULL"_s ||
             level == QCoreApplication::translate(context, "NULL"))
         return NULL_INT;
 
-    logger()->warn(QStringLiteral("Use of invalid level string '%1'. Using 'Level::NULL_INT' instead."), level);
+    logger()->warn(u"Use of invalid level string '%1'. Using 'Level::NULL_INT' instead."_s, level);
     if (ok != nullptr)
         *ok = false;
     return NULL_INT;

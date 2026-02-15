@@ -108,28 +108,28 @@ QString LogError::toString() const
 
     QString context_symbol = mContext;
     if (!context_symbol.isEmpty() && !mSymbol.isEmpty())
-        context_symbol.append(QStringLiteral("::"));
+        context_symbol.append(u"::"_s);
     context_symbol.append(mSymbol);
 
     if (!context_symbol.isEmpty() || mCode)
     {
-        result.append(QStringLiteral(" ("));
+        result.append(u" ("_s);
         if (!context_symbol.isEmpty())
             result.append(context_symbol);
         if (!context_symbol.isEmpty() && mCode)
-            result.append(QStringLiteral(", "));
+            result.append(u", "_s);
         if (mCode)
             result.append(QString::number(mCode));
-        result.append(QStringLiteral(")"));
+        result.append(u")"_s);
     }
 
     if (!mCausingErrors.isEmpty())
     {
-        QString causing_errors_str = QStringLiteral(": ") + mCausingErrors.at(0).toString();
+        QString causing_errors_str = u": "_s + mCausingErrors.at(0).toString();
         int i = 1;
         while (i < mCausingErrors.count())
         {
-            causing_errors_str.append(QStringLiteral(", ")).append(mCausingErrors.at(i).toString());
+            causing_errors_str.append(u", "_s).append(mCausingErrors.at(i).toString());
             i++;
         }
         result.append(causing_errors_str);

@@ -265,7 +265,7 @@ void ColorConsoleAppender::activateOptions()
 {
     ConsoleAppender::activateOptions();
 
-    if (target() == QStringLiteral("STDOUT_TARGET"))
+    if (target() == u"STDOUT_TARGET"_s)
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     else
         hConsole = GetStdHandle(STD_ERROR_HANDLE);
