@@ -112,6 +112,7 @@ private Q_SLOTS:
     void DailyRollingFileAppender();
     void LoggingEvent_stream_data();
     void LoggingEvent_stream();
+    void MessageContext_source_location();
     void LogManager_configureLogLogger();
     void PropertyConfigurator_missing_appender();
     void PropertyConfigurator_unknown_appender_class();

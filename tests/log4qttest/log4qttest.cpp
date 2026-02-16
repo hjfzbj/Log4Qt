@@ -1469,6 +1469,36 @@ void Log4QtTest::LoggingEvent_stream()
     QCOMPARE(loggingEvents()->list().count(), 0);
 }
 
+void Log4QtTest::MessageContext_source_location()
+{
+#ifdef __cpp_lib_source_location
+    const auto loc = std::source_location::current();
+    const int expectedLine = static_cast<int>(loc.line());
+    MessageContext ctx(loc);
+
+    QCOMPARE(ctx.line, expectedLine);
+    QVERIFY(ctx.file != nullptr);
+    QVERIFY(ctx.function != nullptr);
+    // file should contain our test file name
+    QVERIFY(QString::fromUtf8(ctx.file).contains(QStringLiteral("log4qttest.cpp")));
+
+    // Verify it works through LoggingEvent and PatternFormatter
+    LoggingEvent event(test_logger(),
+                       Level(Level::DEBUG_INT),
+                       QStringLiteral("source_location test"),
+                       MessageContext(loc),
+                       QString());
+    Log4Qt::PatternFormatter formatter(QStringLiteral("%F:%L-%M - %m"));
+    const QString formatted = formatter.format(event);
+
+    QVERIFY(formatted.contains(QStringLiteral("log4qttest.cpp")));
+    QVERIFY(formatted.contains(QString::number(expectedLine)));
+    QVERIFY(formatted.contains(QStringLiteral("source_location test")));
+#else
+    QSKIP("std::source_location not available");
+#endif
+}
+
 void Log4QtTest::LogManager_configureLogLogger()
 {
     resetLogging();
