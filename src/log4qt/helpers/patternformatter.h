@@ -123,7 +123,7 @@ private:
      * is returned. Returns the end of line seperator for the operating
      * system.
      */
-    int parseIntegeoption(const QString &option);
+    int parseIntegeoption(QStringView option);
 
 private:
     const QString mIgnoreCharacters;

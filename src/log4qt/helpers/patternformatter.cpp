@@ -569,7 +569,7 @@ void PatternFormatter::parse()
 }
 
 
-int PatternFormatter::parseIntegeoption(const QString &option)
+int PatternFormatter::parseIntegeoption(QStringView option)
 {
     if (option.isEmpty())
         return 0;
@@ -581,7 +581,7 @@ int PatternFormatter::parseIntegeoption(const QString &option)
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Option '%1' cannot be converted into an integer"),
                                   LAYOUT_OPTION_IS_NOT_INTEGER_ERROR,
                                   "Log4Qt::Patteformatter");
-        e << option;
+        e << option.toString();
         logger()->error(e);
     }
     if (result < 0)

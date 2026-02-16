@@ -48,7 +48,7 @@ public:
     virtual Logger *rootLogger() const = 0;
     virtual Level threshold() const = 0;
     virtual void setThreshold(Level level) = 0;
-    virtual void setThreshold(const QString &threshold) = 0;
+    virtual void setThreshold(QStringView threshold) = 0;
 
     virtual bool isDisabled(Level level) = 0;
     virtual void resetConfiguration() = 0;

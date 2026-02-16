@@ -24,6 +24,7 @@
 #include "log4qt.h"
 
 #include <QString>
+#include <QStringView>
 #include <QMetaType>
 #include <compare>
 
@@ -76,7 +77,7 @@ public:
 
     [[nodiscard]] QString toString() const;
 
-    static Level fromString(const QString &level, bool *ok = nullptr);
+    static Level fromString(QStringView level, bool *ok = nullptr);
 
 private:
     Value mValue;

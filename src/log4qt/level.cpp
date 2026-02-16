@@ -86,7 +86,7 @@ QString Level::toString() const
     }
 }
 
-Level Level::fromString(const QString &level, bool *ok)
+Level Level::fromString(QStringView level, bool *ok)
 {
     const char *context = "Level";
     if (ok != nullptr)
