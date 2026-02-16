@@ -28,6 +28,9 @@
 #include <QEvent>
 
 #include <atomic>
+#ifdef __cpp_lib_source_location
+#include <source_location>
+#endif
 
 namespace Log4Qt
 {
@@ -41,6 +44,10 @@ public:
         : file(nullptr), line(-1), function(nullptr) {}
     explicit MessageContext(const char *fileName, int lineNumber, const char *functionName)
         : file(fileName), line(lineNumber), function(functionName) {}
+#ifdef __cpp_lib_source_location
+    explicit MessageContext(const std::source_location &loc)
+        : file(loc.file_name()), line(static_cast<int>(loc.line())), function(loc.function_name()) {}
+#endif
     const char *file;
     int line;
     const char *function;

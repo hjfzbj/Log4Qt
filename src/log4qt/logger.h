@@ -163,6 +163,10 @@ public:
     explicit MessageLogger(Logger *logger, Level level) : mLogger(logger), mLevel(level) {}
     explicit MessageLogger(Logger *logger, Level level, const char *file, int line, const char *function)
         : mLogger(logger), mLevel(level), mContext(file, line, function) {}
+#ifdef __cpp_lib_source_location
+    explicit MessageLogger(Logger *logger, Level level, const std::source_location &loc)
+        : mLogger(logger), mLevel(level), mContext(loc) {}
+#endif
 
     void log(const QString &message) const;
     template <typename ...Ts>
@@ -372,6 +376,10 @@ public:
         ((msg = msg.arg(std::forward<Ts>(ts))), ...);
         logWithLocation(level, file, line, function, msg);
     }
+
+#ifdef __cpp_lib_source_location
+    void logWithLocation(Level level, const QString &message, const std::source_location &loc = std::source_location::current()) const;
+#endif
 
     LogStream trace() const;
     void trace(const LogError &logError) const;

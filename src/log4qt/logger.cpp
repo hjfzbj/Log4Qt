@@ -288,6 +288,18 @@ void Logger::logWithLocation(Level level, const char *file, int line, const char
     forcedLog(loggingEvent);
 }
 
+#ifdef __cpp_lib_source_location
+void Logger::logWithLocation(Level level, const QString &message, const std::source_location &loc) const
+{
+    LoggingEvent loggingEvent = LoggingEvent(this,
+                                             level,
+                                             message,
+                                             MessageContext(loc),
+                                             QString());
+    forcedLog(loggingEvent);
+}
+#endif
+
 void Logger::log(Level level,
                  const LogError &logError) const
 {
