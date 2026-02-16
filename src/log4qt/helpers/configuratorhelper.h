@@ -62,7 +62,7 @@ public:
          * \sa setConfigurationFile(),
          *     PropertyConfigurator::configure(const QString &)
      */
-    typedef bool (*ConfigureFunc)(const QString &fileName);
+    using ConfigureFunc = bool (*)(const QString &fileName);
 
 private:
     explicit ConfiguratorHelper(QObject *parent = nullptr);

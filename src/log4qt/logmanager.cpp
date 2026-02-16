@@ -288,9 +288,8 @@ void LogManager::doStartup()
     QStringList filesToCheck;
 
     // Configuration using setting
-    if (auto app = QCoreApplication::instance())
+    if ([[maybe_unused]] auto app = QCoreApplication::instance())
     {
-        Q_UNUSED(app)
         const QLatin1String log4qt_group("Log4Qt");
         const QLatin1String properties_group("Properties");
         QSettings s;
@@ -457,7 +456,7 @@ static inline void convert_to_wchar_t_elided(wchar_t *d, size_t space, const cha
 }
 #endif
 
-static void qt_message_fatal(QtMsgType, const QMessageLogContext &context, const QString &message)
+static void qt_message_fatal([[maybe_unused]] QtMsgType, [[maybe_unused]] const QMessageLogContext &context, [[maybe_unused]] const QString &message)
 {
 #if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
     wchar_t contextFileL[256];
@@ -477,8 +476,6 @@ static void qt_message_fatal(QtMsgType, const QMessageLogContext &context, const
     else if (ret == 1)
         _CrtDbgBreak();
 #else
-    Q_UNUSED(context);
-    Q_UNUSED(message);
 #endif
 
     std::abort();

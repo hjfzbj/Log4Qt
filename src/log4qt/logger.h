@@ -165,10 +165,12 @@ public:
         : mLogger(logger), mLevel(level), mContext(file, line, function) {}
 
     void log(const QString &message) const;
-    template <typename T, typename ...Ts>
-    void log(const QString &message, T &&t, Ts &&...ts) const
+    template <typename ...Ts>
+    void log(const QString &message, Ts &&...ts) const
     {
-        log(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        log(msg);
     }
     LogStream log() const;
 
@@ -267,19 +269,19 @@ private:
     Q_DISABLE_COPY_MOVE(Logger)
 
 public:
-    bool additivity() const;
-    Level level() const;
-    LoggerRepository *loggerRepository() const;
-    QString name() const;
-    Logger *parentLogger() const;
+    [[nodiscard]] bool additivity() const;
+    [[nodiscard]] Level level() const;
+    [[nodiscard]] LoggerRepository *loggerRepository() const;
+    [[nodiscard]] QString name() const;
+    [[nodiscard]] Logger *parentLogger() const;
 
     void setAdditivity(bool additivity);
     virtual void setLevel(Level level);
 
     void callAppenders(const LoggingEvent &event) const;
 
-    Level effectiveLevel() const;
-    bool isDebugEnabled() const;
+    [[nodiscard]] Level effectiveLevel() const;
+    [[nodiscard]] bool isDebugEnabled() const;
 
     /*!
      * Checks if this logger is enabled for a given Level \a level. If the
@@ -292,22 +294,24 @@ public:
      *
      * \sa LoggerRepository::isDisabled(), effectiveLevel()
      */
-    bool isEnabledFor(Level level) const;
+    [[nodiscard]] bool isEnabledFor(Level level) const;
 
-    bool isErrorEnabled() const;
-    bool isFatalEnabled() const;
-    bool isInfoEnabled() const;
-    bool isTraceEnabled() const;
-    bool isWarnEnabled() const;
+    [[nodiscard]] bool isErrorEnabled() const;
+    [[nodiscard]] bool isFatalEnabled() const;
+    [[nodiscard]] bool isInfoEnabled() const;
+    [[nodiscard]] bool isTraceEnabled() const;
+    [[nodiscard]] bool isWarnEnabled() const;
 
     LogStream debug() const;
     void debug(const LogError &logError) const;
     void debug(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void debug(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void debug(const QString &message, Ts &&...ts) const
     {
-        debug(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        debug(msg);
     }
 
 
@@ -315,30 +319,36 @@ public:
     void error(const LogError &logError) const;
     void error(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void error(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void error(const QString &message, Ts &&...ts) const
     {
-        error(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        error(msg);
     }
 
     LogStream fatal() const;
     void fatal(const LogError &logError) const;
     void fatal(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void fatal(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void fatal(const QString &message, Ts &&...ts) const
     {
-        fatal(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        fatal(msg);
     }
 
     LogStream info() const;
     void info(const LogError &logError) const;
     void info(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void info(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void info(const QString &message, Ts &&...ts) const
     {
-        info(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        info(msg);
     }
 
     LogStream log(Level level) const;
@@ -346,37 +356,45 @@ public:
     void log(const LoggingEvent &logEvent) const;
 
     void log(Level level, const QString &message) const;
-    template<typename T, typename ...Ts>
-    void log(Level level, const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void log(Level level, const QString &message, Ts &&...ts) const
     {
-        log(level, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        log(level, msg);
     }
 
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message) const;
-    template<typename T, typename ...Ts>
-    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, Ts &&...ts) const
     {
-        logWithLocation(level, file, line, function, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        logWithLocation(level, file, line, function, msg);
     }
 
     LogStream trace() const;
     void trace(const LogError &logError) const;
     void trace(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void trace(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void trace(const QString &message, Ts &&...ts) const
     {
-        trace(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        trace(msg);
     }
 
     LogStream warn() const;
     void warn(const LogError &logError) const;
     void warn(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void warn(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void warn(const QString &message, Ts &&...ts) const
     {
-        warn(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        warn(msg);
     }
 
     // LogManager operations

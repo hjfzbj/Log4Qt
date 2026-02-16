@@ -51,9 +51,8 @@ void ConfiguratorHelper::doConfigurationFileChanged(const QString &fileName)
     Q_EMIT configurationFileChanged(fileName, mConfigureError.count() > 0);
 }
 
-void ConfiguratorHelper::doConfigurationFileDirectoryChanged(const QString &path)
+void ConfiguratorHelper::doConfigurationFileDirectoryChanged([[maybe_unused]] const QString &path)
 {
-    Q_UNUSED(path)
     QTimer::singleShot(100, this, &ConfiguratorHelper::tryToReAddConfigurationFile);
 }
 

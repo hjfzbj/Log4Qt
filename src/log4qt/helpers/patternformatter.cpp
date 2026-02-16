@@ -659,9 +659,8 @@ QString DatePatternConverter::convert(const LoggingEvent &loggingEvent) const
     return DateTime::fromMSecsSinceEpoch(loggingEvent.timeStamp()).toString(mFormat);
 }
 
-QString LiteralPatternConverter::convert(const LoggingEvent &loggingEvent) const
+QString LiteralPatternConverter::convert([[maybe_unused]] const LoggingEvent &loggingEvent) const
 {
-    Q_UNUSED(loggingEvent);
     return mLiteral;
 }
 

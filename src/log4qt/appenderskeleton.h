@@ -81,12 +81,12 @@ protected:
     ~AppenderSkeleton() override;
 
 public:
-    inline FilterSharedPtr filter() const override;
-    LayoutSharedPtr layout() const override;
-    inline bool isActive() const;
-    inline bool isClosed() const;
-    inline QString name() const override;
-    inline Level threshold() const;
+    [[nodiscard]] inline FilterSharedPtr filter() const override;
+    [[nodiscard]] LayoutSharedPtr layout() const override;
+    [[nodiscard]] inline bool isActive() const;
+    [[nodiscard]] inline bool isClosed() const;
+    [[nodiscard]] inline QString name() const override;
+    [[nodiscard]] inline Level threshold() const;
     void setLayout(const LayoutSharedPtr &layout) override;
     inline void setName(const QString &name) override;
     inline void setThreshold(Level level);

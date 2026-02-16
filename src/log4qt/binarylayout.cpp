@@ -34,9 +34,8 @@ QByteArray BinaryLayout::binaryFormat(const BinaryLoggingEvent &event) const
     return event.binaryMessage();
 }
 
-QString BinaryLayout::format(const LoggingEvent &event)
+QString BinaryLayout::format([[maybe_unused]] const LoggingEvent &event)
 {
-    Q_UNUSED(event)
     return QString{};
 }
 

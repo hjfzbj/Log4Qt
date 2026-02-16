@@ -71,11 +71,11 @@ public:
     Filter(QObject *parent = nullptr);
     virtual ~Filter();
 
-    FilterSharedPtr next() const;
+    [[nodiscard]] FilterSharedPtr next() const;
     void setNext(const FilterSharedPtr &filter);
 
     virtual void activateOptions();
-    virtual Decision decide(const LoggingEvent &event) const = 0;
+    [[nodiscard]] virtual Decision decide(const LoggingEvent &event) const = 0;
 
 private:
     FilterSharedPtr mNext;

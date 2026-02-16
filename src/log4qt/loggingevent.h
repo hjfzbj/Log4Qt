@@ -116,34 +116,34 @@ public:
                  const MessageContext &context,
                  QString &&categoryName);
 
-    inline Level level() const;
+    [[nodiscard]] inline Level level() const;
     // LocationInformation locationInformation() const;
-    inline const Logger *logger() const;
-    inline QString message() const;
-    inline QHash<QString, QString> mdc() const;
-    inline QString ndc() const;
-    inline QHash<QString, QString> properties() const;
-    inline qint64 sequenceNumber() const;
-    inline QString threadName() const;
-    inline qint64 timeStamp() const;
+    [[nodiscard]] inline const Logger *logger() const;
+    [[nodiscard]] inline QString message() const;
+    [[nodiscard]] inline QHash<QString, QString> mdc() const;
+    [[nodiscard]] inline QString ndc() const;
+    [[nodiscard]] inline QHash<QString, QString> properties() const;
+    [[nodiscard]] inline qint64 sequenceNumber() const;
+    [[nodiscard]] inline QString threadName() const;
+    [[nodiscard]] inline qint64 timeStamp() const;
 
-    QString loggename() const;
-    inline QString property(const QString &key) const;
-    inline QStringList propertyKeys() const;
+    [[nodiscard]] QString loggename() const;
+    [[nodiscard]] inline QString property(const QString &key) const;
+    [[nodiscard]] inline QStringList propertyKeys() const;
     inline void setProperty(const QString &key, const QString &value);
     QString toString() const;
     static qint64 sequenceCount();
     static qint64 startTime();
 
-    int lineNumber() const;
+    [[nodiscard]] int lineNumber() const;
     void setLineNumber(int lineNumber);
-    QString fileName() const;
+    [[nodiscard]] QString fileName() const;
     void setFileName(const QString &fileName);
-    QString functionName() const;
+    [[nodiscard]] QString functionName() const;
     void setMethodName(const QString &functionName);
-    QString categoryName() const;
+    [[nodiscard]] QString categoryName() const;
     void setCategoryName(const QString &categoryName);
-    MessageContext context() const;
+    [[nodiscard]] MessageContext context() const;
     void setContext(const MessageContext &context);
 
 private:

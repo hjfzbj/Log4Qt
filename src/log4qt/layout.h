@@ -66,10 +66,10 @@ public:
     virtual ~Layout();
 
 public:
-    virtual QString contentType() const;
-    inline QString footer() const;
-    inline QString header() const;
-    inline QString name() const;
+    [[nodiscard]] virtual QString contentType() const;
+    [[nodiscard]] inline QString footer() const;
+    [[nodiscard]] inline QString header() const;
+    [[nodiscard]] inline QString name() const;
     inline void setFooter(const QString &footer);
     inline void setHeader(const QString &header);
     inline void setName(const QString &name);
