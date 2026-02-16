@@ -43,7 +43,7 @@ QDate DefaultDateRetriever::currentDate() const
     return QDate::currentDate();
 }
 
-static const char defaultDatePattern[] = "_yyyy_MM_dd";
+constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
 
 DailyFileAppender::DailyFileAppender(QObject *parent)
     : FileAppender(parent)

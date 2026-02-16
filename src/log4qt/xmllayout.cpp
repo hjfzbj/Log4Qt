@@ -58,11 +58,11 @@ QString XMLLayout::format(const LoggingEvent &event)
     if (!props.isEmpty())
     {
         writer.writeStartElement(u"log4j:properties"_s);
-        for (auto pos = props.constBegin(); pos != props.constEnd(); ++pos)
+        for (const auto &[key, value] : props.asKeyValueRange())
         {
             writer.writeStartElement(u"log4j:data"_s);
-            writer.writeAttribute(u"name"_s, pos.key());
-            writer.writeAttribute(u"value"_s, pos.value());
+            writer.writeAttribute(u"name"_s, key);
+            writer.writeAttribute(u"value"_s, value);
             writer.writeEndElement();
         }
         writer.writeEndElement();

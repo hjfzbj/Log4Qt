@@ -123,8 +123,7 @@ void SystemLogAppender::append(const LoggingEvent &event)
         break;
     }
 
-    HANDLE h = pRegisterEventSource(nullptr, serviceName().toStdWString().c_str());
-    if (h != nullptr)
+    if (HANDLE h = pRegisterEventSource(nullptr, serviceName().toStdWString().c_str()); h != nullptr)
     {
         int id = 0;
         uint category = 0;

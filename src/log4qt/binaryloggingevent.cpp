@@ -29,7 +29,7 @@
 namespace Log4Qt
 {
 
-static const char binMarker[] = "@@@ binary message @@@";
+constexpr char binMarker[] = "@@@ binary message @@@";
 
 BinaryLoggingEvent::BinaryLoggingEvent() = default;
 

@@ -391,8 +391,7 @@ AppenderSharedPtr PropertyConfigurator::parseAppender(const Properties &properti
     QStringList exclusions;
     exclusions << u"layout"_s;
     setProperties(properties, key + u"."_s, exclusions, p_appender.data());
-    auto *p_appenderskeleton = qobject_cast<AppenderSkeleton *>(p_appender.data());
-    if (p_appenderskeleton)
+    if (auto *p_appenderskeleton = qobject_cast<AppenderSkeleton *>(p_appender.data()))
         p_appenderskeleton->activateOptions();
 
     mAppenderRegistry.insert(name, p_appender);

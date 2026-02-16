@@ -187,8 +187,7 @@ void TelnetAppender::onNewConnection()
 
     if ((mTcpServer != nullptr) && mTcpServer->hasPendingConnections())
     {
-        QTcpSocket *clientConnection = mTcpServer->nextPendingConnection();
-        if (clientConnection != nullptr)
+        if (QTcpSocket *clientConnection = mTcpServer->nextPendingConnection(); clientConnection != nullptr)
         {
             mTcpSockets.append(clientConnection);
             connect(clientConnection, &QTcpSocket::disconnected,

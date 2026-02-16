@@ -371,8 +371,8 @@ void LogManager::welcome()
     {
         static_logger()->trace(u"Settings from the system environment:"_s);
         auto settings = InitialisationHelper::environmentSettings();
-        for (auto pos = std::begin(settings);pos != std::end(settings);++pos)
-            static_logger()->trace(u"    %1: '%2'"_s, pos.key(), pos.value());
+        for (const auto &[key, value] : settings.asKeyValueRange())
+            static_logger()->trace(u"    %1: '%2'"_s, key, value);
 
         static_logger()->trace(u"Settings from the application settings:"_s);
         if (QCoreApplication::instance())

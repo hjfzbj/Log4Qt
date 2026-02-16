@@ -36,7 +36,7 @@ namespace Log4Qt
  * deleteLater() for cleanup, ensuring proper Qt object lifecycle
  * management.
  *
- * \note Only accepts QObject-derived types (enforced at construction time).
+ * \note Only accepts QObject-derived types (enforced via static_assert).
  */
 template<typename Log4QtClass>
 class Log4QtSharedPtr : public QSharedPointer<Log4QtClass>
@@ -53,8 +53,7 @@ public:
     Log4QtSharedPtr(Log4QtClass *ptr)
         : QSharedPointer<Log4QtClass>(ptr, &Log4QtClass::deleteLater)
     {
-        // C++20: Check at construction time when type is fully defined
-        static_assert(std::is_base_of_v<QObject, Log4QtClass>, 
+        static_assert(std::is_base_of_v<QObject, Log4QtClass>,
                       "Log4QtClass must be derived from QObject");
     }
 
