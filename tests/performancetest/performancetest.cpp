@@ -28,7 +28,6 @@
 #include "log4qt/simplelayout.h"
 #include "log4qt/varia/nullappender.h"
 #include "log4qt/varia/levelmatchfilter.h"
-#include "log4qt/helpers/datetime.h"
 #include "log4qt/helpers/timestampprovider.h"
 #include <QDir>
 #include <QFile>
