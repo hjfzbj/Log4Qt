@@ -31,8 +31,10 @@ install:
   - call %CMD_VCVARSALL%
   - set PATH=%PATH%;%QTDIR%\bin
 build_script:
-  - qmake
-  - nmake
-  - nmake check
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=Release
+  - cmake --build . --config Release
+  - ctest -C Release
 
 

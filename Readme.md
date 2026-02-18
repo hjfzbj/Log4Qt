@@ -51,43 +51,13 @@ Clone
 
 Build and install
 -----------------
-### qmake
-use qmake to build the project
-
-    *NIX
-        qmake
-        make
-        make install
-
-    WIN* (mingw)
-        qmake
-        mingw32-make
-        mingw32-make install
-
-    WIN* (msvc)
-        qmake
-        msbuild Log4Qt.sln
-        msbuild /t:INSTALL Log4Qt.sln
-
-    For static build call qmake with
-    qmake "DEFINES+=LOG4QT_STATIC" or uncommend LOG4QT_STATIC in the build.pri file
-    Don't forget to define LOG4QT_STATIC also in your project.
-
-    Logging to a database via databaseappender can be enabled with qmake "CONFIG += build_with_db_logging"
-    Logging to a telnet via telnetappender can be enabled with qmake "CONFIG += build_with_telnet_logging"
-    QML logging support can be enabled with qmake "CONFIG += build_with_qml_logging"
-
-### include in your project
-Can also be used by adding the log4qt source directly to your Qt project file by adding the following line:
-include(<unpackdir>/src/log4qt/log4qt.pri)
-
 ### cmake
-cmake is the second option to build Log4Qt. An out-of-source build is required:
+cmake is used to build Log4Qt. An out-of-source build is required:
     <unpack/fetch to Log4Qt directory>
     mkdir Log4Qt-build
     cd Log4Qt-build
     cmake ../Log4Qt
-    make/mingw32-make/msbuild Log4Qt.sln (same as with qmake)
+    make/mingw32-make/msbuild Log4Qt.sln
     make/mingw32-make install
 
 
