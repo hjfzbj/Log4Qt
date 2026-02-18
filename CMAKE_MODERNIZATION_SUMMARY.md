@@ -113,8 +113,8 @@ check_required_components(Log4Qt)
 ```
 - **Added:** `@PACKAGE_INIT@` for proper path handling
 - **Added:** Automatic dependency finding via `find_dependency()`
-- **Added:** Backward compatibility variables
 - **Added:** Component validation
+- **Removed:** Backward compatibility variables (modern targets only)
 
 #### Updated Configuration Generation
 - **Changed:** `configure_file()` → `configure_package_config_file()`
@@ -155,7 +155,7 @@ endif()
 - Works correctly with `find_package(Log4Qt)`
 - Relocatable packages (can be installed anywhere)
 - Automatic dependency resolution
-- Backward compatibility maintained
+- Clean modern interface (no legacy compatibility)
 
 ### 4. Better IDE Integration
 - Modern CMake is better understood by IDEs
@@ -187,13 +187,8 @@ find_package(Log4Qt 1.6 REQUIRED)
 target_link_libraries(myapp PRIVATE Log4Qt::log4qt)
 ```
 
-### Backward Compatibility
-```cmake
-find_package(Log4Qt 1.6 REQUIRED)
-# These still work:
-target_link_libraries(myapp PRIVATE ${Log4Qt_LIBRARIES})
-include_directories(${Log4Qt_INCLUDE_DIRS})
-```
+### Important Note
+**Legacy variables removed:** `Log4Qt_LIBRARIES` and `Log4Qt_INCLUDE_DIRS` are no longer provided. All projects must use the modern `Log4Qt::log4qt` imported target for proper dependency management.
 
 ## Common Issues and Solutions
 
@@ -257,5 +252,5 @@ All CMake files have been modernized to follow CMake 3.16+ best practices:
 ✅ Modern package config
 ✅ No global state pollution
 ✅ Namespace support via ALIAS
-✅ Backward compatibility maintained
+✅ Clean modern interface (no legacy code)
 ✅ Improved readability and maintainability
