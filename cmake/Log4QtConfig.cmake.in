@@ -1,1 +1,22 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find required Qt components
+find_dependency(Qt@QT_VERSION_MAJOR@ COMPONENTS Core)
+
+# Include targets file
 include("${CMAKE_CURRENT_LIST_DIR}/Log4QtTargets.cmake")
+
+# Provide variables for backward compatibility
+if(NOT DEFINED Log4Qt_FOUND)
+    set(Log4Qt_FOUND TRUE)
+endif()
+
+# Create legacy variable names
+if(TARGET Log4Qt::log4qt)
+    set(Log4Qt_LIBRARIES Log4Qt::log4qt)
+    get_target_property(Log4Qt_INCLUDE_DIRS Log4Qt::log4qt INTERFACE_INCLUDE_DIRECTORIES)
+endif()
+
+check_required_components(Log4Qt)

@@ -1,7 +1,17 @@
-cmake_minimum_required(VERSION 3.10)
-project(Log4Qt VERSION 1.6.0)
+cmake_minimum_required(VERSION 3.16)
+project(Log4Qt
+    VERSION 1.6.0
+    DESCRIPTION "Logging for the Qt cross-platform application framework"
+    HOMEPAGE_URL "https://github.com/MEONMedical/Log4Qt"
+    LANGUAGES CXX
+)
+
+# Modern CMake policies
 if(POLICY CMP0071)
     cmake_policy(SET CMP0071 NEW)
+endif()
+if(POLICY CMP0087)
+    cmake_policy(SET CMP0087 NEW)
 endif()
 
 set(LOG4QT_STANDALONE_BUILD OFF)
@@ -46,8 +56,7 @@ include(GNUInstallDirs)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 
-# Set include dir src
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+# Set include dir src (used by target_include_directories in src/log4qt)
 set(LOG4QT_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # We need C++20 and don't want to export all symbols, only the ones we mark for export
@@ -93,53 +102,80 @@ if(BUILD_WITH_QML_LOGGING)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Qml REQUIRED)
 endif()
 
-add_definitions(-DQT_USE_QSTRINGBUILDER)
-add_definitions(-DQT_NO_CAST_TO_ASCII)
-#add_definitions(-DQT_NO_CAST_FROM_ASCII)
-add_definitions(-DQT_NO_URL_CAST_FROM_STRING)
-add_definitions(-DQT_DEPRECATED_WARNINGS)
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050F00)
+# Qt compile definitions - will be applied to targets via target_compile_definitions
+set(LOG4QT_QT_DEFINITIONS
+    QT_USE_QSTRINGBUILDER
+    QT_NO_CAST_TO_ASCII
+    #QT_NO_CAST_FROM_ASCII
+    QT_NO_URL_CAST_FROM_STRING
+    QT_DEPRECATED_WARNINGS
+    QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+    UNICODE
+    _UNICODE
+)
 if(NOT MSVC)
-    add_definitions(-DQT_STRICT_ITERATORS)
+    list(APPEND LOG4QT_QT_DEFINITIONS QT_STRICT_ITERATORS)
 endif()
-add_definitions(-DUNICODE -D_UNICODE)
 
-# Pass version as a string to the compiler (for LogManager::version())
-add_definitions(-DLOG4QT_VERSION_STR="${Log4Qt_VERSION_MAJOR}.${Log4Qt_VERSION_MINOR}.${Log4Qt_VERSION_PATCH}"
-                -DLOG4QT_VERSION_MAJOR=${Log4Qt_VERSION_MAJOR}
-                -DLOG4QT_VERSION_MINOR=${Log4Qt_VERSION_MINOR}
-                -DLOG4QT_VERSION_PATCH=${Log4Qt_VERSION_PATCH}
-                )
+# Version definitions - will be applied to targets via target_compile_definitions
+set(LOG4QT_VERSION_DEFINITIONS
+    LOG4QT_VERSION_STR="${PROJECT_VERSION}"
+    LOG4QT_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+    LOG4QT_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+    LOG4QT_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+)
+
+# Compiler-specific compile options - will be applied to targets
+set(LOG4QT_COMPILE_OPTIONS "")
+set(LOG4QT_COMPILE_DEFINITIONS "")
 
 # We need gcc >= 10 or clang >= 10 or msvc >= 19.29 (VS 2019 16.11) for C++20
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
-    message(FATAL_ERROR "gcc 10.0 or higher required for C++20!")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9.99)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override")
-  endif()
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
-    message(FATAL_ERROR "llvm/clang 10.0 or higher required for C++20!")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  if(MSVC_VERSION LESS 1929)
-    message(FATAL_ERROR "msvc 19.29 (Visual Studio 2019 16.11) or higher required for C++20!")
-  endif()
-  # disable common warnings in Qt/stdlib
-  # disable 4127: conditional expression is constant
-  #         4512: assignment operator could not be generated
-  #         4267: conversion from 'size_t' to 'type', possible loss of data
-  set(GENERAL_MSVC_CXX_FLAGS "/wd4127 /wd4512 /wd4267 /wd4913 /w34265 /we4265 /permissive- /W4")
-
-  string(REGEX REPLACE "/W[0-3]" "/W4" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-
-  add_definitions(-DUNICODE -DNOMINMAX)
-
-  set(CMAKE_DEBUG_POSTFIX _d)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+        message(FATAL_ERROR "gcc 10.0 or higher required for C++20!")
+    endif()
+    list(APPEND LOG4QT_COMPILE_OPTIONS
+        -Wall
+        -Wextra
+    )
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9.99)
+        list(APPEND LOG4QT_COMPILE_OPTIONS
+            -Wsuggest-final-types
+            -Wsuggest-final-methods
+            -Wsuggest-override
+        )
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+        message(FATAL_ERROR "llvm/clang 10.0 or higher required for C++20!")
+    endif()
+    list(APPEND LOG4QT_COMPILE_OPTIONS
+        -Wall
+        -Wextra
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if(MSVC_VERSION LESS 1929)
+        message(FATAL_ERROR "msvc 19.29 (Visual Studio 2019 16.11) or higher required for C++20!")
+    endif()
+    # disable common warnings in Qt/stdlib
+    # disable 4127: conditional expression is constant
+    #         4512: assignment operator could not be generated
+    #         4267: conversion from 'size_t' to 'type', possible loss of data
+    list(APPEND LOG4QT_COMPILE_OPTIONS
+        /W4
+        /wd4127
+        /wd4512
+        /wd4267
+        /wd4913
+        /w34265
+        /we4265
+        /permissive-
+    )
+    list(APPEND LOG4QT_COMPILE_DEFINITIONS
+        UNICODE
+        NOMINMAX
+    )
+    set(CMAKE_DEBUG_POSTFIX _d)
 endif()
 
 add_subdirectory(src/log4qt)
@@ -162,19 +198,22 @@ install(EXPORT log4qt_targets
     FILE Log4QtTargets.cmake
     COMPONENT Devel
 )
-configure_file(
-    "${Log4Qt_MODULE_DIR}/Log4QtConfig.cmake.in"
-    "${Log4Qt_BINARY_DIR}/Log4QtConfig.cmake"
-    @ONLY
-)
+
+# Include CMakePackageConfigHelpers before using its commands
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file("${Log4Qt_BINARY_DIR}/Log4QtConfigVersion.cmake"
-    VERSION ${Log4Qt_VERSION_STRING}
+
+configure_package_config_file(
+    "${Log4Qt_MODULE_DIR}/Log4QtConfig.cmake.in"
+    "${PROJECT_BINARY_DIR}/Log4QtConfig.cmake"
+    INSTALL_DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+)
+write_basic_package_version_file("${PROJECT_BINARY_DIR}/Log4QtConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
 install(FILES
-    "${Log4Qt_BINARY_DIR}/Log4QtConfig.cmake"
-    "${Log4Qt_BINARY_DIR}/Log4QtConfigVersion.cmake"
+    "${PROJECT_BINARY_DIR}/Log4QtConfig.cmake"
+    "${PROJECT_BINARY_DIR}/Log4QtConfigVersion.cmake"
     DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
     COMPONENT Devel
 )
@@ -190,8 +229,8 @@ add_custom_target(uninstall
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 
-# Documentation generations
-IF (BUILD_WITH_DOCS)
+# Documentation generation
+if(BUILD_WITH_DOCS)
     find_package(Doxygen)
     if (DOXYGEN_FOUND)
         # set input and output files
@@ -208,10 +247,10 @@ IF (BUILD_WITH_DOCS)
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM )
-    else (DOXYGEN_FOUND)
-      message(FATAL "Doxygen need to be installed to generate the doxygen documentation")
-    endif (DOXYGEN_FOUND)
-ENDIF()
+    else()
+        message(FATAL_ERROR "Doxygen needs to be installed to generate the doxygen documentation")
+    endif()
+endif()
 
 # Packaging
 # https://cmake.org/cmake/help/latest/module/CPack.html
@@ -235,9 +274,9 @@ set( CPACK_COMPONENT_Devel_DISPLAY_NAME "Log4Qt Development Files" )
 set( CPACK_COMPONENT_Devel_DESCRIPTION "Development files for compiling against Log4Qt." )
 set( CPACK_COMPONENT_Devel_REQUIRED 0 )
 
-if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
-    if ( "${CPACK_PACKAGE_ARCHITECTURE}" STREQUAL "" )
+    if(NOT CPACK_PACKAGE_ARCHITECTURE)
         # Note: the architecture should default to the local architecture, but it
         # in fact comes up empty.  We call `uname -m` to ask the kernel instead.
         EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE CPACK_PACKAGE_ARCHITECTURE )
@@ -278,7 +317,7 @@ if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
     set( CPACK_DEB_COMPONENT_INSTALL 1 )
     set( CPACK_DEBIAN_COMPRESSION_TYPE "xz")
 
-    if ( ${CPACK_PACKAGE_ARCHITECTURE} STREQUAL "x86_64" )
+    if(CPACK_PACKAGE_ARCHITECTURE STREQUAL "x86_64")
         set( CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64" )  # DEB doesn't always use the kernel's arch name
     else()
         set( CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${CPACK_PACKAGE_ARCHITECTURE} )
@@ -292,7 +331,7 @@ if( ${CMAKE_SYSTEM_NAME} STREQUAL "Linux" )
     set( CPACK_DEBIAN_DEVEL_PACKAGE_DEPENDS "cmake (>= ${CMAKE_MINIMUM_REQUIRED_VERSION}), log4qt (>= ${CPACK_PACKAGE_VERSION})" )
     set( CPACK_DEBIAN_DEVEL_PACKAGE_NAME "${CPACK_PACKAGE_NAME}-dev" )
 
-elseif( ${CMAKE_HOST_WIN32} )
+elseif(CMAKE_HOST_WIN32)
     set( CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON )
     set( CPACK_NSIS_DISPLAY_NAME ${PROJECT_NAME} )
     set( CPACK_NSIS_PACKAGE_NAME ${PROJECT_NAME} )
