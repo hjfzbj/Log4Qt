@@ -239,14 +239,17 @@ qint64 LoggingEvent::startTime()
 
 void LoggingEvent::setThreadNameToCurrent()
 {
-    if (QThread::currentThread())
+    static thread_local QString threadName;
+    if (threadName.isEmpty())
     {
-        mThreadName = QThread::currentThread()->objectName();
-        // if object name is not set use thread function address for thread identification
-        if (mThreadName.isEmpty())
-            mThreadName = u"0x%1"_s.arg(reinterpret_cast<quintptr>(QThread::currentThread()), QT_POINTER_SIZE * 2, 16, QChar('0'));
-
+        if (const QThread *thread = QThread::currentThread())
+        {
+            threadName = thread->objectName();
+            if (threadName.isEmpty())
+                threadName = u"0x%1"_s.arg(reinterpret_cast<quintptr>(thread), QT_POINTER_SIZE * 2, 16, QChar('0'));
+        }
     }
+    mThreadName = threadName;
 }
 
 
