@@ -98,21 +98,21 @@ public:
                  const MessageContext &context,
                  const QString &categoryName);
 
-    Level level() const;
+    inline Level level() const;
     // LocationInformation locationInformation() const;
-    const Logger *logger() const;
-    QString message() const;
-    QHash<QString, QString> mdc() const;
-    QString ndc() const;
-    QHash<QString, QString> properties() const;
-    qint64 sequenceNumber() const;
-    QString threadName() const;
-    qint64 timeStamp() const;
+    inline const Logger *logger() const;
+    inline QString message() const;
+    inline QHash<QString, QString> mdc() const;
+    inline QString ndc() const;
+    inline QHash<QString, QString> properties() const;
+    inline qint64 sequenceNumber() const;
+    inline QString threadName() const;
+    inline qint64 timeStamp() const;
 
     QString loggename() const;
-    QString property(const QString &key) const;
-    QStringList propertyKeys() const;
-    void setProperty(const QString &key, const QString &value);
+    inline QString property(const QString &key) const;
+    inline QStringList propertyKeys() const;
+    inline void setProperty(const QString &key, const QString &value);
     QString toString() const;
     static qint64 sequenceCount();
     static qint64 startTime();

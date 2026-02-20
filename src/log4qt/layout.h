@@ -67,12 +67,12 @@ public:
 
 public:
     virtual QString contentType() const;
-    QString footer() const;
-    QString header() const;
-    QString name() const;
-    void setFooter(const QString &footer);
-    void setHeader(const QString &header);
-    void setName(const QString &name);
+    inline QString footer() const;
+    inline QString header() const;
+    inline QString name() const;
+    inline void setFooter(const QString &footer);
+    inline void setHeader(const QString &header);
+    inline void setName(const QString &name);
 
     virtual void activateOptions();
     virtual QString format(const LoggingEvent &event) = 0;

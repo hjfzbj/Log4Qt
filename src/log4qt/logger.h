@@ -305,7 +305,7 @@ public:
     void debug(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void debug(const QString &message, T &&t, Ts &&...ts)
+    void debug(const QString &message, T &&t, Ts &&...ts) const
     {
         debug(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -316,7 +316,7 @@ public:
     void error(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void error(const QString &message, T &&t, Ts &&...ts)
+    void error(const QString &message, T &&t, Ts &&...ts) const
     {
         error(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -326,7 +326,7 @@ public:
     void fatal(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void fatal(const QString &message, T &&t, Ts &&...ts)
+    void fatal(const QString &message, T &&t, Ts &&...ts) const
     {
         fatal(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -336,7 +336,7 @@ public:
     void info(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void info(const QString &message, T &&t, Ts &&...ts)
+    void info(const QString &message, T &&t, Ts &&...ts) const
     {
         info(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -347,14 +347,14 @@ public:
 
     void log(Level level, const QString &message) const;
     template<typename T, typename ...Ts>
-    void log(Level level, const QString &message, T &&t, Ts &&...ts)
+    void log(Level level, const QString &message, T &&t, Ts &&...ts) const
     {
         log(level, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
 
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message) const;
     template<typename T, typename ...Ts>
-    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, T &&t, Ts &&...ts)
+    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, T &&t, Ts &&...ts) const
     {
         logWithLocation(level, file, line, function, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -364,7 +364,7 @@ public:
     void trace(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void trace(const QString &message, T &&t, Ts &&...ts)
+    void trace(const QString &message, T &&t, Ts &&...ts) const
     {
         trace(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }
@@ -374,7 +374,7 @@ public:
     void warn(const QString &message) const;
 
     template<typename T, typename ...Ts>
-    void warn(const QString &message, T &&t, Ts &&...ts)
+    void warn(const QString &message, T &&t, Ts &&...ts) const
     {
         warn(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
     }

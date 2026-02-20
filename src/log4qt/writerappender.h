@@ -92,12 +92,12 @@ private:
 public:
     bool requiresLayout() const override;
 #if QT_VERSION < 0x060000
-    QTextCodec *encoding() const;
+    inline QTextCodec *encoding() const;
 #else
-    QStringConverter::Encoding encoding() const;
+    inline QStringConverter::Encoding encoding() const;
 #endif
-    bool immediateFlush() const;
-    QTextStream *writer() const;
+    inline bool immediateFlush() const;
+    inline QTextStream *writer() const;
 
     /*!
      * Sets the codec used by the writer to \a pTextCoded.
@@ -113,7 +113,7 @@ public:
 #else
     void setEncoding(QStringConverter::Encoding encoding);
 #endif
-    void setImmediateFlush(bool immediateFlush);
+    inline void setImmediateFlush(bool immediateFlush);
     void setWriter(QTextStream *textStream);
 
     void activateOptions() override;
