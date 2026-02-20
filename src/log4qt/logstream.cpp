@@ -27,7 +27,7 @@ namespace Log4Qt
 LogStream::LogStream(const Logger &iLogger, Level iLevel)
 {
     if (iLogger.isEnabledFor(iLevel))
-        stream = QSharedPointer<Stream>(new Stream(&iLogger, iLevel));
+        stream = std::make_shared<Stream>(&iLogger, iLevel);
 }
 
 LogStream::Stream::Stream(const Logger *iLogger, Level iLevel)

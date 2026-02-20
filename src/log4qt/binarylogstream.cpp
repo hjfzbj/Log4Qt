@@ -54,7 +54,7 @@ BinaryLogStream::Stream::~Stream()
 }
 
 BinaryLogStream::BinaryLogStream(const Logger *logger, Level level)
-    : mStream(new Stream(logger, level))
+    : mStream(std::make_shared<Stream>(logger, level))
 {
 }
 

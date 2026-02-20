@@ -21,7 +21,7 @@
 #ifndef LOG4QT_BINARYLOGSTREAM_H
 #define LOG4QT_BINARYLOGSTREAM_H
 
-#include <QSharedPointer>
+#include <memory>
 
 #include "level.h"
 
@@ -40,7 +40,7 @@ public:
 
 private:
     struct Stream;
-    QSharedPointer<Stream> mStream;
+    std::shared_ptr<Stream> mStream;
 };
 
 } // namespace Log4Qt

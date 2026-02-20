@@ -25,7 +25,7 @@
 
 #include <QTextStream>
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 #include <QPointer>
 
 #ifdef __cpp_concepts
@@ -68,7 +68,7 @@ private:
         QPointer<const Logger> mLogger;
         Level mLevel;
     };
-    QSharedPointer<Stream> stream;
+    std::shared_ptr<Stream> stream;
 };
 }
 

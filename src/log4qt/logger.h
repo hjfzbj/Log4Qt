@@ -375,8 +375,7 @@ public:
     template<typename ...Ts>
     void log(Level level, const QString &message, Ts &&...ts) const
     {
-        if (isEnabledFor(level))
-        {
+        if (isEnabledFor(level))        {
             auto msg = message;
             ((msg = msg.arg(std::forward<Ts>(ts))), ...);
             forcedLog(level, msg);
@@ -387,8 +386,7 @@ public:
     template<typename ...Ts>
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, Ts &&...ts) const
     {
-        if (isEnabledFor(level))
-        {
+        if (isEnabledFor(level))        {
             auto msg = message;
             ((msg = msg.arg(std::forward<Ts>(ts))), ...);
             logWithLocation(level, file, line, function, msg);

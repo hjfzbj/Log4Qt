@@ -47,7 +47,7 @@ constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
 
 DailyFileAppender::DailyFileAppender(QObject *parent)
     : FileAppender(parent)
-    , mDateRetriever(new DefaultDateRetriever)
+    , mDateRetriever(std::make_shared<DefaultDateRetriever>())
     , mDatePattern(defaultDatePattern)
     , mKeepDays(0)
 {
@@ -55,7 +55,7 @@ DailyFileAppender::DailyFileAppender(QObject *parent)
 
 DailyFileAppender::DailyFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
     : FileAppender(layout, fileName, parent)
-    , mDateRetriever(new DefaultDateRetriever)
+    , mDateRetriever(std::make_shared<DefaultDateRetriever>())
     , mDatePattern(datePattern.isEmpty() ? defaultDatePattern : datePattern)
     , mKeepDays(keepDays)
 {
@@ -171,7 +171,7 @@ void DailyFileAppender::append(const LoggingEvent &event)
     FileAppender::append(event);
 }
 
-void DailyFileAppender::setDateRetriever(const QSharedPointer<const IDateRetriever> &dateRetriever)
+void DailyFileAppender::setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever)
 {
     QMutexLocker locker(&mObjectGuard);
 
