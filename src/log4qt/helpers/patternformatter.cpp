@@ -85,7 +85,7 @@ public:
     void format(QString &format, const LoggingEvent &loggingEvent) const;
 
 protected:
-    virtual QString convert(const LoggingEvent &loggingEvent) const = 0;
+    virtual void convert(QString &format, const LoggingEvent &loggingEvent) const = 0;
 
 protected:
     FormattingInfo mFormattingInfo;
@@ -131,7 +131,7 @@ private:
     Q_DISABLE_COPY_MOVE(BasicPatternConverter)
 
 protected:
-    QString convert(const LoggingEvent &loggingEvent) const override;
+    void convert(QString &format, const LoggingEvent &loggingEvent) const override;
 
 private:
     Type mType;
@@ -162,7 +162,7 @@ private:
     Q_DISABLE_COPY_MOVE(DatePatternConverter)
 
 protected:
-    QString convert(const LoggingEvent &loggingEvent) const override;
+    void convert(QString &format, const LoggingEvent &loggingEvent) const override;
 
 private:
     QString mFormat;
@@ -190,7 +190,7 @@ private:
     Q_DISABLE_COPY_MOVE(LiteralPatternConverter)
 
 protected:
-    QString convert(const LoggingEvent &loggingEvent) const override;
+    void convert(QString &format, const LoggingEvent &loggingEvent) const override;
 
 private:
     QString mLiteral;
@@ -221,7 +221,7 @@ private:
     Q_DISABLE_COPY_MOVE(LoggepatternConverter)
 
 protected:
-    QString convert(const LoggingEvent &loggingEvent) const override;
+    void convert(QString &format, const LoggingEvent &loggingEvent) const override;
 
 private:
     int mPrecision;
@@ -253,7 +253,7 @@ private:
     Q_DISABLE_COPY_MOVE(MDCPatternConverter)
 
 protected:
-    QString convert(const LoggingEvent &loggingEvent) const override;
+    void convert(QString &format, const LoggingEvent &loggingEvent) const override;
 
 private:
     QString mKey;
@@ -613,8 +613,18 @@ QString FormattingInfo::intToString(int i)
 
 void PatternConverter::format(QString &format, const LoggingEvent &loggingEvent) const
 {
+    // Optimization: If no complex formatting needed, write directly
+    if (mFormattingInfo.mMinLength == 0 && mFormattingInfo.mMaxLength == INT_MAX)
+    {
+        convert(format, loggingEvent);
+        return;
+    }
+
+    QString s;
+    s.reserve(64);
+    convert(s, loggingEvent);
+
     Q_DECL_CONSTEXPR const QLatin1Char space(' ');
-    const QString s = convert(loggingEvent);
 
     // If the data item is longer than the maximum field, then the extra characters
     // are removed from the beginning of the data item and not from the end.
@@ -626,48 +636,56 @@ void PatternConverter::format(QString &format, const LoggingEvent &loggingEvent)
         format.append(s.rightJustified(mFormattingInfo.mMinLength, space, false));
 }
 
-QString BasicPatternConverter::convert(const LoggingEvent &loggingEvent) const
+void BasicPatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
     switch (mType)
     {
     case MESSAGE_CONVERTER:
-        return loggingEvent.message();
+        format.append(loggingEvent.message());
+        break;
     case NDC_CONVERTER:
-        return loggingEvent.ndc();
+        format.append(loggingEvent.ndc());
+        break;
     case LEVEL_CONVERTER:
-        return loggingEvent.level().toString();
+        format.append(loggingEvent.level().toString());
+        break;
     case THREAD_CONVERTER:
-        return loggingEvent.threadName();
+        format.append(loggingEvent.threadName());
+        break;
     case FILENAME_CONVERTER:
-        return loggingEvent.context().file;
+        format.append(loggingEvent.context().file);
+        break;
     case LINENUMBER_CONVERTER:
-        return QString::number(loggingEvent.context().line);
+        format.append(QString::number(loggingEvent.context().line));
+        break;
     case FUNCTIONNAME_CONVERTER:
-        return loggingEvent.context().function;
+        format.append(loggingEvent.context().function);
+        break;
     case LOCATION_CONVERTER:
-        return u"%1:%2 - %3"_s.arg(loggingEvent.context().file, QString::number(loggingEvent.context().line), loggingEvent.context().function);
+        format.append(u"%1:%2 - %3"_s.arg(loggingEvent.context().file, QString::number(loggingEvent.context().line), loggingEvent.context().function));
+        break;
     case CATEGORYNAME_CONVERTER:
-        return loggingEvent.categoryName();
+        format.append(loggingEvent.categoryName());
+        break;
     default:
         Q_ASSERT_X(false, "BasicPatternConverter::convert()", "Unknown type constant");
-        return QString();
     }
 }
 
-QString DatePatternConverter::convert(const LoggingEvent &loggingEvent) const
+void DatePatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
-    return DateTime::fromMSecsSinceEpoch(loggingEvent.timeStamp()).toString(mFormat);
+    format.append(DateTime::fromMSecsSinceEpoch(loggingEvent.timeStamp()).toString(mFormat));
 }
 
-QString LiteralPatternConverter::convert([[maybe_unused]] const LoggingEvent &loggingEvent) const
+void LiteralPatternConverter::convert(QString &format, [[maybe_unused]] const LoggingEvent &loggingEvent) const
 {
-    return mLiteral;
+    format.append(mLiteral);
 }
 
-QString LoggepatternConverter::convert(const LoggingEvent &loggingEvent) const
+void LoggepatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
     if (!loggingEvent.logger())
-        return QString();
+        return;
     QString name;
 
     if (loggingEvent.logger() == LogManager::instance()->qtLogger())   // is qt logger
@@ -679,7 +697,10 @@ QString LoggepatternConverter::convert(const LoggingEvent &loggingEvent) const
         name = loggingEvent.logger()->name();
 
     if (mPrecision <= 0 || (name.isEmpty()))
-        return name;
+    {
+        format.append(name);
+        return;
+    }
 
     const QString separator(u"::"_s);
 
@@ -694,12 +715,12 @@ QString LoggepatternConverter::convert(const LoggingEvent &loggingEvent) const
         begin = 0;
     else
         begin += 2;
-    return name.mid(begin);
+    format.append(name.mid(begin));
 }
 
-QString MDCPatternConverter::convert(const LoggingEvent &loggingEvent) const
+void MDCPatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
-    return loggingEvent.mdc().value(mKey);
+    format.append(loggingEvent.mdc().value(mKey));
 }
 
 } // namespace Log4Qt

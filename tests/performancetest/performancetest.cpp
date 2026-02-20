@@ -450,4 +450,5 @@ void PerformanceTest::testLogStreamLazyInit()
 }
 
 QTEST_MAIN(PerformanceTest)
-#include "performancetest.moc"
+
+#include "moc_performancetest.cpp"
