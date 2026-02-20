@@ -184,25 +184,25 @@ private:
     MessageContext mContext;
 };
 
-// Macros to log with location information, teh logger must have the name
+// Macros to log with location information, the logger must have the name
 #define l4qFatal(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::FATAL_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::FATAL_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::FATAL_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::FATAL_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qError(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::ERROR_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::ERROR_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::ERROR_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::ERROR_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qWarn(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::WARN_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::WARN_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::WARN_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::WARN_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qInfo(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::INFO_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::INFO_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::INFO_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::INFO_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qDebug(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::DEBUG_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::DEBUG_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::DEBUG_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::DEBUG_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qTrace(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::TRACE_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::TRACE_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::TRACE_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::TRACE_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 
 class Appender;
 class LoggerRepository;
