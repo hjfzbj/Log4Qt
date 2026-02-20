@@ -27,9 +27,7 @@
 #include <QCoreApplication>
 #include <QThreadStorage>
 
-#if (__cplusplus >= 201703L) // C++17 or later
 #include <utility>
-#endif
 
 namespace Log4Qt
 {
@@ -143,11 +141,7 @@ QString LogError::insertArgs(const QString &message) const
     QString result;
 
     result = message;
-#if (__cplusplus >= 201703L)
     for (const auto &arg : std::as_const(mArgs))
-#else
-    for (const auto &arg : qAsConst(mArgs))
-#endif
         result = result.arg(arg.toString());
     return result;
 }

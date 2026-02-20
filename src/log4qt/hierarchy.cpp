@@ -75,7 +75,7 @@ void Hierarchy::resetConfiguration()
     // Reset all loggers.
     // Leave log, qt and root logger to the last to allow debugging of shutdown.
 
-    Logger *p_logging_logger = logger(QLatin1String(""));
+    Logger *p_logging_logger = logger(u""_s);
     Logger *p_qt_logger = logger(u"Qt"_s);
     Logger *p_root_logger = rootLogger();
 
@@ -109,8 +109,8 @@ void Hierarchy::shutdown()
 
 Logger *Hierarchy::createLogger(const QString &orgName)
 {
-    static const QLatin1String binaryIndicator = QLatin1String("@@binary@@");
-    static const QLatin1String name_separator = QLatin1String("::");
+    static const auto binaryIndicator = u"@@binary@@"_s;
+    static const auto name_separator = u"::"_s;
 
     QString name(OptionConverter::classNameJavaToCpp(orgName));
     bool needBinaryLogger = orgName.contains(binaryIndicator);

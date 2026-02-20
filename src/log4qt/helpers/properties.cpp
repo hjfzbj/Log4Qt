@@ -26,9 +26,7 @@
 #include <QSettings>
 #include <QTextStream>
 
-#if (__cplusplus >= 201703L) // C++17 or later
 #include <utility>
-#endif
 
 namespace Log4Qt
 {
@@ -73,11 +71,7 @@ void Properties::load(QIODevice *pDevice)
 void Properties::load(const QSettings &settings)
 {
     QStringList keys = settings.childKeys();
-#if (__cplusplus >= 201703L)
     for (const auto &key : std::as_const(keys))
-#else
-    for (const auto &key : qAsConst(keys))
-#endif
         insert(key, settings.value(key).toString());
 }
 
@@ -90,7 +84,7 @@ QString Properties::property(const QString &key) const
     {
         QString value = this->value(key);
         if (value.isNull())
-            return QString(QLatin1String(""));
+            return u""_s;
         return value;
     }
 
@@ -116,11 +110,7 @@ QStringList Properties::propertyNames() const
         default_keys = mpDefaultProperties->propertyNames();
 
     QStringList keys = this->keys();
-#if (__cplusplus >= 201703L)
     for (const auto &key : std::as_const(default_keys))
-#else
-    for (const auto &key : qAsConst(default_keys))
-#endif
         if (!keys.contains(key))
             keys << key;
 

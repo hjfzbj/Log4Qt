@@ -82,7 +82,7 @@ public:
     ~TelnetAppender() override;
 
 private:
-    Q_DISABLE_COPY(TelnetAppender)
+    Q_DISABLE_COPY_MOVE(TelnetAppender)
 
 public:
     bool requiresLayout() const override;

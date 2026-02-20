@@ -24,7 +24,7 @@
 #include "layout.h"
 #include "helpers/patternformatter.h"
 
-#include <QScopedPointer>
+#include <memory>
 
 namespace Log4Qt
 {
@@ -152,7 +152,7 @@ private:
     bool mContextPrinting;
     QString mDateFormat;
     bool mThreadPrinting;
-    QScopedPointer<PatternFormatter> mPatternFormatter;
+    std::unique_ptr<PatternFormatter> mPatternFormatter;
 };
 
 inline bool TTCCLayout::categoryPrefixing() const

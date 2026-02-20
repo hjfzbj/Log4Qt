@@ -30,9 +30,7 @@
 #include <QString>
 
 #include <limits>
-#if (__cplusplus >= 201703L) // C++17 or later
 #include <utility>
-#endif
 
 namespace Log4Qt
 {
@@ -279,11 +277,7 @@ QString PatternFormatter::format(const LoggingEvent &loggingEvent) const
     QString result;
     // Optimize: reserve capacity to avoid reallocations during string building
     result.reserve(256);
-#if (__cplusplus >= 201703L)
     for (auto &&p_converter : std::as_const(mPatternConverters))
-#else
-    for (auto &&p_converter : qAsConst(mPatternConverters))
-#endif
         p_converter->format(result, loggingEvent);
     return result;
 }

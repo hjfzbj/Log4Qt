@@ -70,7 +70,7 @@ public:
     DatabaseLayout(QObject *parent = nullptr);
     // virtual ~DatabaseLayout(); // Use compiler default
 private:
-    Q_DISABLE_COPY(DatabaseLayout)
+    Q_DISABLE_COPY_MOVE(DatabaseLayout)
 
 public:
     virtual QSqlRecord formatRecord(const LoggingEvent &event);
