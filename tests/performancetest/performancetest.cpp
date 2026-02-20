@@ -395,6 +395,98 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     Log4Qt::TimestampProvider::setCacheWindow(1);
 }
 
+void PerformanceTest::testLoggerTemplateDisabled_data()
+{
+    QTest::addColumn<QString>("level");
+    QTest::addColumn<int>("iterations");
+
+    // Test with logging disabled to verify template optimization (isEnabledFor check before formatting)
+    QTest::newRow("DEBUG disabled, 1000000 iter") << "DEBUG" << 1000000;
+    QTest::newRow("TRACE disabled, 1000000 iter") << "TRACE" << 1000000;
+
+    // Test with logging enabled for comparison (INFO is enabled)
+    QTest::newRow("INFO enabled, 100000 iter") << "INFO" << 100000;
+}
+
+void PerformanceTest::testLoggerTemplateDisabled()
+{
+    QFETCH(QString, level);
+    QFETCH(int, iterations);
+
+    // Setup logger
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->removeAllAppenders();
+    
+    // Set logger level to INFO (so DEBUG and TRACE are disabled)
+    logger->setLevel(Log4Qt::Level::INFO_INT);
+
+    // Add a NullAppender just in case (though it shouldn't be reached if optimization works)
+    auto nullAppender = new Log4Qt::NullAppender();
+    nullAppender->setName("NullAppender");
+    nullAppender->activateOptions();
+    logger->addAppender(nullAppender);
+
+    // Benchmark logging calls that should be short-circuited (check isEnabledFor)
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+        {
+            if (level == "DEBUG")
+                logger->debug("Complex message requiring formatting: %1 %2 %3", i, i*2, "string arg");
+            else if (level == "TRACE")
+                logger->trace("Complex message requiring formatting: %1 %2 %3", i, i*2, "string arg");
+            else if (level == "INFO")
+                logger->info("Complex message requiring formatting: %1 %2 %3", i, i*2, "string arg");
+        }
+    }
+
+    logger->removeAllAppenders();
+}
+
+void PerformanceTest::testPatternFormatterOptimization_data()
+{
+    QTest::addColumn<QString>("pattern");
+    QTest::addColumn<int>("iterations");
+
+    // Test fast path (simple patterns) vs standard path vs complex path
+    QTest::newRow("Fast path (%m), 100000 iter") << "%m" << 100000;
+    QTest::newRow("Standard path (%d %p - %m), 100000 iter") << "%d %p - %m" << 100000;
+    QTest::newRow("Complex path (%d{ISO8601} [%t] %-5p %c - %m%n), 100000 iter") << "%d{ISO8601} [%t] %-5p %c - %m%n" << 100000;
+}
+
+void PerformanceTest::testPatternFormatterOptimization()
+{
+    QFETCH(QString, pattern);
+    QFETCH(int, iterations);
+
+    // Setup logger
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->removeAllAppenders();
+    logger->setLevel(Log4Qt::Level::DEBUG_INT);
+
+    auto nullAppender = new Log4Qt::NullAppender();
+    nullAppender->setName("NullAppender");
+    
+    auto layout = new Log4Qt::PatternLayout();
+    layout->setConversionPattern(pattern);
+    layout->activateOptions();
+    
+    nullAppender->setLayout(layout);
+    nullAppender->activateOptions();
+    logger->addAppender(nullAppender);
+
+    // Benchmark the formatting speed with optimized PatternFormatter
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+        {
+            logger->debug("Optimized formatter test message %1", i);
+        }
+    }
+
+    logger->removeAllAppenders();
+}
+
 void PerformanceTest::testLogStreamLazyInit_data()
 {
     QTest::addColumn<QString>("level");

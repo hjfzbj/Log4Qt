@@ -313,9 +313,12 @@ public:
     template<typename ...Ts>
     void debug(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        debug(msg);
+        if (isEnabledFor(Level::DEBUG_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::DEBUG_INT, msg);
+        }
     }
 
 
@@ -326,9 +329,12 @@ public:
     template<typename ...Ts>
     void error(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        error(msg);
+        if (isEnabledFor(Level::ERROR_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::ERROR_INT, msg);
+        }
     }
 
     LogStream fatal() const;
@@ -338,9 +344,12 @@ public:
     template<typename ...Ts>
     void fatal(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        fatal(msg);
+        if (isEnabledFor(Level::FATAL_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::FATAL_INT, msg);
+        }
     }
 
     LogStream info() const;
@@ -350,9 +359,12 @@ public:
     template<typename ...Ts>
     void info(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        info(msg);
+        if (isEnabledFor(Level::INFO_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::INFO_INT, msg);
+        }
     }
 
     LogStream log(Level level) const;
@@ -363,18 +375,24 @@ public:
     template<typename ...Ts>
     void log(Level level, const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        log(level, msg);
+        if (isEnabledFor(level))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(level, msg);
+        }
     }
 
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message) const;
     template<typename ...Ts>
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        logWithLocation(level, file, line, function, msg);
+        if (isEnabledFor(level))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            logWithLocation(level, file, line, function, msg);
+        }
     }
 
 #ifdef __cpp_lib_source_location
@@ -388,9 +406,12 @@ public:
     template<typename ...Ts>
     void trace(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        trace(msg);
+        if (isEnabledFor(Level::TRACE_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::TRACE_INT, msg);
+        }
     }
 
     LogStream warn() const;
@@ -400,9 +421,12 @@ public:
     template<typename ...Ts>
     void warn(const QString &message, Ts &&...ts) const
     {
-        auto msg = message;
-        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
-        warn(msg);
+        if (isEnabledFor(Level::WARN_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::WARN_INT, msg);
+        }
     }
 
     // LogManager operations
