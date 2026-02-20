@@ -55,6 +55,10 @@ private slots:
     void testTimestampCacheWindowPerformance();
     void testTimestampCacheWindowPerformance_data();
 
+    // LogStream tests
+    void testLogStreamLazyInit();
+    void testLogStreamLazyInit_data();
+
 private:
     QString mTestDir;
 };

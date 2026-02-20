@@ -395,5 +395,59 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     Log4Qt::TimestampProvider::setCacheWindow(1);
 }
 
+void PerformanceTest::testLogStreamLazyInit_data()
+{
+    QTest::addColumn<QString>("level");
+    QTest::addColumn<bool>("enabled");
+    QTest::addColumn<int>("iterations");
+
+    QTest::newRow("DEBUG enabled, 100000 msgs") << "DEBUG" << true << 100000;
+    QTest::newRow("DEBUG disabled, 100000 msgs") << "DEBUG" << false << 100000;
+    QTest::newRow("INFO enabled, 100000 msgs") << "INFO" << true << 100000;
+    QTest::newRow("INFO disabled, 100000 msgs") << "INFO" << false << 100000;
+}
+
+void PerformanceTest::testLogStreamLazyInit()
+{
+    QFETCH(QString, level);
+    QFETCH(bool, enabled);
+    QFETCH(int, iterations);
+
+    // Setup logger
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->removeAllAppenders();
+
+    // Use NullAppender if enabled, otherwise no appender needed (but we add one to be safe)
+    auto nullAppender = new Log4Qt::NullAppender();
+    nullAppender->setName("NullAppender");
+    nullAppender->activateOptions();
+    logger->addAppender(nullAppender);
+
+    // Set logger level to control enabled/disabled state
+    if (enabled) {
+        // If we want it enabled, set logger level to match or be lower (more verbose)
+        if (level == "DEBUG") logger->setLevel(Log4Qt::Level::DEBUG_INT);
+        else if (level == "INFO") logger->setLevel(Log4Qt::Level::INFO_INT);
+    } else {
+        // If we want it disabled, set logger level to be higher (less verbose)
+        if (level == "DEBUG") logger->setLevel(Log4Qt::Level::INFO_INT);
+        else if (level == "INFO") logger->setLevel(Log4Qt::Level::WARN_INT);
+    }
+
+    // Benchmark the stream operator usage
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+        {
+            if (level == "DEBUG")
+                logger->debug() << "LogStream benchmark message " << i;
+            else
+                logger->info() << "LogStream benchmark message " << i;
+        }
+    }
+
+    logger->removeAllAppenders();
+}
+
 QTEST_MAIN(PerformanceTest)
 #include "performancetest.moc"

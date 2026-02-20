@@ -52,7 +52,8 @@ public:
 #endif
     LogStream &operator<<(const T &t)
     {
-        stream->ts << t;
+        if (stream)
+            stream->ts << t;
         return *this;
     }
 
