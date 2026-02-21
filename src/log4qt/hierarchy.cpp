@@ -21,7 +21,6 @@
 #include "hierarchy.h"
 
 #include "logger.h"
-#include "binarylogger.h"
 #include "helpers/optionconverter.h"
 
 #include <algorithm>
@@ -109,14 +108,9 @@ void Hierarchy::shutdown()
 
 Logger *Hierarchy::createLogger(const QString &orgName)
 {
-    static const auto binaryIndicator = u"@@binary@@"_s;
     static const auto name_separator = u"::"_s;
 
     QString name(OptionConverter::classNameJavaToCpp(orgName));
-    bool needBinaryLogger = orgName.contains(binaryIndicator);
-
-    if (needBinaryLogger)
-        name.remove(binaryIndicator);
 
     Logger *logger = mLoggers.value(name, nullptr);
     if (logger != nullptr)
@@ -133,10 +127,7 @@ Logger *Hierarchy::createLogger(const QString &orgName)
     if (index >= 0)
         parent_name = name.left(index);
 
-    if (needBinaryLogger)
-        logger = new BinaryLogger(this, Level::NULL_INT, name, createLogger(parent_name));
-    else
-        logger = new Logger(this, Level::NULL_INT, name, createLogger(parent_name));
+    logger = new Logger(this, Level::NULL_INT, name, createLogger(parent_name));
     mLoggers.insert(name, logger);
     return logger;
 }

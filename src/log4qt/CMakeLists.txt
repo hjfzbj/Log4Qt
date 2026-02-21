@@ -5,19 +5,11 @@ set(log4qt_SOURCES
     appenderskeleton.cpp
     asyncappender.cpp
     basicconfigurator.cpp
-    binaryfileappender.cpp
-    binarylayout.cpp
-    binarylogger.cpp
-    binaryloggingevent.cpp
-    binarylogstream.cpp
-    binarytotextlayout.cpp
-    binarywriterappender.cpp
     consoleappender.cpp
     dailyfileappender.cpp
     dailyrollingfileappender.cpp
     fileappender.cpp
     helpers/appenderattachable.cpp
-    helpers/binaryclasslogger.cpp
     helpers/classlogger.cpp
     helpers/configuratorhelper.cpp
     helpers/datetime.cpp
@@ -42,7 +34,6 @@ set(log4qt_SOURCES
     ndc.cpp                                                                                                                                                           
     patternlayout.cpp                                                                                                                                                 
     propertyconfigurator.cpp                                                                                                                                          
-    rollingbinaryfileappender.cpp                                                                                                                                     
     rollingfileappender.cpp                                                                                                                                           
     signalappender.cpp                                                                                                                                                
     simplelayout.cpp                                                                                                                                                  
@@ -50,7 +41,6 @@ set(log4qt_SOURCES
     spi/filter.cpp                                                                                                                                                                                                                             
     systemlogappender.cpp                                                                                                                                                                                                                      
     ttcclayout.cpp                                                                                                                                                                                                                             
-    varia/binaryeventfilter.cpp                                                                                                                                                                                                                
     varia/debugappender.cpp                                                                                                                                                                                                                    
     varia/denyallfilter.cpp                                                                                                                                                                                                                    
     varia/levelmatchfilter.cpp                                                                                                                                                                                                                 
@@ -66,13 +56,6 @@ set(log4qt_HEADERS
     appenderskeleton.h
     asyncappender.h
     basicconfigurator.h
-    binaryfileappender.h
-    binarylayout.h
-    binarylogger.h
-    binaryloggingevent.h
-    binarylogstream.h
-    binarytotextlayout.h
-    binarywriterappender.h
     consoleappender.h
     dailyfileappender.h
     dailyrollingfileappender.h
@@ -94,7 +77,6 @@ set(log4qt_HEADERS
     ndc.h
     patternlayout.h
     propertyconfigurator.h
-    rollingbinaryfileappender.h
     rollingfileappender.h
     signalappender.h
     simplelayout.h
@@ -106,7 +88,6 @@ set(log4qt_HEADERS
 )
 set(log4qt_HEADERS_helpers
     helpers/appenderattachable.h
-    helpers/binaryclasslogger.h
     helpers/classlogger.h
     helpers/configuratorhelper.h
     helpers/datetime.h
@@ -123,7 +104,6 @@ set(log4qt_HEADERS_spi
     spi/filter.h
 )
 set(log4qt_HEADERS_varia
-    varia/binaryeventfilter.h
     varia/debugappender.h
     varia/denyallfilter.h
     varia/levelmatchfilter.h

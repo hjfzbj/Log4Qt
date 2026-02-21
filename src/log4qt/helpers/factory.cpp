@@ -32,8 +32,6 @@
 #include "simplelayout.h"
 #include "simpletimelayout.h"
 #include "ttcclayout.h"
-#include "binarylayout.h"
-#include "binarytotextlayout.h"
 #include "xmllayout.h"
 
 #ifdef LOG4QT_TELNET_LOGGING_SUPPORT
@@ -48,8 +46,6 @@
 #include "asyncappender.h"
 #include "mainthreadappender.h"
 #include "systemlogappender.h"
-#include "binaryfileappender.h"
-#include "rollingbinaryfileappender.h"
 #include "dailyfileappender.h"
 #ifdef Q_OS_WIN
 #include "colorconsoleappender.h"
@@ -63,7 +59,6 @@
 #include "varia/listappender.h"
 #include "varia/nullappender.h"
 #include "varia/stringmatchfilter.h"
-#include "varia/binaryeventfilter.h"
 
 #include <QMetaObject>
 #include <QMetaProperty>
@@ -144,16 +139,6 @@ Appender *create_systemlog_appender()
     return new SystemLogAppender;
 }
 
-Appender *create_binaryfile_appender()
-{
-    return new BinaryFileAppender;
-}
-
-Appender *create_rollingbinaryfile_appender()
-{
-    return new RollingBinaryFileAppender;
-}
-
 Appender *create_dailyrollingfile_appender()
 {
     return new DailyFileAppender;
@@ -193,11 +178,6 @@ Filter *create_string_match_filter()
     return new StringMatchFilter;
 }
 
-Filter *create_binaryevent_filter()
-{
-    return new BinaryEventFilter;
-}
-
 // Layouts
 
 Layout *create_pattern_layout()
@@ -225,15 +205,6 @@ Layout *create_database_layout()
 Layout *create_ttcc_layout()
 {
     return new TTCCLayout;
-}
-Layout *create_binary_layout()
-{
-    return new BinaryLayout;
-}
-
-Layout *create_binarytotext_layout()
-{
-    return new BinaryToTextLayout;
 }
 
 Layout *create_xml_layout()
@@ -472,12 +443,6 @@ void Factory::registerDefaultAppenders()
     mAppenderRegistry.insert(u"org.apache.log4j.SystemLogAppender"_s, create_systemlog_appender);
     mAppenderRegistry.insert(u"Log4Qt::SystemLogAppender"_s, create_systemlog_appender);
 
-    mAppenderRegistry.insert(u"org.apache.log4j.BinaryFileAppender"_s, create_binaryfile_appender);
-    mAppenderRegistry.insert(u"Log4Qt::BinaryFileAppender"_s, create_binaryfile_appender);
-
-    mAppenderRegistry.insert(u"org.apache.log4j.RollingBinaryFileAppender"_s, create_rollingbinaryfile_appender);
-    mAppenderRegistry.insert(u"Log4Qt::RollingBinaryFileAppender"_s, create_rollingbinaryfile_appender);
-
     mAppenderRegistry.insert(u"org.apache.log4j.DailyFileAppender"_s, create_dailyrollingfile_appender);
     mAppenderRegistry.insert(u"Log4Qt::DailyFileAppender"_s, create_dailyrollingfile_appender);
 #ifdef Q_OS_WIN
@@ -497,8 +462,6 @@ void Factory::registerDefaultFilters()
     mFilterRegistry.insert(u"Log4Qt::LevelRangeFilter"_s, create_level_range_filter);
     mFilterRegistry.insert(u"org.apache.log4j.varia.StringMatchFilter"_s, create_string_match_filter);
     mFilterRegistry.insert(u"Log4Qt::StringMatchFilter"_s, create_string_match_filter);
-    mFilterRegistry.insert(u"org.apache.log4j.varia.BinaryEventFilter"_s, create_binaryevent_filter);
-    mFilterRegistry.insert(u"Log4Qt::BinaryEventFilter"_s, create_binaryevent_filter);
 }
 
 
@@ -518,12 +481,6 @@ void Factory::registerDefaultLayouts()
     mLayoutRegistry.insert(u"org.apache.log4j.DatabaseLayout"_s, create_database_layout);
     mLayoutRegistry.insert(u"Log4Qt::DatabaseLayout"_s, create_database_layout);
 #endif
-
-    mLayoutRegistry.insert(u"org.apache.log4j.BinaryLayout"_s, create_binary_layout);
-    mLayoutRegistry.insert(u"Log4Qt::BinaryLayout"_s, create_binary_layout);
-
-    mLayoutRegistry.insert(u"org.apache.log4j.BinaryToTextLayout"_s, create_binarytotext_layout);
-    mLayoutRegistry.insert(u"Log4Qt::BinaryToTextLayout"_s, create_binarytotext_layout);
 
     mLayoutRegistry.insert(u"org.apache.log4j.XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"Log4Qt::XMLLayout"_s, create_xml_layout);
