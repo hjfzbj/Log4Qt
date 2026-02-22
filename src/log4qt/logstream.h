@@ -44,6 +44,9 @@ class Logger;
 class LOG4QT_EXPORT LogStream
 {
 public:
+    //! Constructs a LogStream for the given logger and level.
+    //! If the level is disabled on the logger, no internal stream is allocated
+    //! and all data streamed via operator<< is silently discarded.
     LogStream(const Logger &iLogger, Level iLevel);
 #ifdef __cpp_concepts
     template<QTextStreamable T>
