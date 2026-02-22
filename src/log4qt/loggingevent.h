@@ -71,10 +71,6 @@ public:
     // Explicitly default copy operations
     LoggingEvent(const LoggingEvent &other) = default;
     LoggingEvent &operator=(const LoggingEvent &other) = default;
-    
-    // Move semantics for performance
-    LoggingEvent(LoggingEvent &&other) noexcept = default;
-    LoggingEvent &operator=(LoggingEvent &&other) noexcept = default;
 
     LoggingEvent(const Logger *logger,
                  Level level,
