@@ -55,6 +55,12 @@ private slots:
     void testTimestampCacheWindowPerformance();
     void testTimestampCacheWindowPerformance_data();
 
+    // LoggingEvent performance tests
+    void testLoggingEventPerformance();
+    void testLoggingEventPerformance_data();
+    void testLoggingEventComparison();
+    void testLoggingEventComparison_data();
+
     // Optimization verification tests
     void testLoggerTemplateDisabled();
     void testLoggerTemplateDisabled_data();

@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include "performancetest.h"
+#include "log4qt/loggingevent.h"
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
 #include "log4qt/fileappender.h"
@@ -542,5 +543,85 @@ void PerformanceTest::testLogStreamLazyInit()
 }
 
 QTEST_MAIN(PerformanceTest)
+
+struct OldLoggingEvent
+{
+    Log4Qt::Level mLevel;
+    const Log4Qt::Logger *mLogger;
+    QString mMessage;
+    QString mNdc;
+    QHash<QString, QString> mProperties;
+    qint64 mSequenceNumber;
+    QString mThreadName;
+    qint64 mTimeStamp;
+    Log4Qt::MessageContext mContext;
+    QString mCategoryName;
+
+    OldLoggingEvent(const Log4Qt::Logger *logger, Log4Qt::Level level, const QString &message)
+        : mLevel(level), mLogger(logger), mMessage(message), mSequenceNumber(123), mTimeStamp(456)
+    {
+        mThreadName = QStringLiteral("MainThread");
+        mCategoryName = QStringLiteral("TestCategory");
+        mProperties.insert(QStringLiteral("key1"), QStringLiteral("value1"));
+        mProperties.insert(QStringLiteral("key2"), QStringLiteral("value2"));
+    }
+};
+
+void PerformanceTest::testLoggingEventPerformance_data()
+{
+    QTest::addColumn<int>("iterations");
+    QTest::addColumn<int>("payloadSize");
+    
+    QTest::newRow("1000000 copies, small message") << 1000000 << 32;
+}
+
+void PerformanceTest::testLoggingEventPerformance()
+{
+    QFETCH(int, iterations);
+    QFETCH(int, payloadSize);
+    
+    QString message(payloadSize, 'x');
+    Log4Qt::LoggingEvent event(Log4Qt::Logger::rootLogger(), Log4Qt::Level::INFO_INT, message);
+    
+    QBENCHMARK {
+        for (int i = 0; i < iterations; ++i) {
+            Log4Qt::LoggingEvent copy = event;
+            Q_UNUSED(copy);
+        }
+    }
+}
+
+void PerformanceTest::testLoggingEventComparison_data()
+{
+    QTest::addColumn<bool>("useNew");
+    
+    QTest::newRow("Old Implementation (Direct members)") << false;
+    QTest::newRow("New Implementation (Implicit sharing)") << true;
+}
+
+void PerformanceTest::testLoggingEventComparison()
+{
+    QFETCH(bool, useNew);
+    const int iterations = 1000000;
+    QString message(1024, 'x');
+
+    if (useNew) {
+        Log4Qt::LoggingEvent event(Log4Qt::Logger::rootLogger(), Log4Qt::Level::INFO_INT, message);
+        QBENCHMARK {
+            for (int i = 0; i < iterations; ++i) {
+                Log4Qt::LoggingEvent copy = event;
+                Q_UNUSED(copy);
+            }
+        }
+    } else {
+        OldLoggingEvent event(Log4Qt::Logger::rootLogger(), Log4Qt::Level::INFO_INT, message);
+        QBENCHMARK {
+            for (int i = 0; i < iterations; ++i) {
+                OldLoggingEvent copy = event;
+                Q_UNUSED(copy);
+            }
+        }
+    }
+}
 
 #include "moc_performancetest.cpp"
