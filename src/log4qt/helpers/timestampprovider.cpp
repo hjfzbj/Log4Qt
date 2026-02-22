@@ -63,7 +63,7 @@ qint64 TimestampProvider::currentMSecsSinceEpoch()
     // Check if cached value is still valid
     qint64 elapsedSinceLastUpdate = currentCounter - s_lastCounterValue;
 
-    if (s_cachedTimestamp == 0 || elapsedSinceLastUpdate >= cacheWindow)
+    if (s_cachedTimestamp == 0 || elapsedSinceLastUpdate < 0 || elapsedSinceLastUpdate >= cacheWindow)
     {
         // Cache expired or first call - update with system call
         s_cachedTimestamp = QDateTime::currentMSecsSinceEpoch();
