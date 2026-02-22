@@ -62,7 +62,7 @@ QList<Logger *> Hierarchy::loggers() const
     return mLoggers.values();
 }
 
-void Hierarchy::setThreshold(QStringView threshold)
+void Hierarchy::setThreshold(const QString &threshold)
 {
     setThreshold(Level::fromString(threshold));
 }

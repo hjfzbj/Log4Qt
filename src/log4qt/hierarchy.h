@@ -47,7 +47,7 @@ public:
     Logger *rootLogger() const override;
     Level threshold() const override;
     void setThreshold(Level level) override;
-    void setThreshold(QStringView threshold) override;
+    void setThreshold(const QString &threshold) override;
 
     bool isDisabled(Level level) override;
     void resetConfiguration() override;
