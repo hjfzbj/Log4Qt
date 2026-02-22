@@ -132,7 +132,7 @@ public:
     [[nodiscard]] QString threadName() const;
     [[nodiscard]] qint64 timeStamp() const;
 
-    [[nodiscard]] QString loggename() const;
+    [[nodiscard]] QString loggername() const;
     [[nodiscard]] QString property(const QString &key) const;
     [[nodiscard]] QStringList propertyKeys() const;
     void setProperty(const QString &key, const QString &value);

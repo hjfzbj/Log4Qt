@@ -225,7 +225,7 @@ LoggingEvent::LoggingEvent(const Logger *logger,
     setThreadNameToCurrent();
 }
 
-QString LoggingEvent::loggename() const
+QString LoggingEvent::loggername() const
 {
     if (d->mLogger)
         return d->mLogger->name();
@@ -408,7 +408,7 @@ QDataStream &operator<<(QDataStream &out, const LoggingEvent &loggingEvent)
     out << version;
     // version 0 data
     out << loggingEvent.d->mLevel
-           << loggingEvent.loggename()
+           << loggingEvent.loggername()
            << loggingEvent.d->mMessage
            << loggingEvent.d->mNdc
            << loggingEvent.d->mProperties

@@ -109,7 +109,7 @@ void QmlLogger::setLevel(QmlLogger::Level level)
     }
 }
 
-QString QmlLogger::loggename() const
+QString QmlLogger::loggername() const
 {
     if (mName.isEmpty() && (parent() != nullptr))
         mName = parent()->objectName();
@@ -122,7 +122,7 @@ QString QmlLogger::loggename() const
 Logger *QmlLogger::logger() const
 {
     if (mLogger == nullptr)
-        mLogger = Log4Qt::Logger::logger(loggename());
+        mLogger = Log4Qt::Logger::logger(loggername());
 
     return  mLogger;
 }

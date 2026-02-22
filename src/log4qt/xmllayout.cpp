@@ -38,7 +38,7 @@ QString XMLLayout::format(const LoggingEvent &event)
     QXmlStreamWriter writer(&output);
 
     writer.writeStartElement(u"log4j:event"_s);
-    writer.writeAttribute(u"logger"_s, event.loggename());
+    writer.writeAttribute(u"logger"_s, event.loggername());
     writer.writeAttribute(u"timestamp"_s, QString::number(event.timeStamp()));
     writer.writeAttribute(u"level"_s, event.level().toString());
     writer.writeAttribute(u"thread"_s, event.threadName());

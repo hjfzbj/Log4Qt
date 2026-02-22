@@ -1451,7 +1451,7 @@ void Log4QtTest::LoggingEvent_stream()
     buffer.close();
 
     QCOMPARE(original.level(), streamed.level());
-    QCOMPARE(original.loggename(), streamed.loggename());
+    QCOMPARE(original.loggername(), streamed.loggername());
     QCOMPARE(original.message(), streamed.message());
     QCOMPARE(original.ndc(), streamed.ndc());
     QCOMPARE(original.properties().count(), streamed.properties().count());
