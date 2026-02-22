@@ -31,8 +31,9 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QMutex>
-#include <QThread>
+#include <QPointer>
 #include <QProperty>
+#include <QThread>
 
 namespace Log4Qt
 {
@@ -245,8 +246,8 @@ void LoggingEvent::setThreadNameToCurrent()
         QThread *thread = QThread::currentThread();
         if (!thread)
             return {};
-        return thread->bindableObjectName().addNotifier([thread]() {
-            if (QThread::currentThread() == thread)
+        return thread->bindableObjectName().addNotifier([wp = QPointer<QThread>(thread)]() {
+            if (wp && QThread::currentThread() == wp.data())
                 nameChanged = true;
         });
     }();
