@@ -68,18 +68,6 @@ public:
      */
     static qint64 cacheWindow();
 
-private:
-    // Thread-local cached timestamp
-    //static thread_local qint64 s_cachedTimestamp;
-    
-    // Thread-local monotonic counter for cache expiry
-    //static thread_local qint64 s_lastCounterValue;
-    
-    // Global cache window setting (in milliseconds)
-    //static qint64 s_cacheWindowMs;
-    
-    // Monotonic timer for cache validation
-    //static QElapsedTimer s_elapsedTimer;
 };
 
 } // namespace Log4Qt
