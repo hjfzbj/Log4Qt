@@ -32,6 +32,7 @@
 #include <QDataStream>
 #include <QMutex>
 #include <QThread>
+#include <QProperty>
 
 namespace Log4Qt
 {
@@ -218,40 +219,55 @@ QString LoggingEvent::loggename() const
     return QString();
 }
 
-
 QString LoggingEvent::toString() const
 {
     return level().toString() % QLatin1Char(':') % message();
 }
-
 
 qint64 LoggingEvent::sequenceCount()
 {
     return msSequenceCount;
 }
 
-
 qint64 LoggingEvent::startTime()
 {
     return InitialisationHelper::startTime();
 }
 
-
 void LoggingEvent::setThreadNameToCurrent()
 {
-    static thread_local QString threadName;
-    if (threadName.isEmpty())
+    static thread_local QString cachedName;
+
+    // Flag set by QBindable notifier when objectName changes.
+    // The cached name is re-read lazily on the next call.
+    static thread_local bool nameChanged = true;
+    static thread_local QPropertyNotifier notifier = []() -> QPropertyNotifier {
+        QThread *thread = QThread::currentThread();
+        if (!thread)
+            return {};
+        return thread->bindableObjectName().addNotifier([thread]() {
+            if (QThread::currentThread() == thread)
+                nameChanged = true;
+        });
+    }();
+
+    if (nameChanged)
     {
         if (const QThread *thread = QThread::currentThread())
-        {
-            threadName = thread->objectName();
-            if (threadName.isEmpty())
-                threadName = u"0x%1"_s.arg(reinterpret_cast<quintptr>(thread), QT_POINTER_SIZE * 2, 16, QChar('0'));
-        }
+            cachedName = thread->objectName();
+        nameChanged = false;
     }
-    mThreadName = threadName;
-}
 
+    if (cachedName.isEmpty())
+    {
+        static thread_local const QString cachedPtrName =
+            u"0x%1"_s.arg(reinterpret_cast<quintptr>(
+                QThread::currentThread()), QT_POINTER_SIZE * 2, 16, QChar('0'));
+        mThreadName = cachedPtrName;
+    }
+    else
+        mThreadName = cachedName;
+}
 
 qint64 LoggingEvent::nextSequenceNumber()
 {

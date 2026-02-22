@@ -1469,6 +1469,51 @@ void Log4QtTest::LoggingEvent_stream()
     QCOMPARE(loggingEvents()->list().count(), 0);
 }
 
+void Log4QtTest::LoggingEvent_threadName()
+{
+    // Verify that a named thread produces the thread name
+    // and an unnamed thread produces the hex pointer fallback.
+    QThread *main = QThread::currentThread();
+    const QString savedName = main->objectName();
+
+    // Named thread: LoggingEvent should carry the object name
+    main->setObjectName(QStringLiteral("TestMainThread"));
+    LoggingEvent namedEvent(test_logger(), Level(Level::DEBUG_INT),
+                            QStringLiteral("named"));
+    QCOMPARE(namedEvent.threadName(), QStringLiteral("TestMainThread"));
+
+    // Unnamed thread: LoggingEvent should carry the hex pointer fallback
+    main->setObjectName(QString());
+    LoggingEvent unnamedEvent(test_logger(), Level(Level::DEBUG_INT),
+                              QStringLiteral("unnamed"));
+    const QString expected = QStringLiteral("0x%1").arg(
+        reinterpret_cast<quintptr>(main), QT_POINTER_SIZE * 2, 16, QChar('0'));
+    QCOMPARE(unnamedEvent.threadName(), expected);
+
+    main->setObjectName(savedName);
+}
+
+void Log4QtTest::LoggingEvent_threadNameReactive()
+{
+    // Verify that the QBindable notifier picks up thread renames
+    // so that a second LoggingEvent sees the new name.
+    QThread *main = QThread::currentThread();
+    const QString savedName = main->objectName();
+
+    main->setObjectName(QStringLiteral("BeforeRename"));
+    LoggingEvent before(test_logger(), Level(Level::DEBUG_INT),
+                        QStringLiteral("before"));
+    QCOMPARE(before.threadName(), QStringLiteral("BeforeRename"));
+
+    // Rename the thread — the notifier should mark the cache stale
+    main->setObjectName(QStringLiteral("AfterRename"));
+    LoggingEvent after(test_logger(), Level(Level::DEBUG_INT),
+                       QStringLiteral("after"));
+    QCOMPARE(after.threadName(), QStringLiteral("AfterRename"));
+
+    main->setObjectName(savedName);
+}
+
 void Log4QtTest::MessageContext_source_location()
 {
 #ifdef __cpp_lib_source_location

@@ -112,6 +112,8 @@ private Q_SLOTS:
     void DailyRollingFileAppender();
     void LoggingEvent_stream_data();
     void LoggingEvent_stream();
+    void LoggingEvent_threadName();
+    void LoggingEvent_threadNameReactive();
     void MessageContext_source_location();
     void LogManager_configureLogLogger();
     void PropertyConfigurator_missing_appender();
