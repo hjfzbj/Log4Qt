@@ -74,9 +74,9 @@ void Hierarchy::resetConfiguration()
     // Reset all loggers.
     // Leave log, qt and root logger to the last to allow debugging of shutdown.
 
-    Logger *p_logging_logger = logger(u""_s);
-    Logger *p_qt_logger = logger(u"Qt"_s);
-    Logger *p_root_logger = rootLogger();
+    Logger *p_logging_logger = createLogger(u""_s);
+    Logger *p_qt_logger = createLogger(u"Qt"_s);
+    Logger *p_root_logger = mRootLogger;
 
     // Define predicate for regular (non-special) loggers
     auto isRegularLogger = [=](Logger* logger) {
