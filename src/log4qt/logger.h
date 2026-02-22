@@ -440,7 +440,7 @@ private:
     const QString mName;
     LoggerRepository *mLoggerRepository;
     std::atomic<bool> mAdditivity;
-    Level mLevel;
+    std::atomic<Level> mLevel;
     Logger *mParentLogger;
 
     // Needs to be friend to create Logger objects
