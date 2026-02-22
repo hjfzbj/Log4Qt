@@ -53,7 +53,11 @@ qint64 TimestampProvider::currentMSecsSinceEpoch()
         return QDateTime::currentMSecsSinceEpoch();
     }
 
-    // Get monotonic counter value (very fast, no system call)
+    // Get monotonic counter value (very fast, no system call).
+    // Guard against use before static initialization (e.g. from another
+    // translation unit's static initializer).
+    if (Q_UNLIKELY(!s_elapsedTimer.isValid()))
+        s_elapsedTimer.start();
     qint64 currentCounter = s_elapsedTimer.elapsed();
 
     // Check if cached value is still valid
