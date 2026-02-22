@@ -647,17 +647,25 @@ void BasicPatternConverter::convert(QString &format, const LoggingEvent &logging
         format.append(loggingEvent.threadName());
         break;
     case FILENAME_CONVERTER:
-        format.append(loggingEvent.context().file);
+        if (loggingEvent.context().file)
+            format.append(loggingEvent.context().file);
         break;
     case LINENUMBER_CONVERTER:
         format.append(QString::number(loggingEvent.context().line));
         break;
     case FUNCTIONNAME_CONVERTER:
-        format.append(loggingEvent.context().function);
+        if (loggingEvent.context().function)
+            format.append(loggingEvent.context().function);
         break;
     case LOCATION_CONVERTER:
-        format.append(u"%1:%2 - %3"_s.arg(loggingEvent.context().file, QString::number(loggingEvent.context().line), loggingEvent.context().function));
+    {
+        const auto &ctx = loggingEvent.context();
+        format.append(u"%1:%2 - %3"_s.arg(
+            ctx.file ? QString::fromUtf8(ctx.file) : QString(),
+            QString::number(ctx.line),
+            ctx.function ? QString::fromUtf8(ctx.function) : QString()));
         break;
+    }
     case CATEGORYNAME_CONVERTER:
         format.append(loggingEvent.categoryName());
         break;
