@@ -93,8 +93,8 @@ void AsyncAppender::callAppenders(const LoggingEvent &event) const
 
 void AsyncAppender::append(const LoggingEvent &event)
 {
-    // Post to the event loop of the dispatcher
-    qApp->postEvent(mpDispatcher.get(), new LoggingEvent(event));
+    if (mpDispatcher)
+        qApp->postEvent(mpDispatcher.get(), new LoggingEvent(event));
 }
 
 bool AsyncAppender::checkEntryConditions() const
