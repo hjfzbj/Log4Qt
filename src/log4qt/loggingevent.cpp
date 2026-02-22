@@ -238,6 +238,7 @@ qint64 LoggingEvent::startTime()
 void LoggingEvent::setThreadNameToCurrent()
 {
     static thread_local QString cachedName;
+    static thread_local QString cachedPtrName;
 
     // Flag set by QBindable notifier when objectName changes.
     // The cached name is re-read lazily on the next call.
@@ -255,19 +256,15 @@ void LoggingEvent::setThreadNameToCurrent()
     if (nameChanged)
     {
         if (const QThread *thread = QThread::currentThread())
+        {
             cachedName = thread->objectName();
+            cachedPtrName = u"0x%1"_s.arg(reinterpret_cast<quintptr>(thread),
+                                           QT_POINTER_SIZE * 2, 16, QChar('0'));
+        }
         nameChanged = false;
     }
 
-    if (cachedName.isEmpty())
-    {
-        static thread_local const QString cachedPtrName =
-            u"0x%1"_s.arg(reinterpret_cast<quintptr>(
-                QThread::currentThread()), QT_POINTER_SIZE * 2, 16, QChar('0'));
-        mThreadName = cachedPtrName;
-    }
-    else
-        mThreadName = cachedName;
+    mThreadName = cachedName.isEmpty() ? cachedPtrName : cachedName;
 }
 
 qint64 LoggingEvent::nextSequenceNumber()
