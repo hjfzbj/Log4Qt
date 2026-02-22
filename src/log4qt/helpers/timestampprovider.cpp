@@ -20,6 +20,8 @@
 
 #include "timestampprovider.h"
 
+#include <atomic>
+
 namespace Log4Qt
 {
 
@@ -29,8 +31,9 @@ static thread_local qint64 s_cachedTimestamp = 0;
 // Thread-local monotonic counter for cache expiry
 static thread_local qint64 s_lastCounterValue = 0;
 
-// Global cache window setting (in milliseconds)
-static qint64 s_cacheWindowMs = 1; // Default: 1ms cache window
+// Global cache window setting (in milliseconds) - atomic because it is
+// written by setCacheWindow() and read concurrently from every logging thread.
+static std::atomic<qint64> s_cacheWindowMs{1};
 
 // Monotonic timer for cache validation
 static QElapsedTimer s_elapsedTimer  = []() {
@@ -42,19 +45,21 @@ static QElapsedTimer s_elapsedTimer  = []() {
 
 qint64 TimestampProvider::currentMSecsSinceEpoch()
 {
+    const qint64 cacheWindow = s_cacheWindowMs.load(std::memory_order_relaxed);
+
     // If caching is disabled, always get fresh timestamp
-    if (s_cacheWindowMs <= 0)
+    if (cacheWindow <= 0)
     {
         return QDateTime::currentMSecsSinceEpoch();
     }
 
     // Get monotonic counter value (very fast, no system call)
     qint64 currentCounter = s_elapsedTimer.elapsed();
-    
+
     // Check if cached value is still valid
     qint64 elapsedSinceLastUpdate = currentCounter - s_lastCounterValue;
-    
-    if (s_cachedTimestamp == 0 || elapsedSinceLastUpdate >= s_cacheWindowMs)
+
+    if (s_cachedTimestamp == 0 || elapsedSinceLastUpdate >= cacheWindow)
     {
         // Cache expired or first call - update with system call
         s_cachedTimestamp = QDateTime::currentMSecsSinceEpoch();
@@ -66,12 +71,12 @@ qint64 TimestampProvider::currentMSecsSinceEpoch()
 
 void TimestampProvider::setCacheWindow(qint64 cacheWindowMs)
 {
-    s_cacheWindowMs = cacheWindowMs;
+    s_cacheWindowMs.store(cacheWindowMs, std::memory_order_relaxed);
 }
 
 qint64 TimestampProvider::cacheWindow()
 {
-    return s_cacheWindowMs;
+    return s_cacheWindowMs.load(std::memory_order_relaxed);
 }
 
 } // namespace Log4Qt
