@@ -52,8 +52,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - qt_version: '6.2.4'
-            mingw_tools: 'tools_mingw90'
           - qt_version: '6.5.3'
             mingw_tools: 'tools_mingw1310'
           - qt_version: '6.8.3'
