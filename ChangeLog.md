@@ -2,13 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 ----
-## [v1.6.0] - ??
+## [v2.0.0] - ??
 ### Added
 - JsonConfigurator for configuring logging from JSON files (`log4qt.json`).
   The JSON format mirrors the `.properties` format in a structured tree,
   using `@class` for class names and nested objects for dot-separated keys.
   Automatic initialization searches for `log4qt.json` alongside `log4qt.properties`
   (`.properties` takes priority for backward compatibility).
+- XmlConfigurator for configuring logging from XML files (`log4qt.xml`).
+  The XML format mirrors the `.properties` format in a structured tree,
+  using the `class` attribute for class names and nested elements for
+  dot-separated keys. Automatic initialization searches for `log4qt.xml`
+  after `log4qt.json` (`.properties` > `.json` > `.xml` priority).
+
+### Improvements
+- performance optimizations
+- Modernize codebase to C++20 standard
+
+### Deprecated / Removed
+- removed qmake support
+- removed binary logger
+
+## [v1.6.0] - ??
 
 ### Improvements
 - Modernize codebase to C++20 standard

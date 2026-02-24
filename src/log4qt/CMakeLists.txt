@@ -50,6 +50,7 @@ set(log4qt_SOURCES
     varia/nullappender.cpp
     varia/stringmatchfilter.cpp
     writerappender.cpp
+    xmlconfigurator.cpp
     xmllayout.cpp
 )
 set(log4qt_HEADERS
@@ -86,6 +87,7 @@ set(log4qt_HEADERS
     systemlogappender.h
     ttcclayout.h
     writerappender.h
+    xmlconfigurator.h
     xmllayout.h
 )
 set(log4qt_HEADERS_helpers

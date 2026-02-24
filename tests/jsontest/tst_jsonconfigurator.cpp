@@ -18,12 +18,14 @@
  *
  ******************************************************************************/
 
+#include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QtTest>
 
 #include "log4qt/consoleappender.h"
+#include "log4qt/dailyfileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
 #include "log4qt/helpers/properties.h"
 #include "log4qt/jsonconfigurator.h"
@@ -47,6 +49,7 @@ private Q_SLOTS:
     void testFlattenNull();
     void testFlattenFullConfig();
     void testConfigureFromFile();
+    void testRealWorldConfig();
     void testConfigureMissingFile();
     void testConfigureMalformedJson();
     void testConfigureNonObjectRoot();
@@ -274,6 +277,91 @@ void JsonConfiguratorTest::testConfigureFromFile()
     JsonConfigurator configurator;
     QVERIFY(configurator.doConfigure(file));
     QCOMPARE(LogManager::rootLogger()->level(), Level::TRACE_INT);
+}
+
+void JsonConfiguratorTest::testRealWorldConfig()
+{
+    // Based on idlmapp.exe.log4qt.properties:
+    //   logpath=../logging
+    //   log4j.rootLogger=ALL, console, daily
+    //   console = ConsoleAppender with TTCCLayout (custom dateFormat, contextPrinting, threshold OFF)
+    //   daily   = DailyFileAppender with ${logpath} substitution and TTCCLayout
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString logDir = dir.path() + "/logging";
+    QVERIFY(QDir().mkpath(logDir));
+
+    const QString file = dir.path() + "/test.json";
+    const QByteArray json = QString(R"({
+        "logpath": "%1",
+        "log4j": {
+            "reset": "true",
+            "threshold": "NULL",
+            "handleQtMessages": "true",
+            "rootLogger": "ALL, console, daily",
+            "appender": {
+                "console": {
+                    "@class": "org.apache.log4j.ConsoleAppender",
+                    "target": "STDOUT_TARGET",
+                    "layout": {
+                        "@class": "org.apache.log4j.TTCCLayout",
+                        "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
+                        "contextPrinting": true
+                    },
+                    "threshold": "OFF"
+                },
+                "daily": {
+                    "@class": "org.apache.log4j.DailyFileAppender",
+                    "file": "${logpath}/idlmapp.log",
+                    "appendFile": "true",
+                    "datePattern": "_yyyy_MM_dd",
+                    "layout": {
+                        "@class": "org.apache.log4j.TTCCLayout",
+                        "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
+                        "contextPrinting": "true"
+                    }
+                }
+            }
+        }
+    })").arg(logDir).toUtf8();
+
+    writeJsonFile(file, json);
+    QVERIFY(JsonConfigurator::configure(file));
+
+    // Root logger
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->level(), Level::ALL_INT);
+
+    // Verify both appenders exist
+    auto appenders = root->appenders();
+    ConsoleAppender *consoleApp = nullptr;
+    DailyFileAppender *dailyApp = nullptr;
+    for (const auto &a : appenders)
+    {
+        if (a->name() == u"console"_s)
+            consoleApp = qobject_cast<ConsoleAppender *>(a.data());
+        else if (a->name() == u"daily"_s)
+            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+    }
+
+    // Console appender
+    QVERIFY(consoleApp);
+    QCOMPARE(consoleApp->target(), u"STDOUT_TARGET"_s);
+    QCOMPARE(consoleApp->threshold(), Level::OFF_INT);
+    auto *consoleTtcc = qobject_cast<TTCCLayout *>(consoleApp->layout().data());
+    QVERIFY(consoleTtcc);
+    QCOMPARE(consoleTtcc->dateFormat(), u"dd.MM.yyyy hh:mm:ss.zzz"_s);
+    QCOMPARE(consoleTtcc->contextPrinting(), true);
+
+    // Daily file appender (file() returns the dated filename, e.g. idlmapp_2026_02_24.log)
+    QVERIFY(dailyApp);
+    QVERIFY(dailyApp->file().contains(u"idlmapp"_s));
+    QCOMPARE(dailyApp->appendFile(), true);
+    QCOMPARE(dailyApp->datePattern(), u"_yyyy_MM_dd"_s);
+    auto *dailyTtcc = qobject_cast<TTCCLayout *>(dailyApp->layout().data());
+    QVERIFY(dailyTtcc);
+    QCOMPARE(dailyTtcc->dateFormat(), u"dd.MM.yyyy hh:mm:ss.zzz"_s);
+    QCOMPARE(dailyTtcc->contextPrinting(), true);
 }
 
 void JsonConfiguratorTest::testConfigureMissingFile()

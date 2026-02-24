@@ -23,6 +23,7 @@ which was itself a clone of the original Log4Qt project on SourceForge http://so
 Additional features
 -------------------
 * JSON configuration support (`log4qt.json`) alongside the classic `.properties` format
+* XML configuration support (`log4qt.xml`) alongside `.properties` and `.json` formats
 * SimpleTimeLayout (“dd.MM.yyyy hh:mm [Thread] Level Logger Message”)
 * ColorConsoleAppender (render colorized message by escape sequence and put it to console)
 * SignalAppender (emit signal when log event happens)
@@ -77,6 +78,44 @@ You can also configure programmatically:
 Log4Qt::JsonConfigurator::configure("path/to/config.json");
 // or with file watching:
 Log4Qt::JsonConfigurator::configureAndWatch("path/to/config.json");
+```
+
+XML Configuration
+------------------
+As an alternative to `.properties` and `.json`, you can use a `log4qt.xml` file:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<log4j>
+    <rootLogger>DEBUG, console</rootLogger>
+    <appender>
+        <console class="org.apache.log4j.ConsoleAppender">
+            <target>STDOUT_TARGET</target>
+            <layout class="org.apache.log4j.TTCCLayout">
+                <dateFormat>ISO8601</dateFormat>
+            </layout>
+        </console>
+    </appender>
+    <logger>
+        <MyApp>ERROR, console</MyApp>
+    </logger>
+    <additivity>
+        <MyApp>false</MyApp>
+    </additivity>
+</log4j>
+```
+
+Nested elements produce dot-separated property keys, and the `class` attribute sets the
+class name for the element. Priority order: `.properties` > `.json` > `.xml`.
+
+You can also configure programmatically:
+
+```cpp
+#include <log4qt/xmlconfigurator.h>
+
+Log4Qt::XmlConfigurator::configure("path/to/config.xml");
+// or with file watching:
+Log4Qt::XmlConfigurator::configureAndWatch("path/to/config.xml");
 ```
 
 Requirements
