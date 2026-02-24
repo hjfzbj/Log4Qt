@@ -83,6 +83,11 @@
  *     The class provides Q_SIGNALS to notify on configuration change and errors.
  *   - The class \ref Log4Qt::PropertyConfigurator "PropertyConfigurator" was
  *     extended to be able to read configuration data from a QSettings object.
+ *   - The class \ref Log4Qt::JsonConfigurator "JsonConfigurator" was added
+ *     to allow configuration from JSON files. The JSON is flattened into
+ *     properties and delegated to PropertyConfigurator. During automatic
+ *     initialization the LogManager searches for \c log4qt.json after
+ *     \c log4qt.properties.
  *
  * - \ref Log4Qt::Level "Level"
  *   - A new value \ref Log4Qt::Level::NULL_INT "Level::NULL_INT" was
@@ -298,7 +303,9 @@
  * anything else then \c false, the initialisation is aborted.<br>
  * The system environment and application settings are tested for the setting
  * \c Configuration. If it is found and it is a valid path to a file, the
- * package is configured with the file using
+ * package is configured with the file. Files ending in \c .json are
+ * configured using \ref Log4Qt::JsonConfigurator::configure()
+ * "JsonConfigurator::configure()", all others use
  * \ref Log4Qt::PropertyConfigurator::doConfigure(const QString &, LoggerRepository *)
  * "PropertyConfigurator::doConfigure()". If the setting \c Configuration is
  * not available and a QCoreApplication object is present, the application
@@ -306,11 +313,20 @@
  * the package is configured with the setting using the
  * \ref Log4Qt::PropertyConfigurator::doConfigure(const QSettings &properties, LoggerRepository *)
  * "PropertyConfiguratordoConfigure()". If neither a configuration file nor
- * configuration settings could be found, the current working directory is
- * searched for the file \c "log4qt.properties". If it is found, the package
- * is configured with the file using
- * \ref Log4Qt::PropertyConfigurator::doConfigure(const QString &, LoggerRepository *)
- * "PropertyConfigurator::doConfigure()".
+ * configuration settings could be found, the following files are searched
+ * in order (first match wins):
+ * -# \c &lt;application&gt;.log4qt.properties
+ * -# \c &lt;application&gt;.log4qt.json
+ * -# \c &lt;application-without-exe&gt;.log4qt.properties (Windows)
+ * -# \c &lt;application-without-exe&gt;.log4qt.json (Windows)
+ * -# \c log4qt.properties in the executable's directory
+ * -# \c log4qt.json in the executable's directory
+ * -# \c log4qt.properties in the current working directory
+ * -# \c log4qt.json in the current working directory
+ *
+ * The \c .properties format takes priority over \c .json at each
+ * search location for backward compatibility. JSON files are configured
+ * using \ref Log4Qt::JsonConfigurator "JsonConfigurator".
  *
  * The following example shows how to use application settings to initialise the
  * package.

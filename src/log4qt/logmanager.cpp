@@ -25,6 +25,7 @@
 #include "helpers/initialisationhelper.h"
 #include "helpers/optionconverter.h"
 #include "hierarchy.h"
+#include "jsonconfigurator.h"
 #include "propertyconfigurator.h"
 #include "ttcclayout.h"
 #include "varia/denyallfilter.h"
@@ -280,11 +281,15 @@ void LogManager::doStartup()
     if (!value.isEmpty() && QFile::exists(value))
     {
         static_logger()->debug(u"Default initialisation configures from file '%1' specified by Configure"_s, value);
-        PropertyConfigurator::configure(value);
+        if (value.endsWith(u".json"_s, Qt::CaseInsensitive))
+            JsonConfigurator::configure(value);
+        else
+            PropertyConfigurator::configure(value);
         return;
     }
 
-    const QString default_file(u"log4qt.properties"_s);
+    const QString default_properties(u"log4qt.properties"_s);
+    const QString default_json(u"log4qt.json"_s);
     QStringList filesToCheck;
 
     // Configuration using setting
@@ -302,30 +307,44 @@ void LogManager::doStartup()
             return;
         }
 
-        // Configuration using executable file name + .log4qt.properties
-        QString binConfigFile = QCoreApplication::applicationFilePath() + QLatin1Char('.') + default_file;
+        // Configuration using executable file name + .log4qt.properties / .log4qt.json
+        QString binPropsFile = QCoreApplication::applicationFilePath() + QLatin1Char('.') + default_properties;
+        QString binJsonFile = QCoreApplication::applicationFilePath() + QLatin1Char('.') + default_json;
 
-        filesToCheck << binConfigFile;
-        if (binConfigFile.contains(QLatin1String(".exe."), Qt::CaseInsensitive))
+        filesToCheck << binPropsFile << binJsonFile;
+        if (binPropsFile.contains(QLatin1String(".exe."), Qt::CaseInsensitive))
         {
-            binConfigFile.replace(QLatin1String(".exe."), QLatin1String("."), Qt::CaseInsensitive);
-            filesToCheck << binConfigFile;
+            binPropsFile.replace(QLatin1String(".exe."), QLatin1String("."), Qt::CaseInsensitive);
+            filesToCheck << binPropsFile;
+            binJsonFile.replace(QLatin1String(".exe."), QLatin1String("."), Qt::CaseInsensitive);
+            filesToCheck << binJsonFile;
         }
 
-        filesToCheck << QFileInfo(QCoreApplication::applicationFilePath()).path() + QLatin1Char('/') + default_file;
+        const QString appDir = QFileInfo(QCoreApplication::applicationFilePath()).path() + QLatin1Char('/');
+        filesToCheck << appDir + default_properties << appDir + default_json;
     }
 
-    filesToCheck << default_file;
+    filesToCheck << default_properties << default_json;
 
-    for (const auto &configFileName: filesToCheck)
+    for (const auto &configFileName : filesToCheck)
     {
         // Configuration using default file
         if (QFile::exists(configFileName))
         {
+            const bool isJson = configFileName.endsWith(u".json"_s, Qt::CaseInsensitive);
             static_logger()->debug(u"Default initialisation configures from default file '%1'"_s, configFileName);
-            PropertyConfigurator::configure(configFileName);
-            if (mWatchThisFile)
-               ConfiguratorHelper::setConfigurationFile(configFileName, PropertyConfigurator::configure);
+            if (isJson)
+            {
+                JsonConfigurator::configure(configFileName);
+                if (mWatchThisFile)
+                    ConfiguratorHelper::setConfigurationFile(configFileName, JsonConfigurator::configure);
+            }
+            else
+            {
+                PropertyConfigurator::configure(configFileName);
+                if (mWatchThisFile)
+                    ConfiguratorHelper::setConfigurationFile(configFileName, PropertyConfigurator::configure);
+            }
             return;
         }
     }

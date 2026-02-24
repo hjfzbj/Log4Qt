@@ -22,6 +22,7 @@ set(log4qt_SOURCES
     helpers/properties.cpp
     helpers/timestampprovider.cpp
     hierarchy.cpp
+    jsonconfigurator.cpp
     layout.cpp
     level.cpp
     logger.cpp
@@ -61,6 +62,7 @@ set(log4qt_HEADERS
     dailyrollingfileappender.h
     fileappender.h
     hierarchy.h
+    jsonconfigurator.h
     layout.h
     level.h
     log4qtdefs.h

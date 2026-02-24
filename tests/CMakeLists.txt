@@ -1,4 +1,5 @@
 add_subdirectory(dailyfileappendertest)
+add_subdirectory(jsontest)
 add_subdirectory(log4qttest)
 add_subdirectory(filewatcher)
 add_subdirectory(performancetest)

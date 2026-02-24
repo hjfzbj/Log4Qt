@@ -22,6 +22,7 @@ which was itself a clone of the original Log4Qt project on SourceForge http://so
 
 Additional features
 -------------------
+* JSON configuration support (`log4qt.json`) alongside the classic `.properties` format
 * SimpleTimeLayout (“dd.MM.yyyy hh:mm [Thread] Level Logger Message”)
 * ColorConsoleAppender (render colorized message by escape sequence and put it to console)
 * SignalAppender (emit signal when log event happens)
@@ -34,6 +35,49 @@ Additional features
 * DailyFileAppender which generates a logfile for each day (add current date formatted to the filename)
 * Binary logger
 * Windows Debug Console Appender
+
+JSON Configuration
+------------------
+As an alternative to `log4qt.properties`, you can use a `log4qt.json` file:
+
+```json
+{
+    "log4j": {
+        "rootLogger": "DEBUG, console",
+        "appender": {
+            "console": {
+                "@class": "org.apache.log4j.ConsoleAppender",
+                "target": "STDOUT_TARGET",
+                "layout": {
+                    "@class": "org.apache.log4j.TTCCLayout",
+                    "dateFormat": "ISO8601"
+                }
+            }
+        },
+        "logger": {
+            "MyApp": "ERROR, console"
+        },
+        "additivity": {
+            "MyApp": "false"
+        }
+    }
+}
+```
+
+Nested objects produce dot-separated property keys, and the `@class` key sets the class
+name for the parent object. Place the file next to your executable or in the working
+directory. When both `log4qt.properties` and `log4qt.json` exist, the `.properties` file
+takes priority.
+
+You can also configure programmatically:
+
+```cpp
+#include <log4qt/jsonconfigurator.h>
+
+Log4Qt::JsonConfigurator::configure("path/to/config.json");
+// or with file watching:
+Log4Qt::JsonConfigurator::configureAndWatch("path/to/config.json");
+```
 
 Requirements
 ------------

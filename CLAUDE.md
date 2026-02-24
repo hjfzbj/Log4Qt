@@ -44,7 +44,7 @@ The library mirrors Log4j's architecture: **Logger** -> **Appender** -> **Layout
 
 ### Key Classes and Data Flow
 
-1. **LogManager** — global singleton, holds the Hierarchy, handles auto-initialization from `log4qt.properties`
+1. **LogManager** — global singleton, holds the Hierarchy, handles auto-initialization from `log4qt.properties` or `log4qt.json`
 2. **Hierarchy** — the logger repository; maintains a `QHash<QString, Logger*>` protected by `QReadWriteLock`
 3. **Logger** — obtained via `Logger::logger("name")`; checks level then calls `callAppenders(LoggingEvent)`
 4. **LoggingEvent** — value type using `QSharedDataPointer` (implicit sharing/COW) carrying level, message, timestamp, thread name, MDC/NDC context, and source location
@@ -74,7 +74,12 @@ Both use lazy-initialized static pointers (thread-safe via C++11 magic statics).
 
 ### Configuration
 
-PropertyConfigurator reads Java properties format files. Initialization searches for `log4qt.properties` automatically. The `log4j.` prefix is used in property keys (matching Log4j conventions). File watching with auto-reload is supported via `log4j.watchThisFile=true`.
+Two configuration formats are supported:
+
+- **PropertyConfigurator** reads Java `.properties` format files.
+- **JsonConfigurator** reads `.json` files, flattens them into properties (nested objects become dot-separated keys, `@class` sets the parent key's class name), and delegates to PropertyConfigurator.
+
+Initialization searches for configuration files in this order at each location: `log4qt.properties` then `log4qt.json` (`.properties` takes priority). The `log4j.` prefix is used in property keys (matching Log4j conventions). File watching with auto-reload is supported via `log4j.watchThisFile=true`.
 
 ## Code Conventions
 
@@ -89,7 +94,7 @@ PropertyConfigurator reads Java properties format files. Initialization searches
 
 ## Test Structure
 
-Tests use the **Qt Test framework**. The main test suite is `tests/log4qttest/` with a single `Log4QtTest` class containing 60+ test methods. Additional focused tests exist in `tests/dailyfileappendertest/`, `tests/filewatcher/`, and `tests/performancetest/`.
+Tests use the **Qt Test framework**. The main test suite is `tests/log4qttest/` with a single `Log4QtTest` class containing 60+ test methods. Additional focused tests exist in `tests/dailyfileappendertest/`, `tests/filewatcher/`, `tests/jsontest/`, and `tests/performancetest/`.
 
 ## Source Layout
 

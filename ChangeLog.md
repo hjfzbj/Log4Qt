@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 ----
 ## [v1.6.0] - ??
+### Added
+- JsonConfigurator for configuring logging from JSON files (`log4qt.json`).
+  The JSON format mirrors the `.properties` format in a structured tree,
+  using `@class` for class names and nested objects for dot-separated keys.
+  Automatic initialization searches for `log4qt.json` alongside `log4qt.properties`
+  (`.properties` takes priority for backward compatibility).
+
 ### Improvements
 - Modernize codebase to C++20 standard
 - qmake: Make database, telnet appender and qml logger optional depending on CONFIG
