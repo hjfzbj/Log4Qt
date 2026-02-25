@@ -33,52 +33,57 @@ class LoggerRepository;
 
 /*!
  * \brief The class XmlConfigurator allows the configuration of the
- *        package from an XML file.
+ *        package from an XML file using a Log4j2-style structured format.
  *
- * The XML file mirrors the existing \c .properties format in a
- * structured XML tree. Nested elements produce dot-separated keys
- * and the \c class attribute on an element maps to the element's
- * flat property value (the class name). For example:
+ * The XML structure maps directly to the flat property keys used by
+ * PropertyConfigurator. Nested elements produce dot-separated keys
+ * and XML attributes on elements are also flattened as child properties.
+ * For example:
  *
  * \code{.xml}
  * <?xml version="1.0" encoding="UTF-8"?>
- * <log4j>
- *     <rootLogger>ALL, console</rootLogger>
- *     <appender>
- *         <console class="org.apache.log4j.ConsoleAppender">
- *             <target>STDOUT_TARGET</target>
- *             <layout class="org.apache.log4j.TTCCLayout">
- *                 <dateFormat>ISO8601</dateFormat>
- *             </layout>
- *         </console>
- *     </appender>
- *     <logger>
- *         <MyApp>ERROR, console</MyApp>
- *     </logger>
- *     <additivity>
- *         <MyApp>false</MyApp>
- *     </additivity>
- * </log4j>
+ * <Configuration>
+ *     <Appenders>
+ *         <Console name="console">
+ *             <PatternLayout conversionPattern="%-5p %c - %m%n" />
+ *         </Console>
+ *     </Appenders>
+ *     <Loggers>
+ *         <Root level="ALL">
+ *             <AppenderRef ref="console" />
+ *         </Root>
+ *         <Logger name="MyApp" level="ERROR" additivity="false">
+ *             <AppenderRef ref="console" />
+ *         </Logger>
+ *     </Loggers>
+ * </Configuration>
  * \endcode
  *
- * Flattening rules:
- * - Nested elements produce dot-separated keys:
- *   \c <a><b>c</b></a> becomes \c a.b=c
- * - \c class attribute sets the element's key value:
- *   \c <console class="Foo"> becomes \c appender.console=Foo
- * - Variable substitution (\c ${varname}) works in text values
- *   and is resolved by OptionConverter::findAndSubst() after
- *   flattening
+ * This produces the equivalent flat properties:
+ * \code
+ * appender.console.type=Console
+ * appender.console.name=console
+ * appender.console.layout.type=PatternLayout
+ * appender.console.layout.conversionPattern=%-5p %c - %m%n
+ * rootLogger.level=ALL
+ * rootLogger.appenderRef.0.ref=console
+ * logger.MyApp.name=MyApp
+ * logger.MyApp.level=ERROR
+ * logger.MyApp.additivity=false
+ * logger.MyApp.appenderRef.0.ref=console
+ * \endcode
+ *
+ * Variable substitution (\c ${varname}) works in attribute values
+ * and text content, resolved by OptionConverter::findAndSubst() after
+ * flattening.
  *
  * The XML file is flattened into a Properties object and then
  * delegated to PropertyConfigurator for the actual configuration.
- * This reuses all existing parsing, factory, and type-conversion
- * logic with zero duplication.
  *
  * During automatic initialization the LogManager searches for
  * \c log4qt.xml after \c log4qt.json, so \c .properties and
- * \c .json files take priority for backward compatibility.
- * The \c Configuration setting also accepts \c .xml files.
+ * \c .json files take priority. The \c Configuration setting also
+ * accepts \c .xml files.
  *
  * \note All the functions declared in this class are thread-safe.
  *

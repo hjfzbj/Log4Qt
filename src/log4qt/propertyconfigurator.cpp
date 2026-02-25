@@ -24,7 +24,7 @@
 #include "helpers/factory.h"
 #include "helpers/optionconverter.h"
 #include "helpers/properties.h"
-#include "appender.h"
+#include "appenderskeleton.h"
 #include "layout.h"
 #include "logger.h"
 #include "logmanager.h"
@@ -32,6 +32,7 @@
 #include "varia/listappender.h"
 
 #include <QFile>
+#include <QSet>
 
 namespace Log4Qt
 {
@@ -137,8 +138,9 @@ void PropertyConfigurator::configureFromProperties(const Properties &properties,
         loggerRepository = LogManager::loggerRepository();
 
     configureGlobalSettings(properties, loggerRepository);
+    configureAppenders(properties);
     configureRootLogger(properties, loggerRepository);
-    configureNonRootElements(properties, loggerRepository);
+    configureLoggers(properties, loggerRepository);
     mAppenderRegistry.clear();
 }
 
@@ -157,45 +159,18 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
 {
     Q_ASSERT_X(loggerRepository, "PropertyConfigurator::configureGlobalSettings()", "loggerRepository must not be null.");
 
-    const QLatin1String key_reset("log4j.reset");
-    const QLatin1String key_debug("log4j.Debug");
-    const QLatin1String key_config_debug("log4j.configDebug");
-    const QLatin1String key_threshold("log4j.threshold");
-    const QLatin1String key_handle_qt_messages("log4j.handleQtMessages");
-    const QLatin1String key_watch_this_file("log4j.watchThisFile");
-    const QLatin1String key_filterRules("log4j.qtLogging.filterRules");
-    const QLatin1String key_messagePattern("log4j.qtLogging.messagePattern");
-
-    // Test each global setting and set it
-    // - Reset: log4j.reset
-    // - Debug: log4j.Debug, log4j.configDebug
-    // - Threshold: log4j.threshold
-    // - Handle Qt Messages: log4j.handleQtMessages
-    // - Watch the properties file
-    // - filterRules: QLoggingCategory::setFilterRules
-    // - messagePattern: qSetMessagePattern
-
     // Reset
-    QString value = properties.property(key_reset);
+    QString value = properties.property(u"reset"_s);
     if (!value.isEmpty() && OptionConverter::toBoolean(value, false))
     {
-        // Use LogManager and not loggerRepository to reset internal
-        // logging.
         LogManager::resetConfiguration();
         staticLogger()->debug(u"Reset configuration"_s);
     }
 
-    // Debug
-    value = properties.property(key_debug);
-    if (value.isNull())
-    {
-        value = properties.property(key_config_debug);
-        if (!value.isNull())
-            staticLogger()->warn(u"[%1] is deprecated. Use [%2] instead."_s, key_config_debug, key_debug);
-    }
+    // Status (replaces log4j.Debug)
+    value = properties.property(u"status"_s);
     if (!value.isNull())
     {
-        // Don't use OptionConverter::toLevel(). Invalid level string is a valid setting
         bool ok;
         Level level = Level::fromString(value, &ok);
         if (!ok)
@@ -206,7 +181,7 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
     }
 
     // Threshold
-    value = properties.property(key_threshold);
+    value = properties.property(u"threshold"_s);
     if (!value.isNull())
     {
         loggerRepository->setThreshold(OptionConverter::toLevel(value, Level::ALL_INT));
@@ -215,7 +190,7 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
     }
 
     // Handle Qt messages
-    value = properties.property(key_handle_qt_messages);
+    value = properties.property(u"handleQtMessages"_s);
     if (!value.isNull())
     {
         LogManager::setHandleQtMessages(OptionConverter::toBoolean(value, false));
@@ -224,7 +199,7 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
     }
 
     // Watch this file
-    value = properties.property(key_watch_this_file);
+    value = properties.property(u"watchThisFile"_s);
     if (!value.isNull())
     {
         LogManager::setWatchThisFile(OptionConverter::toBoolean(value, false));
@@ -232,15 +207,17 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
                         QVariant(LogManager::watchThisFile()).toString());
     }
 
-    value = properties.property(key_filterRules);
+    // Filter rules
+    value = properties.property(u"filterRules"_s);
     if (!value.isNull())
     {
-        value.replace(";", "\n");
+        value.replace(u";"_s, u"\n"_s);
         LogManager::setFilterRules(value);
         staticLogger()->debug(u"Set filter rules to %1"_s, LogManager::filterRules());
     }
 
-    value = properties.property(key_messagePattern);
+    // Message pattern
+    value = properties.property(u"messagePattern"_s);
     if (!value.isNull())
     {
         LogManager::setMessagePattern(value);
@@ -249,37 +226,116 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
 }
 
 
-void PropertyConfigurator::configureNonRootElements(const Properties &properties,
-        LoggerRepository *loggerRepository)
+void PropertyConfigurator::configureAppenders(const Properties &properties)
 {
-    Q_ASSERT_X(loggerRepository, "PropertyConfigurator::configureNonRootElements()", "loggerRepository must not be null.");
+    const QString appenderPrefix = u"appender."_s;
 
-    const QString logger_prefix = u"log4j.logger."_s;
-    const QString category_prefix = u"log4j.category."_s;
+    QStringList aliases = extractAliases(properties, appenderPrefix);
 
-    // Iterate through all entries:
-    // - Test for the logger/category prefix
-    // - Convert JAVA class names to C++ ones
-    // - Parse logger data (Level, Appender)
-    // - Parse logger additivity
-
-    QStringList keys = properties.propertyNames();
-
-    for (const auto &key : keys)
+    for (const auto &alias : aliases)
     {
-        QString java_name;
-        if (key.startsWith(logger_prefix))
-            java_name = key.mid(logger_prefix.length());
-        else if (key.startsWith(category_prefix))
-            java_name = key.mid(category_prefix.length());
-        QString cpp_name = OptionConverter::classNameJavaToCpp(java_name);
-        if (!java_name.isEmpty())
+        const QString prefix = appenderPrefix + alias + u"."_s;
+
+        // Read type
+        QString typeName = OptionConverter::findAndSubst(properties, prefix + u"type"_s);
+        if (typeName.isNull())
         {
-            Logger *p_logger = loggerRepository->logger(cpp_name);
-            QString value = OptionConverter::findAndSubst(properties, key);
-            parseLogger(properties, p_logger, key, value);
-            parseAdditivityForLogger(properties, p_logger, java_name);
+            LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing appender type for appender alias '%1'"),
+                                      CONFIGURATOR_MISSING_APPENDER_ERROR,
+                                      "Log4Qt::PropertyConfigurator");
+            e << alias;
+            staticLogger()->error(e);
+            continue;
         }
+
+        // Read name
+        QString appenderName = OptionConverter::findAndSubst(properties, prefix + u"name"_s);
+        if (appenderName.isNull())
+            appenderName = alias;
+
+        staticLogger()->debug(u"Configuring appender '%1' of type '%2'"_s, appenderName, typeName);
+
+        // Create appender
+        AppenderSharedPtr appender(Factory::createAppender(typeName));
+        if (!appender)
+        {
+            LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create appender of class '%1' named '%2'"),
+                                      CONFIGURATOR_UNKNOWN_APPENDER_CLASS_ERROR,
+                                      "Log4Qt::PropertyConfigurator");
+            e << typeName << appenderName;
+            staticLogger()->error(e);
+            continue;
+        }
+        appender->setName(appenderName);
+
+        // Layout
+        QString layoutType = OptionConverter::findAndSubst(properties, prefix + u"layout.type"_s);
+        if (!layoutType.isNull())
+        {
+            LayoutSharedPtr layout(Factory::createLayout(layoutType));
+            if (!layout)
+            {
+                LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create layout of class '%1' requested by appender '%2'"),
+                                          CONFIGURATOR_UNKNOWN_LAYOUT_CLASS_ERROR,
+                                          "Log4Qt::PropertyConfigurator");
+                e << layoutType << appenderName;
+                staticLogger()->error(e);
+                continue;
+            }
+
+            // Set layout properties
+            const QString layoutPrefix = prefix + u"layout."_s;
+            QStringList layoutExclusions;
+            layoutExclusions << u"type"_s;
+            setProperties(properties, layoutPrefix, layoutExclusions, layout.data());
+            layout->activateOptions();
+            appender->setLayout(layout);
+        }
+        else if (appender->requiresLayout())
+        {
+            LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing layout definition for appender '%1'"),
+                                      CONFIGURATOR_MISSING_LAYOUT_ERROR,
+                                      "Log4Qt::PropertyConfigurator");
+            e << appenderName;
+            staticLogger()->error(e);
+            continue;
+        }
+
+        // Filters
+        const QString filterPrefix = prefix + u"filter."_s;
+        QStringList filterAliases = extractAliases(properties, filterPrefix);
+        for (const auto &filterAlias : filterAliases)
+        {
+            const QString fPrefix = filterPrefix + filterAlias + u"."_s;
+            QString filterType = OptionConverter::findAndSubst(properties, fPrefix + u"type"_s);
+            if (filterType.isNull())
+                continue;
+
+            Filter *filter = Factory::createFilter(filterType);
+            if (!filter)
+            {
+                staticLogger()->warn(u"Unable to create filter of class '%1' for appender '%2'"_s, filterType, appenderName);
+                continue;
+            }
+
+            QStringList filterExclusions;
+            filterExclusions << u"type"_s;
+            setProperties(properties, fPrefix, filterExclusions, filter);
+            filter->activateOptions();
+
+            if (auto *skeleton = qobject_cast<AppenderSkeleton *>(appender.data()))
+                skeleton->addFilter(FilterSharedPtr(filter));
+        }
+
+        // Set remaining appender properties
+        QStringList exclusions;
+        exclusions << u"type"_s << u"name"_s << u"layout"_s << u"filter"_s;
+        setProperties(properties, prefix, exclusions, appender.data());
+
+        if (auto *skeleton = qobject_cast<AppenderSkeleton *>(appender.data()))
+            skeleton->activateOptions();
+
+        mAppenderRegistry.insert(appenderName, appender);
     }
 }
 
@@ -289,211 +345,104 @@ void PropertyConfigurator::configureRootLogger(const Properties &properties,
 {
     Q_ASSERT_X(loggerRepository, "PropertyConfigurator::configureRootLogger()", "loggerRepository must not be null.");
 
-    const QLatin1String key_root_logger("log4j.rootLogger");
-    const QLatin1String key_root_category("log4j.rootCategory");
+    Logger *rootLogger = loggerRepository->rootLogger();
 
-    // - Test for the logger/category prefix
-    // - Parse logger data for root logger
-
-    QString key = key_root_logger;
-    QString value = OptionConverter::findAndSubst(properties, key);
-    if (value.isNull())
+    // Level
+    QString levelStr = OptionConverter::findAndSubst(properties, u"rootLogger.level"_s);
+    if (!levelStr.isNull())
     {
-        key = key_root_category;
-        value = OptionConverter::findAndSubst(properties, key);
-        if (!value.isNull())
-            staticLogger()->warn(u"[%1] is deprecated. Use [%2] instead."_s, key_root_category, key_root_logger);
-    }
-
-    if (value.isNull())
-        staticLogger()->debug(u"Could not find root logger information. Is this correct?"_s);
-    else
-        parseLogger(properties, loggerRepository->rootLogger(), key, value);
-}
-
-
-void PropertyConfigurator::parseAdditivityForLogger(const Properties &properties,
-        Logger *logger,
-        const QString &log4jName) const
-{
-    Q_ASSERT_X(logger, "parseAdditivityForLogger()", "pLogger must not be null.");
-
-    const QLatin1String additivity_prefix("log4j.additivity.");
-
-    // - Lookup additivity key for logger
-    // - Set additivity, if specified
-
-    QString key = additivity_prefix + log4jName;
-    QString value = OptionConverter::findAndSubst(properties, key);
-    staticLogger()->debug(u"Parsing additivity for logger: key '%1', value '%2'"_s, key, value);
-    if (!value.isEmpty())
-    {
-        bool additivity = OptionConverter::toBoolean(value, true);
-        staticLogger()->debug(u"Setting additivity for logger '%1' to '%2'"_s, logger->name(), QVariant(value).toString());
-        logger->setAdditivity(additivity);
-    }
-}
-
-
-AppenderSharedPtr PropertyConfigurator::parseAppender(const Properties &properties,
-        const QString &name)
-{
-    // - Test if appender has been parsed before
-    // - Find appender key
-    // - Create appender object
-    // - Set layout, if required by appender
-    // - Set properties
-    // - Activate options
-    // - Add appender to registry
-
-    const QLatin1String appender_prefix("log4j.appender.");
-
-    staticLogger()->debug(u"Parsing appender named '%1'"_s, name);
-
-    if (mAppenderRegistry.contains(name))
-    {
-        staticLogger()->debug(u"Appender '%1' was already parsed."_s, name);
-        return mAppenderRegistry.value(name);
-    }
-
-    QString key = appender_prefix + name;
-    QString value = OptionConverter::findAndSubst(properties, key);
-    if (value.isNull())
-    {
-        LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing appender definition for appender named '%1'"),
-                                  CONFIGURATOR_MISSING_APPENDER_ERROR,
-                                  "Log4Qt::PropertyConfigurator");
-        e << name;
-        staticLogger()->error(e);
-        return nullptr;
-    }
-    AppenderSharedPtr p_appender(Factory::createAppender(value));
-    if (!p_appender)
-    {
-        LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create appender of class '%1' named '%2'"),
-                                  CONFIGURATOR_UNKNOWN_APPENDER_CLASS_ERROR,
-                                  "Log4Qt::PropertyConfigurator");
-        e << value << name;
-        staticLogger()->error(e);
-        return nullptr;
-    }
-    p_appender->setName(name);
-
-    if (p_appender->requiresLayout())
-    {
-        LayoutSharedPtr p_layout = parseLayout(properties, key);
-        if (p_layout)
-            p_appender->setLayout(p_layout);
-        else
-            return nullptr;
-    }
-
-    QStringList exclusions;
-    exclusions << u"layout"_s;
-    setProperties(properties, key + u"."_s, exclusions, p_appender.data());
-    if (auto *p_appenderskeleton = qobject_cast<AppenderSkeleton *>(p_appender.data()))
-        p_appenderskeleton->activateOptions();
-
-    mAppenderRegistry.insert(name, p_appender);
-    return p_appender;
-}
-
-
-LayoutSharedPtr PropertyConfigurator::parseLayout(const Properties &properties,
-        const QString &appendename)
-{
-    Q_ASSERT_X(!appendename.isEmpty(), "PropertyConfigurator::parseLayout()", "rAppenderKey must not be empty.");
-
-    // - Find layout key
-    // - Create layput object
-    // - Set properties
-    // - Activate options
-
-    const QLatin1String layout_suffix(".layout");
-
-    staticLogger()->debug(u"Parsing layout for appender named '%1'"_s, appendename);
-
-    QString key = appendename + layout_suffix;
-    QString value = OptionConverter::findAndSubst(properties, key);
-    LayoutSharedPtr p_layout;
-    if (value.isNull())
-    {
-        LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing layout definition for appender '%1'"),
-                                  CONFIGURATOR_MISSING_LAYOUT_ERROR,
-                                  "Log4Qt::PropertyConfigurator");
-        e << appendename;
-        staticLogger()->error(e);
-        return p_layout;
-    }
-    p_layout.reset(Factory::createLayout(value));
-    if (!p_layout)
-    {
-        LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create layoput of class '%1' requested by appender '%2'"),
-                                  CONFIGURATOR_UNKNOWN_LAYOUT_CLASS_ERROR,
-                                  "Log4Qt::PropertyConfigurator");
-        e << value << appendename;
-        staticLogger()->error(e);
-        return p_layout;
-    }
-
-    setProperties(properties, key + u"."_s, QStringList(), p_layout.data());
-    p_layout->activateOptions();
-
-    return p_layout;
-}
-
-
-void PropertyConfigurator::parseLogger(const Properties &properties,
-                                       Logger *logger,
-                                       const QString &key,
-                                       const QString &value)
-{
-    Q_ASSERT_X(logger, "PropertyConfigurator::parseLogger()", "pLogger must not be null.");
-    Q_ASSERT_X(!key.isEmpty(), "PropertyConfigurator::parseLogger()", "rKey must not be empty.");
-
-    const QLatin1String keyword_inherited("INHERITED");
-
-    // - Split value on comma
-    // - If level value, is specified
-    //   - Test for NULL and INHERITED
-    //   - Ensure root logger is not set to NULL
-    //   - Set level
-    // - For each entry
-    //   - Create Appender
-
-    staticLogger()->debug(u"Parsing logger: key '%1', value '%2'"_s, key, value);
-    QStringList appenders = value.split(QLatin1Char(','));
-    QStringListIterator i (appenders);
-
-    // First entry is the level. There will be always one entry, even if the rValue is
-    // empty or does not contain a comma.
-    QString sValue = i.next().trimmed();
-    if (!sValue.isEmpty())
-    {
-        Level level;
-        if (sValue.compare(keyword_inherited, Qt::CaseInsensitive) == 0)
-            level = Level::NULL_INT;
-        else
-            level = OptionConverter::toLevel(sValue, Level::DEBUG_INT);
-        if (level == Level::NULL_INT && logger->name() == QString())
+        Level level = OptionConverter::toLevel(levelStr, Level::DEBUG_INT);
+        if (level == Level::NULL_INT)
             staticLogger()->warn(u"The root logger level cannot be set to NULL."_s);
         else
         {
-            logger->setLevel(level);
-            staticLogger()->debug(u"Set level for logger '%1' to '%2'"_s,
-                            logger->name(), logger->level().toString());
+            rootLogger->setLevel(level);
+            staticLogger()->debug(u"Set level for root logger to '%1'"_s, rootLogger->level().toString());
         }
     }
 
-    logger->removeAllAppenders();
-    while (i.hasNext())
+    // Appender refs
+    rootLogger->removeAllAppenders();
+    const QString refPrefix = u"rootLogger.appenderRef."_s;
+    QStringList refAliases = extractAliases(properties, refPrefix);
+    for (const auto &refAlias : refAliases)
     {
-        sValue = i.next().trimmed();
-        if (sValue.isEmpty())
+        QString ref = OptionConverter::findAndSubst(properties, refPrefix + refAlias + u".ref"_s);
+        if (ref.isNull())
             continue;
-        AppenderSharedPtr appander = parseAppender(properties, sValue);
-        if (appander)
-            logger->addAppender(appander);
+
+        if (mAppenderRegistry.contains(ref))
+        {
+            rootLogger->addAppender(mAppenderRegistry.value(ref));
+            staticLogger()->debug(u"Added appender '%1' to root logger"_s, ref);
+        }
+        else
+        {
+            staticLogger()->warn(u"Appender '%1' referenced by root logger not found"_s, ref);
+        }
+    }
+}
+
+
+void PropertyConfigurator::configureLoggers(const Properties &properties,
+        LoggerRepository *loggerRepository)
+{
+    Q_ASSERT_X(loggerRepository, "PropertyConfigurator::configureLoggers()", "loggerRepository must not be null.");
+
+    const QString loggerPrefix = u"logger."_s;
+    QStringList aliases = extractAliases(properties, loggerPrefix);
+
+    for (const auto &alias : aliases)
+    {
+        const QString prefix = loggerPrefix + alias + u"."_s;
+
+        // Name
+        QString loggerName = OptionConverter::findAndSubst(properties, prefix + u"name"_s);
+        if (loggerName.isNull())
+        {
+            staticLogger()->warn(u"Missing name for logger alias '%1'"_s, alias);
+            continue;
+        }
+
+        Logger *logger = loggerRepository->logger(loggerName);
+
+        // Level
+        QString levelStr = OptionConverter::findAndSubst(properties, prefix + u"level"_s);
+        if (!levelStr.isNull())
+        {
+            Level level = OptionConverter::toLevel(levelStr, Level::DEBUG_INT);
+            logger->setLevel(level);
+            staticLogger()->debug(u"Set level for logger '%1' to '%2'"_s, loggerName, logger->level().toString());
+        }
+
+        // Additivity
+        QString additivityStr = OptionConverter::findAndSubst(properties, prefix + u"additivity"_s);
+        if (!additivityStr.isNull())
+        {
+            logger->setAdditivity(OptionConverter::toBoolean(additivityStr, true));
+            staticLogger()->debug(u"Set additivity for logger '%1' to '%2'"_s, loggerName, additivityStr);
+        }
+
+        // Appender refs
+        logger->removeAllAppenders();
+        const QString refPrefix = prefix + u"appenderRef."_s;
+        QStringList refAliases = extractAliases(properties, refPrefix);
+        for (const auto &refAlias : refAliases)
+        {
+            QString ref = OptionConverter::findAndSubst(properties, refPrefix + refAlias + u".ref"_s);
+            if (ref.isNull())
+                continue;
+
+            if (mAppenderRegistry.contains(ref))
+            {
+                logger->addAppender(mAppenderRegistry.value(ref));
+                staticLogger()->debug(u"Added appender '%1' to logger '%2'"_s, ref, loggerName);
+            }
+            else
+            {
+                staticLogger()->warn(u"Appender '%1' referenced by logger '%2' not found"_s, ref, loggerName);
+            }
+        }
     }
 }
 
@@ -505,12 +454,6 @@ void PropertyConfigurator::setProperties(const Properties &properties,
 {
     Q_ASSERT_X(!prefix.isEmpty(), "PropertyConfigurator::setProperties()", "rPrefix must not be empty.");
     Q_ASSERT_X(object, "PropertyConfigurator::setProperties()", "pObject must not be null.");
-
-    // Iterate through all entries:
-    // - Test for prefix to determine, if setting is for object
-    // - Skip empty property name
-    // - Skip property names in exclusion list
-    // - Set property on object
 
     staticLogger()->debug(u"Setting properties for object of class '%1' from keys starting with '%2'"_s,
                     QLatin1String(object->metaObject()->className()),
@@ -532,6 +475,29 @@ void PropertyConfigurator::setProperties(const Properties &properties,
         Factory::setObjectProperty(object, property, value);
     }
 }
+
+
+QStringList PropertyConfigurator::extractAliases(const Properties &properties,
+        const QString &prefix)
+{
+    QSet<QString> aliasSet;
+    QStringList keys = properties.propertyNames();
+
+    for (const auto &key : keys)
+    {
+        if (!key.startsWith(prefix))
+            continue;
+        QString remainder = key.mid(prefix.length());
+        int dotIndex = remainder.indexOf(QLatin1Char('.'));
+        if (dotIndex > 0)
+            aliasSet.insert(remainder.left(dotIndex));
+    }
+
+    QStringList result(aliasSet.begin(), aliasSet.end());
+    result.sort();
+    return result;
+}
+
 
 void PropertyConfigurator::startCaptureErrors()
 {
@@ -555,4 +521,4 @@ bool PropertyConfigurator::stopCaptureErrors()
     return result;
 }
 
-} // namespace Log4Qt Logging
+} // namespace Log4Qt

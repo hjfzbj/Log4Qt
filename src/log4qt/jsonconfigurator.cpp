@@ -126,18 +126,6 @@ void JsonConfigurator::flattenJsonObject(const QJsonObject &object,
         const QString &key = it.key();
         const QJsonValue &value = it.value();
 
-        if (key == u"@class")
-        {
-            // @class sets the parent key's value
-            if (!prefix.isEmpty())
-            {
-                // Remove trailing dot from prefix to get the parent key
-                QString parentKey = prefix.left(prefix.length() - 1);
-                properties.setProperty(parentKey, value.toString());
-            }
-            continue;
-        }
-
         QString fullKey = prefix.isEmpty() ? key : prefix + key;
 
         if (value.isObject())
@@ -154,7 +142,6 @@ void JsonConfigurator::flattenJsonObject(const QJsonObject &object,
         }
         else if (value.isDouble())
         {
-            // QJsonValue stores all numbers as double
             double d = value.toDouble();
             if (d == static_cast<qint64>(d))
                 properties.setProperty(fullKey, QString::number(static_cast<qint64>(d)));

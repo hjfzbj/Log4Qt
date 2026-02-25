@@ -104,8 +104,16 @@ bool XmlConfigurator::xmlToProperties(const QString &file, Properties &propertie
         return false;
     }
 
-    // Flatten from the root element's children
-    flattenXmlElement(xml, QString(), properties);
+    // Skip the root element name and flatten its children at top level
+    while (!xml.atEnd())
+    {
+        xml.readNext();
+
+        if (xml.isStartElement())
+            flattenXmlElement(xml, QString(), properties);
+        else if (xml.isEndElement())
+            break;
+    }
 
     if (xml.hasError())
     {
@@ -129,10 +137,10 @@ void XmlConfigurator::flattenXmlElement(QXmlStreamReader &xml,
     const QString elementName = xml.name().toString();
     const QString fullKey = prefix.isEmpty() ? elementName : prefix + elementName;
 
-    // Check for class attribute
-    const QString classValue = xml.attributes().value(u"class"_s).toString();
-    if (!classValue.isEmpty())
-        properties.setProperty(fullKey, classValue);
+    // Flatten XML attributes as child properties
+    const auto attributes = xml.attributes();
+    for (const auto &attr : attributes)
+        properties.setProperty(fullKey + u"."_s + attr.name().toString(), attr.value().toString());
 
     QString textContent;
     bool hasChildElements = false;

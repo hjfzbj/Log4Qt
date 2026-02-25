@@ -31,6 +31,7 @@
 #include "log4qt/xmlconfigurator.h"
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
+#include "log4qt/patternlayout.h"
 #include "log4qt/ttcclayout.h"
 
 using namespace Log4Qt;
@@ -43,7 +44,7 @@ private Q_SLOTS:
     void cleanup();
     void testFlattenSimpleKeys();
     void testFlattenNestedElements();
-    void testFlattenClassAttribute();
+    void testFlattenAttributes();
     void testFlattenBooleanStrings();
     void testFlattenFullConfig();
     void testConfigureFromFile();
@@ -74,9 +75,11 @@ void XmlConfiguratorTest::testFlattenSimpleKeys()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>ALL</rootLogger>
-</log4j>
+<configuration>
+    <rootLogger>
+        <level>ALL</level>
+    </rootLogger>
+</configuration>
 )");
 
     QVERIFY(XmlConfigurator::configure(file));
@@ -89,17 +92,26 @@ void XmlConfiguratorTest::testFlattenNestedElements()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>DEBUG, console</rootLogger>
+<configuration>
     <appender>
-        <console class="org.apache.log4j.ConsoleAppender">
+        <console>
+            <type>Console</type>
             <target>STDOUT_TARGET</target>
-            <layout class="org.apache.log4j.TTCCLayout">
+            <layout>
+                <type>TTCCLayout</type>
                 <dateFormat>ISO8601</dateFormat>
             </layout>
         </console>
     </appender>
-</log4j>
+    <rootLogger>
+        <level>DEBUG</level>
+        <appenderRef>
+            <ref0>
+                <ref>console</ref>
+            </ref0>
+        </appenderRef>
+    </rootLogger>
+</configuration>
 )");
 
     QVERIFY(XmlConfigurator::configure(file));
@@ -123,20 +135,31 @@ void XmlConfiguratorTest::testFlattenNestedElements()
     QVERIFY(foundConsole);
 }
 
-void XmlConfiguratorTest::testFlattenClassAttribute()
+void XmlConfiguratorTest::testFlattenAttributes()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>WARN, myapp</rootLogger>
+<configuration>
     <appender>
-        <myapp class="org.apache.log4j.ConsoleAppender">
-            <layout class="org.apache.log4j.SimpleLayout" />
-        </myapp>
+        <console>
+            <type>Console</type>
+            <layout>
+                <type>PatternLayout</type>
+                <conversionPattern>%-5p %c - %m%n</conversionPattern>
+            </layout>
+        </console>
     </appender>
-</log4j>
+    <rootLogger>
+        <level>WARN</level>
+        <appenderRef>
+            <ref0>
+                <ref>console</ref>
+            </ref0>
+        </appenderRef>
+    </rootLogger>
+</configuration>
 )");
 
     QVERIFY(XmlConfigurator::configure(file));
@@ -145,7 +168,10 @@ void XmlConfiguratorTest::testFlattenClassAttribute()
     QCOMPARE(root->level(), Level::WARN_INT);
     auto appenders = root->appenders();
     QVERIFY(!appenders.isEmpty());
-    QCOMPARE(appenders.first()->name(), u"myapp"_s);
+    QCOMPARE(appenders.first()->name(), u"console"_s);
+    auto *pattern = qobject_cast<PatternLayout *>(appenders.first()->layout().data());
+    QVERIFY(pattern);
+    QCOMPARE(pattern->conversionPattern(), u"%-5p %c - %m%n"_s);
 }
 
 void XmlConfiguratorTest::testFlattenBooleanStrings()
@@ -154,16 +180,25 @@ void XmlConfiguratorTest::testFlattenBooleanStrings()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>DEBUG, console</rootLogger>
+<configuration>
     <appender>
-        <console class="org.apache.log4j.ConsoleAppender">
-            <layout class="org.apache.log4j.TTCCLayout">
+        <console>
+            <type>Console</type>
+            <layout>
+                <type>TTCCLayout</type>
                 <contextPrinting>false</contextPrinting>
             </layout>
         </console>
     </appender>
-</log4j>
+    <rootLogger>
+        <level>DEBUG</level>
+        <appenderRef>
+            <ref0>
+                <ref>console</ref>
+            </ref0>
+        </appenderRef>
+    </rootLogger>
+</configuration>
 )");
 
     QVERIFY(XmlConfigurator::configure(file));
@@ -181,23 +216,38 @@ void XmlConfiguratorTest::testFlattenFullConfig()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>ALL, console</rootLogger>
+<configuration>
     <appender>
-        <console class="org.apache.log4j.ConsoleAppender">
+        <console>
+            <type>Console</type>
             <target>STDOUT_TARGET</target>
-            <layout class="org.apache.log4j.TTCCLayout">
+            <layout>
+                <type>TTCCLayout</type>
                 <dateFormat>ISO8601</dateFormat>
             </layout>
         </console>
     </appender>
+    <rootLogger>
+        <level>ALL</level>
+        <appenderRef>
+            <ref0>
+                <ref>console</ref>
+            </ref0>
+        </appenderRef>
+    </rootLogger>
     <logger>
-        <MyApp>ERROR, console</MyApp>
+        <MyApp>
+            <name>MyApp</name>
+            <level>ERROR</level>
+            <additivity>false</additivity>
+            <appenderRef>
+                <ref0>
+                    <ref>console</ref>
+                </ref0>
+            </appenderRef>
+        </MyApp>
     </logger>
-    <additivity>
-        <MyApp>false</MyApp>
-    </additivity>
-</log4j>
+</configuration>
 )");
 
     QVERIFY(XmlConfigurator::configure(file));
@@ -216,14 +266,24 @@ void XmlConfiguratorTest::testConfigureFromFile()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
-    <rootLogger>TRACE, a1</rootLogger>
+<configuration>
     <appender>
-        <a1 class="org.apache.log4j.ConsoleAppender">
-            <layout class="org.apache.log4j.SimpleLayout" />
+        <a1>
+            <type>Console</type>
+            <layout>
+                <type>SimpleLayout</type>
+            </layout>
         </a1>
     </appender>
-</log4j>
+    <rootLogger>
+        <level>TRACE</level>
+        <appenderRef>
+            <ref0>
+                <ref>a1</ref>
+            </ref0>
+        </appenderRef>
+    </rootLogger>
+</configuration>
 )");
 
     XmlConfigurator configurator;
@@ -233,11 +293,6 @@ void XmlConfiguratorTest::testConfigureFromFile()
 
 void XmlConfiguratorTest::testRealWorldConfig()
 {
-    // Based on idlmapp.exe.log4qt.properties:
-    //   logpath=../logging
-    //   log4j.rootLogger=ALL, console, daily
-    //   console = ConsoleAppender with TTCCLayout (custom dateFormat, contextPrinting, threshold OFF)
-    //   daily   = DailyFileAppender with ${logpath} substitution and TTCCLayout
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString logDir = dir.path() + "/logging";
@@ -245,32 +300,46 @@ void XmlConfiguratorTest::testRealWorldConfig()
 
     const QString file = dir.path() + "/test.xml";
     const QByteArray xml = QString(R"(<?xml version="1.0" encoding="UTF-8"?>
-<log4j>
+<configuration>
     <logpath>%1</logpath>
     <reset>true</reset>
     <threshold>NULL</threshold>
     <handleQtMessages>true</handleQtMessages>
-    <rootLogger>ALL, console, daily</rootLogger>
     <appender>
-        <console class="org.apache.log4j.ConsoleAppender">
+        <console>
+            <type>Console</type>
             <target>STDOUT_TARGET</target>
-            <layout class="org.apache.log4j.TTCCLayout">
+            <threshold>OFF</threshold>
+            <layout>
+                <type>TTCCLayout</type>
                 <dateFormat>dd.MM.yyyy hh:mm:ss.zzz</dateFormat>
                 <contextPrinting>true</contextPrinting>
             </layout>
-            <threshold>OFF</threshold>
         </console>
-        <daily class="org.apache.log4j.DailyFileAppender">
-            <file>${log4j.logpath}/idlmapp.log</file>
+        <daily>
+            <type>DailyFile</type>
+            <file>${logpath}/idlmapp.log</file>
             <appendFile>true</appendFile>
             <datePattern>_yyyy_MM_dd</datePattern>
-            <layout class="org.apache.log4j.TTCCLayout">
+            <layout>
+                <type>TTCCLayout</type>
                 <dateFormat>dd.MM.yyyy hh:mm:ss.zzz</dateFormat>
                 <contextPrinting>true</contextPrinting>
             </layout>
         </daily>
     </appender>
-</log4j>
+    <rootLogger>
+        <level>ALL</level>
+        <appenderRef>
+            <console>
+                <ref>console</ref>
+            </console>
+            <daily>
+                <ref>daily</ref>
+            </daily>
+        </appenderRef>
+    </rootLogger>
+</configuration>
 )").arg(logDir).toUtf8();
 
     writeXmlFile(file, xml);
@@ -301,7 +370,7 @@ void XmlConfiguratorTest::testRealWorldConfig()
     QCOMPARE(consoleTtcc->dateFormat(), u"dd.MM.yyyy hh:mm:ss.zzz"_s);
     QCOMPARE(consoleTtcc->contextPrinting(), true);
 
-    // Daily file appender (file() returns the dated filename, e.g. idlmapp_2026_02_24.log)
+    // Daily file appender
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"idlmapp"_s));
     QCOMPARE(dailyApp->appendFile(), true);

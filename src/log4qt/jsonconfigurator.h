@@ -33,32 +33,38 @@ class LoggerRepository;
 
 /*!
  * \brief The class JsonConfigurator allows the configuration of the
- *        package from a JSON file.
+ *        package from a JSON file using a Log4j2-style structured format.
  *
- * The JSON file mirrors the existing \c .properties format in a
- * structured JSON tree. Nested objects produce dot-separated keys
- * and the special \c \@class key within an object maps to the
- * parent's flat property value (the class name). For example:
+ * The JSON structure maps directly to the flat property keys used by
+ * PropertyConfigurator. Nested objects produce dot-separated keys.
+ * For example:
  *
  * \code{.json}
  * {
- *     "log4j": {
- *         "rootLogger": "ALL, console",
- *         "appender": {
- *             "console": {
- *                 "@class": "org.apache.log4j.ConsoleAppender",
- *                 "target": "STDOUT_TARGET",
- *                 "layout": {
- *                     "@class": "org.apache.log4j.TTCCLayout",
- *                     "dateFormat": "ISO8601"
- *                 }
+ *     "appender": {
+ *         "console": {
+ *             "type": "Console",
+ *             "name": "console",
+ *             "layout": {
+ *                 "type": "PatternLayout",
+ *                 "conversionPattern": "%-5p %c - %m%n"
  *             }
- *         },
- *         "logger": {
- *             "MyApp": "ERROR, console"
- *         },
- *         "additivity": {
- *             "MyApp": "false"
+ *         }
+ *     },
+ *     "rootLogger": {
+ *         "level": "ALL",
+ *         "appenderRef": {
+ *             "0": { "ref": "console" }
+ *         }
+ *     },
+ *     "logger": {
+ *         "MyApp": {
+ *             "name": "MyApp",
+ *             "level": "ERROR",
+ *             "additivity": "false",
+ *             "appenderRef": {
+ *                 "0": { "ref": "console" }
+ *             }
  *         }
  *     }
  * }
@@ -67,8 +73,6 @@ class LoggerRepository;
  * Flattening rules:
  * - Nested objects produce dot-separated keys:
  *   \c {"a":{"b":"c"}} becomes \c a.b=c
- * - \c \@class sets the parent key's value:
- *   \c appender.X.\@class=Foo becomes \c appender.X=Foo
  * - JSON booleans and numbers are stringified
  *   (\c true becomes \c "true", \c 42 becomes \c "42")
  * - Variable substitution (\c ${varname}) works in string values
@@ -82,8 +86,8 @@ class LoggerRepository;
  *
  * During automatic initialization the LogManager searches for
  * \c log4qt.json after \c log4qt.properties, so \c .properties
- * files take priority for backward compatibility. The \c Configuration
- * setting also accepts \c .json files.
+ * files take priority. The \c Configuration setting also accepts
+ * \c .json files.
  *
  * \note All the functions declared in this class are thread-safe.
  *

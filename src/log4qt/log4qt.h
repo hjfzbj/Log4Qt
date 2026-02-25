@@ -389,11 +389,12 @@
  *
  *     // Configure logging to log to the file C:/myapp.log using the level TRACE
  *     s.beginGroup("Properties");
- *     s.setValue("log4j.appender.A1", "org.apache.log4j.FileAppender");
- *     s.setValue("log4j.appender.A1.file", "C:/myapp.log");
- *     s.setValue("log4j.appender.A1.layout", "org.apache.log4j.TTCCLayout");
- *     s.setValue("log4j.appender.A1.layout.DateFormat", "ISO8601");
- *     s.setValue("log4j.rootLogger", "TRACE, A1");
+ *     s.setValue("appender.A1.type", "File");
+ *     s.setValue("appender.A1.file", "C:/myapp.log");
+ *     s.setValue("appender.A1.layout.type", "TTCCLayout");
+ *     s.setValue("appender.A1.layout.dateFormat", "ISO8601");
+ *     s.setValue("rootLogger.level", "TRACE");
+ *     s.setValue("rootLogger.appenderRef.0.ref", "A1");
  *
  *     // Settings will become active on next application startup
  * }

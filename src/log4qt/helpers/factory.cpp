@@ -405,49 +405,65 @@ void Factory::registerDefaultAppenders()
 {
     mAppenderRegistry.insert(u"org.apache.log4j.ConsoleAppender"_s, console_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::ConsoleAppender"_s, console_file_appender);
+    mAppenderRegistry.insert(u"Console"_s, console_file_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
+    mAppenderRegistry.insert(u"DailyRollingFile"_s, create_daily_rolling_file_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.varia.DebugAppender"_s, create_debug_appender);
     mAppenderRegistry.insert(u"Log4Qt::DebugAppender"_s, create_debug_appender);
+    mAppenderRegistry.insert(u"Debug"_s, create_debug_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.FileAppender"_s, create_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::FileAppender"_s, create_file_appender);
+    mAppenderRegistry.insert(u"File"_s, create_file_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.varia.ListAppender"_s, create_list_appender);
     mAppenderRegistry.insert(u"Log4Qt::ListAppender"_s, create_list_appender);
+    mAppenderRegistry.insert(u"List"_s, create_list_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.varia.NullAppender"_s, create_null_appender);
     mAppenderRegistry.insert(u"Log4Qt::NullAppender"_s, create_null_appender);
+    mAppenderRegistry.insert(u"Null"_s, create_null_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.RollingFileAppender"_s, create_rolling_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::RollingFileAppender"_s, create_rolling_file_appender);
+    mAppenderRegistry.insert(u"RollingFile"_s, create_rolling_file_appender);
 
     mAppenderRegistry.insert(u"org.apache.log4j.SignalAppender"_s, create_signal_appender);
     mAppenderRegistry.insert(u"Log4Qt::SignalAppender"_s, create_signal_appender);
+    mAppenderRegistry.insert(u"Signal"_s, create_signal_appender);
 #ifdef Q_OS_WIN
     mAppenderRegistry.insert(u"org.apache.log4j.ColorConsoleAppender"_s, create_color_console_appender);
     mAppenderRegistry.insert(u"Log4Qt::ColorConsoleAppender"_s, create_color_console_appender);
+    mAppenderRegistry.insert(u"ColorConsole"_s, create_color_console_appender);
 #endif
 
 #ifdef LOG4QT_DB_LOGGING_SUPPORT
     mAppenderRegistry.insert(u"org.apache.log4j.DatabaseAppender"_s, create_database_appender);
     mAppenderRegistry.insert(u"Log4Qt::DatabaseAppender"_s, create_database_appender);
+    mAppenderRegistry.insert(u"Database"_s, create_database_appender);
 #endif
 
 #ifdef LOG4QT_TELNET_LOGGING_SUPPORT
     mAppenderRegistry.insert(u"org.apache.log4j.TelnetAppender"_s, create_telnet_appender);
     mAppenderRegistry.insert(u"Log4Qt::TelnetAppender"_s, create_telnet_appender);
+    mAppenderRegistry.insert(u"Telnet"_s, create_telnet_appender);
 #endif
     mAppenderRegistry.insert(u"org.apache.log4j.AsyncAppender"_s, create_async_appender);
     mAppenderRegistry.insert(u"Log4Qt::AsyncAppender"_s, create_async_appender);
+    mAppenderRegistry.insert(u"Async"_s, create_async_appender);
 
     mAppenderRegistry.insert(u"org.apache.log4j.MainThreadAppender"_s, create_mainthread_appender);
     mAppenderRegistry.insert(u"Log4Qt::MainThreadAppender"_s, create_mainthread_appender);
+    mAppenderRegistry.insert(u"MainThread"_s, create_mainthread_appender);
 
     mAppenderRegistry.insert(u"org.apache.log4j.SystemLogAppender"_s, create_systemlog_appender);
     mAppenderRegistry.insert(u"Log4Qt::SystemLogAppender"_s, create_systemlog_appender);
+    mAppenderRegistry.insert(u"SystemLog"_s, create_systemlog_appender);
 
     mAppenderRegistry.insert(u"org.apache.log4j.DailyFileAppender"_s, create_dailyrollingfile_appender);
     mAppenderRegistry.insert(u"Log4Qt::DailyFileAppender"_s, create_dailyrollingfile_appender);
+    mAppenderRegistry.insert(u"DailyFile"_s, create_dailyrollingfile_appender);
 #ifdef Q_OS_WIN
     mAppenderRegistry.insert(u"org.apache.log4j.WDCAppender"_s, create_wdc_appender);
     mAppenderRegistry.insert(u"Log4Qt::WDCAppender"_s, create_wdc_appender);
+    mAppenderRegistry.insert(u"WDC"_s, create_wdc_appender);
 #endif
 }
 
@@ -456,12 +472,16 @@ void Factory::registerDefaultFilters()
 {
     mFilterRegistry.insert(u"org.apache.log4j.varia.DenyAllFilter"_s, create_deny_all_filter);
     mFilterRegistry.insert(u"Log4Qt::DenyAllFilter"_s, create_deny_all_filter);
+    mFilterRegistry.insert(u"DenyAll"_s, create_deny_all_filter);
     mFilterRegistry.insert(u"org.apache.log4j.varia.LevelMatchFilter"_s, create_level_match_filter);
     mFilterRegistry.insert(u"Log4Qt::LevelMatchFilter"_s, create_level_match_filter);
+    mFilterRegistry.insert(u"LevelMatch"_s, create_level_match_filter);
     mFilterRegistry.insert(u"org.apache.log4j.varia.LevelRangeFilter"_s, create_level_range_filter);
     mFilterRegistry.insert(u"Log4Qt::LevelRangeFilter"_s, create_level_range_filter);
+    mFilterRegistry.insert(u"LevelRange"_s, create_level_range_filter);
     mFilterRegistry.insert(u"org.apache.log4j.varia.StringMatchFilter"_s, create_string_match_filter);
     mFilterRegistry.insert(u"Log4Qt::StringMatchFilter"_s, create_string_match_filter);
+    mFilterRegistry.insert(u"StringMatch"_s, create_string_match_filter);
 }
 
 
@@ -469,21 +489,27 @@ void Factory::registerDefaultLayouts()
 {
     mLayoutRegistry.insert(u"org.apache.log4j.PatternLayout"_s, create_pattern_layout);
     mLayoutRegistry.insert(u"Log4Qt::PatternLayout"_s, create_pattern_layout);
+    mLayoutRegistry.insert(u"PatternLayout"_s, create_pattern_layout);
     mLayoutRegistry.insert(u"org.apache.log4j.SimpleLayout"_s, create_simple_layout);
     mLayoutRegistry.insert(u"Log4Qt::SimpleLayout"_s, create_simple_layout);
+    mLayoutRegistry.insert(u"SimpleLayout"_s, create_simple_layout);
     mLayoutRegistry.insert(u"org.apache.log4j.TTCCLayout"_s, create_ttcc_layout);
     mLayoutRegistry.insert(u"Log4Qt::TTCCLayout"_s, create_ttcc_layout);
+    mLayoutRegistry.insert(u"TTCCLayout"_s, create_ttcc_layout);
 
     mLayoutRegistry.insert(u"org.apache.log4j.SimpleTimeLayout"_s, create_simple_time_layout);
     mLayoutRegistry.insert(u"Log4Qt::SimpleTimeLayout"_s, create_simple_time_layout);
+    mLayoutRegistry.insert(u"SimpleTimeLayout"_s, create_simple_time_layout);
 
 #ifdef LOG4QT_DB_LOGGING_SUPPORT
     mLayoutRegistry.insert(u"org.apache.log4j.DatabaseLayout"_s, create_database_layout);
     mLayoutRegistry.insert(u"Log4Qt::DatabaseLayout"_s, create_database_layout);
+    mLayoutRegistry.insert(u"DatabaseLayout"_s, create_database_layout);
 #endif
 
     mLayoutRegistry.insert(u"org.apache.log4j.XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"Log4Qt::XMLLayout"_s, create_xml_layout);
+    mLayoutRegistry.insert(u"XMLLayout"_s, create_xml_layout);
 }
 
 

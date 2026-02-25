@@ -31,6 +31,7 @@
 #include "log4qt/jsonconfigurator.h"
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
+#include "log4qt/patternlayout.h"
 #include "log4qt/ttcclayout.h"
 
 using namespace Log4Qt;
@@ -43,7 +44,6 @@ private Q_SLOTS:
     void cleanup();
     void testFlattenSimpleKeys();
     void testFlattenNestedObjects();
-    void testFlattenAtClass();
     void testFlattenBooleans();
     void testFlattenNumbers();
     void testFlattenNull();
@@ -77,8 +77,8 @@ void JsonConfiguratorTest::testFlattenSimpleKeys()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "ALL"
+        "rootLogger": {
+            "level": "ALL"
         }
     })");
 
@@ -92,17 +92,20 @@ void JsonConfiguratorTest::testFlattenNestedObjects()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "DEBUG, console",
-            "appender": {
-                "console": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "target": "STDOUT_TARGET",
-                    "layout": {
-                        "@class": "org.apache.log4j.TTCCLayout",
-                        "dateFormat": "ISO8601"
-                    }
+        "appender": {
+            "console": {
+                "type": "Console",
+                "target": "STDOUT_TARGET",
+                "layout": {
+                    "type": "TTCCLayout",
+                    "dateFormat": "ISO8601"
                 }
+            }
+        },
+        "rootLogger": {
+            "level": "DEBUG",
+            "appenderRef": {
+                "0": { "ref": "console" }
             }
         }
     })");
@@ -128,50 +131,25 @@ void JsonConfiguratorTest::testFlattenNestedObjects()
     QVERIFY(foundConsole);
 }
 
-void JsonConfiguratorTest::testFlattenAtClass()
-{
-    QTemporaryDir dir;
-    QVERIFY(dir.isValid());
-    const QString file = dir.path() + "/test.json";
-    writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "WARN, myapp",
-            "appender": {
-                "myapp": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "layout": {
-                        "@class": "org.apache.log4j.SimpleLayout"
-                    }
-                }
-            }
-        }
-    })");
-
-    QVERIFY(JsonConfigurator::configure(file));
-
-    Logger *root = LogManager::rootLogger();
-    QCOMPARE(root->level(), Level::WARN_INT);
-    auto appenders = root->appenders();
-    QVERIFY(!appenders.isEmpty());
-    QCOMPARE(appenders.first()->name(), u"myapp"_s);
-}
-
 void JsonConfiguratorTest::testFlattenBooleans()
 {
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "DEBUG, console",
-            "appender": {
-                "console": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "layout": {
-                        "@class": "org.apache.log4j.TTCCLayout",
-                        "contextPrinting": false
-                    }
+        "appender": {
+            "console": {
+                "type": "Console",
+                "layout": {
+                    "type": "TTCCLayout",
+                    "contextPrinting": false
                 }
+            }
+        },
+        "rootLogger": {
+            "level": "DEBUG",
+            "appenderRef": {
+                "0": { "ref": "console" }
             }
         }
     })");
@@ -187,14 +165,12 @@ void JsonConfiguratorTest::testFlattenBooleans()
 
 void JsonConfiguratorTest::testFlattenNumbers()
 {
-    // Numbers are stringified; test via a property that accepts numbers
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
-    // threshold is a string-based level, but we can verify the rootLogger
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "INFO"
+        "rootLogger": {
+            "level": "INFO"
         }
     })");
 
@@ -208,8 +184,8 @@ void JsonConfiguratorTest::testFlattenNull()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "ERROR"
+        "rootLogger": {
+            "level": "ERROR"
         },
         "nullprop": null
     })");
@@ -224,23 +200,30 @@ void JsonConfiguratorTest::testFlattenFullConfig()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "ALL, console",
-            "appender": {
-                "console": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "target": "STDOUT_TARGET",
-                    "layout": {
-                        "@class": "org.apache.log4j.TTCCLayout",
-                        "dateFormat": "ISO8601"
-                    }
+        "appender": {
+            "console": {
+                "type": "Console",
+                "target": "STDOUT_TARGET",
+                "layout": {
+                    "type": "TTCCLayout",
+                    "dateFormat": "ISO8601"
                 }
-            },
-            "logger": {
-                "MyApp": "ERROR, console"
-            },
-            "additivity": {
-                "MyApp": "false"
+            }
+        },
+        "rootLogger": {
+            "level": "ALL",
+            "appenderRef": {
+                "0": { "ref": "console" }
+            }
+        },
+        "logger": {
+            "MyApp": {
+                "name": "MyApp",
+                "level": "ERROR",
+                "additivity": "false",
+                "appenderRef": {
+                    "0": { "ref": "console" }
+                }
             }
         }
     })");
@@ -261,15 +244,18 @@ void JsonConfiguratorTest::testConfigureFromFile()
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.json";
     writeJsonFile(file, R"({
-        "log4j": {
-            "rootLogger": "TRACE, a1",
-            "appender": {
-                "a1": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "layout": {
-                        "@class": "org.apache.log4j.SimpleLayout"
-                    }
+        "appender": {
+            "a1": {
+                "type": "Console",
+                "layout": {
+                    "type": "SimpleLayout"
                 }
+            }
+        },
+        "rootLogger": {
+            "level": "TRACE",
+            "appenderRef": {
+                "0": { "ref": "a1" }
             }
         }
     })");
@@ -281,11 +267,6 @@ void JsonConfiguratorTest::testConfigureFromFile()
 
 void JsonConfiguratorTest::testRealWorldConfig()
 {
-    // Based on idlmapp.exe.log4qt.properties:
-    //   logpath=../logging
-    //   log4j.rootLogger=ALL, console, daily
-    //   console = ConsoleAppender with TTCCLayout (custom dateFormat, contextPrinting, threshold OFF)
-    //   daily   = DailyFileAppender with ${logpath} substitution and TTCCLayout
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString logDir = dir.path() + "/logging";
@@ -294,33 +275,37 @@ void JsonConfiguratorTest::testRealWorldConfig()
     const QString file = dir.path() + "/test.json";
     const QByteArray json = QString(R"({
         "logpath": "%1",
-        "log4j": {
-            "reset": "true",
-            "threshold": "NULL",
-            "handleQtMessages": "true",
-            "rootLogger": "ALL, console, daily",
-            "appender": {
-                "console": {
-                    "@class": "org.apache.log4j.ConsoleAppender",
-                    "target": "STDOUT_TARGET",
-                    "layout": {
-                        "@class": "org.apache.log4j.TTCCLayout",
-                        "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
-                        "contextPrinting": true
-                    },
-                    "threshold": "OFF"
-                },
-                "daily": {
-                    "@class": "org.apache.log4j.DailyFileAppender",
-                    "file": "${logpath}/idlmapp.log",
-                    "appendFile": "true",
-                    "datePattern": "_yyyy_MM_dd",
-                    "layout": {
-                        "@class": "org.apache.log4j.TTCCLayout",
-                        "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
-                        "contextPrinting": "true"
-                    }
+        "reset": "true",
+        "threshold": "NULL",
+        "handleQtMessages": "true",
+        "appender": {
+            "console": {
+                "type": "Console",
+                "target": "STDOUT_TARGET",
+                "threshold": "OFF",
+                "layout": {
+                    "type": "TTCCLayout",
+                    "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
+                    "contextPrinting": true
                 }
+            },
+            "daily": {
+                "type": "DailyFile",
+                "file": "${logpath}/idlmapp.log",
+                "appendFile": "true",
+                "datePattern": "_yyyy_MM_dd",
+                "layout": {
+                    "type": "TTCCLayout",
+                    "dateFormat": "dd.MM.yyyy hh:mm:ss.zzz",
+                    "contextPrinting": "true"
+                }
+            }
+        },
+        "rootLogger": {
+            "level": "ALL",
+            "appenderRef": {
+                "console": { "ref": "console" },
+                "daily": { "ref": "daily" }
             }
         }
     })").arg(logDir).toUtf8();
@@ -353,7 +338,7 @@ void JsonConfiguratorTest::testRealWorldConfig()
     QCOMPARE(consoleTtcc->dateFormat(), u"dd.MM.yyyy hh:mm:ss.zzz"_s);
     QCOMPARE(consoleTtcc->contextPrinting(), true);
 
-    // Daily file appender (file() returns the dated filename, e.g. idlmapp_2026_02_24.log)
+    // Daily file appender
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"idlmapp"_s));
     QCOMPARE(dailyApp->appendFile(), true);
