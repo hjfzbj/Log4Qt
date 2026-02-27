@@ -362,9 +362,10 @@ void PropertyConfigurator::configureRootLogger(const Properties &properties,
     }
 
     // Appender refs
-    rootLogger->removeAllAppenders();
     const QString refPrefix = u"rootLogger.appenderRef."_s;
     QStringList refAliases = extractAliases(properties, refPrefix);
+    if (!refAliases.isEmpty())
+        rootLogger->removeAllAppenders();
     for (const auto &refAlias : refAliases)
     {
         QString ref = OptionConverter::findAndSubst(properties, refPrefix + refAlias + u".ref"_s);
@@ -410,8 +411,10 @@ void PropertyConfigurator::configureLoggers(const Properties &properties,
         QString levelStr = OptionConverter::findAndSubst(properties, prefix + u"level"_s);
         if (!levelStr.isNull())
         {
-            Level level = OptionConverter::toLevel(levelStr, Level::DEBUG_INT);
-            logger->setLevel(level);
+            if (levelStr.compare(u"INHERITED"_s, Qt::CaseInsensitive) == 0)
+                logger->setLevel(Level::NULL_INT);
+            else
+                logger->setLevel(OptionConverter::toLevel(levelStr, Level::DEBUG_INT));
             staticLogger()->debug(u"Set level for logger '%1' to '%2'"_s, loggerName, logger->level().toString());
         }
 
@@ -424,9 +427,10 @@ void PropertyConfigurator::configureLoggers(const Properties &properties,
         }
 
         // Appender refs
-        logger->removeAllAppenders();
         const QString refPrefix = prefix + u"appenderRef."_s;
         QStringList refAliases = extractAliases(properties, refPrefix);
+        if (!refAliases.isEmpty())
+            logger->removeAllAppenders();
         for (const auto &refAlias : refAliases)
         {
             QString ref = OptionConverter::findAndSubst(properties, refPrefix + refAlias + u".ref"_s);
