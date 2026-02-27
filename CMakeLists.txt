@@ -186,11 +186,17 @@ if (LOG4QT_ENABLE_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-# githob workflow files
+# github workflow files
 add_custom_target(githubworkflows SOURCES
                   ".github/workflows/cmake-ubuntu.yml"
                   ".github/workflows/cmake-windows.yml"
                   ".github/workflows/cmake-macos.yml")
+
+# project documentation
+add_custom_target(documentation SOURCES
+                  "Readme.md"
+                  "ChangeLog.md"
+                  "Configuration.md")
 
 # Create a proper FindLog4Qt - module
 set(CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/Log4Qt" )
