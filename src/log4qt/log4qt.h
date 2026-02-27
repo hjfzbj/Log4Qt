@@ -387,7 +387,9 @@
  *     s.beginGroup("Log4Qt");
  *     s.setValue("Debug", "TRACE");
  *
- *     // Configure logging to log to the file C:/myapp.log using the level TRACE
+ *     // Configure logging to log to the file C:/myapp.log using the level TRACE.
+ *     // Keys use the flat Log4j2-style format (no "log4j." prefix).
+ *     // See Configuration.md for the full key reference.
  *     s.beginGroup("Properties");
  *     s.setValue("appender.A1.type", "File");
  *     s.setValue("appender.A1.file", "C:/myapp.log");

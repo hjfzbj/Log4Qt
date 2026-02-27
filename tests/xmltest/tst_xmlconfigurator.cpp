@@ -137,26 +137,21 @@ void XmlConfiguratorTest::testFlattenNestedElements()
 
 void XmlConfiguratorTest::testFlattenAttributes()
 {
+    // Test that XML attributes on elements are flattened as child properties.
+    // e.g. <console type="Console"> produces appender.console.type=Console
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     const QString file = dir.path() + "/test.xml";
     writeXmlFile(file, R"(<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender>
-        <console>
-            <type>Console</type>
-            <layout>
-                <type>PatternLayout</type>
-                <conversionPattern>%-5p %c - %m%n</conversionPattern>
-            </layout>
+        <console type="Console" target="STDOUT_TARGET">
+            <layout type="PatternLayout" conversionPattern="%-5p %c - %m%n"/>
         </console>
     </appender>
-    <rootLogger>
-        <level>WARN</level>
+    <rootLogger level="WARN">
         <appenderRef>
-            <ref0>
-                <ref>console</ref>
-            </ref0>
+            <ref0 ref="console"/>
         </appenderRef>
     </rootLogger>
 </configuration>
@@ -169,6 +164,9 @@ void XmlConfiguratorTest::testFlattenAttributes()
     auto appenders = root->appenders();
     QVERIFY(!appenders.isEmpty());
     QCOMPARE(appenders.first()->name(), u"console"_s);
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(appenders.first().data());
+    QVERIFY(consoleApp);
+    QCOMPARE(consoleApp->target(), u"STDOUT_TARGET"_s);
     auto *pattern = qobject_cast<PatternLayout *>(appenders.first()->layout().data());
     QVERIFY(pattern);
     QCOMPARE(pattern->conversionPattern(), u"%-5p %c - %m%n"_s);

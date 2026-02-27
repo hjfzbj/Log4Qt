@@ -325,6 +325,8 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
 
             if (auto *skeleton = qobject_cast<AppenderSkeleton *>(appender.data()))
                 skeleton->addFilter(FilterSharedPtr(filter));
+            else
+                staticLogger()->warn(u"Appender '%1' does not support filters (not an AppenderSkeleton)"_s, appenderName);
         }
 
         // Set remaining appender properties
