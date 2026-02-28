@@ -66,29 +66,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Min. Qt version is 5.12, we want to use cmake automoc feature
+# Min. Qt version is 6.4, we want to use cmake automoc feature
 # and settings some defines for Qt
 set(CMAKE_AUTOMOC TRUE)
 
-if (NOT (Qt5_FOUND OR Qt6_FOUND))
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-    if (Qt6_FOUND)
-        message("Qt6 found.")
-        message(STATUS "Qt version is ${Qt6Core_VERSION}")
-        set(QT_MIN_VERSION 6.0.0)
-    elseif(Qt5_FOUND)
-        message("Qt5 found.")
-        message(STATUS "Qt version is ${Qt5Core_VERSION}")
-        set(QT_MIN_VERSION 5.12.0)
-    else()
-        message(FATAL_ERROR "No Qt found!")
-    endif()
+set(QT_MIN_VERSION 6.4.0)
+if (NOT Qt6_FOUND)
+    find_package(Qt6 COMPONENTS Core REQUIRED)
 endif()
-
-if (Qt${QT_VERSION_MAJOR}Core_VERSION VERSION_LESS ${QT_MIN_VERSION})
+message(STATUS "Qt version is ${Qt6Core_VERSION}")
+if (Qt6Core_VERSION VERSION_LESS ${QT_MIN_VERSION})
     message(FATAL_ERROR "Minimum supported Qt version is ${QT_MIN_VERSION}")
 endif()
+set(QT_VERSION_MAJOR 6)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Concurrent REQUIRED)
 
@@ -109,7 +99,7 @@ set(LOG4QT_QT_DEFINITIONS
     #QT_NO_CAST_FROM_ASCII
     QT_NO_URL_CAST_FROM_STRING
     QT_DEPRECATED_WARNINGS
-    QT_DISABLE_DEPRECATED_BEFORE=0x050F00
+    QT_DISABLE_DEPRECATED_BEFORE=0x060400
     UNICODE
     _UNICODE
 )

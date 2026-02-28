@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file.
 - Dedicated PropertyConfigurator unit test suite (`tests/propertytest`).
 
 ### Changed
+- **Breaking:** Minimum required Qt version raised to Qt 6.4. Qt 5 is no longer
+  supported. Use branch 1.6 / release 1.6.x for Qt 5.7+ support.
 - **Breaking:** PropertyConfigurator now uses a Log4j2-style configuration
   format. The `log4j.` prefix is removed, appenders use explicit `type` keys,
   and loggers use appender references instead of inline declarations:
@@ -42,12 +44,10 @@ All notable changes to this project will be documented in this file.
 ### Deprecated / Removed
 - Removed qmake support
 - Removed binary logger
-- Removed legacy Log4j1-style property configuration format
 
 ## [v1.6.0] - ??
 
 ### Improvements
-- Modernize codebase to C++20 standard
 - qmake: Make database, telnet appender and qml logger optional depending on CONFIG
 - cmake: Make database, telnet appender and qml logger optional depending on option
 - Use std::as_const instead of deprecated qAsConst for c++17 and greater
