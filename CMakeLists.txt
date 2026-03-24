@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 project(Log4Qt
     VERSION 1.6.0
     DESCRIPTION "Logging for the Qt cross-platform application framework"
@@ -14,13 +14,8 @@ if(POLICY CMP0087)
     cmake_policy(SET CMP0087 NEW)
 endif()
 
-set(LOG4QT_STANDALONE_BUILD OFF)
-if(PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(LOG4QT_STANDALONE_BUILD ON)
-endif()
-
-option(LOG4QT_ENABLE_TESTS "${PROJECT_NAME}: Enable tests" ${LOG4QT_STANDALONE_BUILD})
-option(LOG4QT_ENABLE_EXAMPLES "${PROJECT_NAME}: Enable examples" ${LOG4QT_STANDALONE_BUILD})
+option(LOG4QT_ENABLE_TESTS "${PROJECT_NAME}: Enable tests" ${PROJECT_IS_TOP_LEVEL})
+option(LOG4QT_ENABLE_EXAMPLES "${PROJECT_NAME}: Enable examples" ${PROJECT_IS_TOP_LEVEL})
 
 # in-source builds should be avoided
 set(Log4Qt_MODULE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
