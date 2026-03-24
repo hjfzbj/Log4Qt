@@ -53,7 +53,7 @@ QSqlRecord DatabaseLayout::formatRecord(const LoggingEvent &event)
         field.setName(mLoggename);
         field.setMetaType(QMetaType(QMetaType::QString));
         field.setGenerated(true);
-        field.setValue(event.loggename());
+        field.setValue(event.loggername());
         record.append(field);
     }
 
