@@ -124,6 +124,7 @@ private:
 
     static QStringList extractAliases(const Properties &properties,
                                       const QString &prefix);
+    static Properties translateLegacyProperties(const Properties &properties);
 
 private:
     AppenderSharedPtr mpConfigureErrors;

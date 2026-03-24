@@ -65,6 +65,15 @@ private Q_SLOTS:
     void testConfigureFromFile();
     void testConfigureMissingFile();
     void testRealWorldConfig();
+    // Legacy Log4j1-style format tests
+    void testLegacyRootLogger();
+    void testLegacyAppenderWithLayout();
+    void testLegacyNamedLogger();
+    void testLegacyCategoryAlias();
+    void testLegacyGlobalSettings();
+    void testLegacyMultipleAppenders();
+    void testLegacyRealWorldConfig();
+    void testLegacyVariableSubstitution();
 
 private:
     void writePropertiesFile(const QString &path, const QByteArray &content);
@@ -480,6 +489,204 @@ void PropertyConfiguratorTest::testRealWorldConfig()
     QCOMPARE(myApp->level(), Level::ERROR_INT);
     QCOMPARE(myApp->additivity(), false);
     QCOMPARE(myApp->appenders().count(), 1);
+}
+
+// --- Legacy Log4j1-style format tests ---
+
+void PropertyConfiguratorTest::testLegacyRootLogger()
+{
+    Properties props;
+    props.setProperty(u"log4j.appender.A1"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.A1.layout"_s, u"org.apache.log4j.SimpleLayout"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"DEBUG, A1"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->level(), Level::DEBUG_INT);
+    QCOMPARE(root->appenders().count(), 1);
+    QCOMPARE(root->appenders().first()->name(), u"A1"_s);
+}
+
+void PropertyConfiguratorTest::testLegacyAppenderWithLayout()
+{
+    Properties props;
+    props.setProperty(u"log4j.appender.A1"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.A1.target"_s, u"STDOUT_TARGET"_s);
+    props.setProperty(u"log4j.appender.A1.layout"_s, u"org.apache.log4j.TTCCLayout"_s);
+    props.setProperty(u"log4j.appender.A1.layout.dateFormat"_s, u"ISO8601"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"ALL, A1"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(root->appenders().first().data());
+    QVERIFY(consoleApp);
+    QCOMPARE(consoleApp->target(), u"STDOUT_TARGET"_s);
+
+    auto *ttcc = qobject_cast<TTCCLayout *>(consoleApp->layout().data());
+    QVERIFY(ttcc);
+    QCOMPARE(ttcc->dateFormat(), u"ISO8601"_s);
+}
+
+void PropertyConfiguratorTest::testLegacyNamedLogger()
+{
+    Properties props;
+    props.setProperty(u"log4j.appender.A1"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.A1.layout"_s, u"org.apache.log4j.SimpleLayout"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"ALL, A1"_s);
+    props.setProperty(u"log4j.logger.com.myapp"_s, u"ERROR, A1"_s);
+    props.setProperty(u"log4j.additivity.com.myapp"_s, u"false"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *myApp = LogManager::logger(u"com.myapp"_s);
+    QCOMPARE(myApp->level(), Level::ERROR_INT);
+    QCOMPARE(myApp->additivity(), false);
+    QCOMPARE(myApp->appenders().count(), 1);
+}
+
+void PropertyConfiguratorTest::testLegacyCategoryAlias()
+{
+    Properties props;
+    props.setProperty(u"log4j.appender.A1"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.A1.layout"_s, u"org.apache.log4j.SimpleLayout"_s);
+    props.setProperty(u"log4j.rootCategory"_s, u"INFO, A1"_s);
+    props.setProperty(u"log4j.category.com.myapp"_s, u"WARN, A1"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    QCOMPARE(LogManager::rootLogger()->level(), Level::INFO_INT);
+    Logger *myApp = LogManager::logger(u"com.myapp"_s);
+    QCOMPARE(myApp->level(), Level::WARN_INT);
+}
+
+void PropertyConfiguratorTest::testLegacyGlobalSettings()
+{
+    Logger *logLogger = LogManager::logLogger();
+    logLogger->setLevel(Level::INFO_INT);
+
+    Properties props;
+    props.setProperty(u"log4j.Debug"_s, u"TRACE"_s);
+    props.setProperty(u"log4j.threshold"_s, u"WARN"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+    QCOMPARE(logLogger->level(), Level(Level::TRACE_INT));
+    QCOMPARE(LogManager::loggerRepository()->threshold(), Level(Level::WARN_INT));
+}
+
+void PropertyConfiguratorTest::testLegacyMultipleAppenders()
+{
+    Properties props;
+    props.setProperty(u"log4j.appender.console"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.console.layout"_s, u"org.apache.log4j.SimpleLayout"_s);
+    props.setProperty(u"log4j.appender.null0"_s, u"Log4Qt::NullAppender"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"ALL, console, null0"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->level(), Level::ALL_INT);
+    QCOMPARE(root->appenders().count(), 2);
+}
+
+void PropertyConfiguratorTest::testLegacyRealWorldConfig()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString logDir = dir.path() + "/logging";
+    QVERIFY(QDir().mkpath(logDir));
+
+    const QString file = dir.path() + "/test.properties";
+    const QByteArray content = QString(
+        "logpath=%1\n"
+        "log4j.reset=true\n"
+        "log4j.threshold=NULL\n"
+        "log4j.handleQtMessages=true\n"
+        "\n"
+        "log4j.appender.console=org.apache.log4j.ConsoleAppender\n"
+        "log4j.appender.console.target=STDOUT_TARGET\n"
+        "log4j.appender.console.threshold=OFF\n"
+        "log4j.appender.console.layout=org.apache.log4j.TTCCLayout\n"
+        "log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz\n"
+        "log4j.appender.console.layout.contextPrinting=true\n"
+        "\n"
+        "log4j.appender.daily=Log4Qt::DailyFileAppender\n"
+        "log4j.appender.daily.file=${logpath}/myapp.log\n"
+        "log4j.appender.daily.appendFile=true\n"
+        "log4j.appender.daily.datePattern=_yyyy_MM_dd\n"
+        "log4j.appender.daily.layout=org.apache.log4j.TTCCLayout\n"
+        "log4j.appender.daily.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz\n"
+        "log4j.appender.daily.layout.contextPrinting=true\n"
+        "\n"
+        "log4j.rootLogger=ALL, console, daily\n"
+        "\n"
+        "log4j.logger.MyApp=ERROR, console\n"
+        "log4j.additivity.MyApp=false\n"
+    ).arg(logDir).toUtf8();
+
+    writePropertiesFile(file, content);
+    QVERIFY(PropertyConfigurator::configure(file));
+
+    // Root logger
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->level(), Level::ALL_INT);
+
+    // Verify both appenders exist
+    auto appenders = root->appenders();
+    ConsoleAppender *consoleApp = nullptr;
+    DailyFileAppender *dailyApp = nullptr;
+    for (const auto &a : appenders)
+    {
+        if (a->name() == u"console"_s)
+            consoleApp = qobject_cast<ConsoleAppender *>(a.data());
+        else if (a->name() == u"daily"_s)
+            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+    }
+
+    // Console appender
+    QVERIFY(consoleApp);
+    QCOMPARE(consoleApp->target(), u"STDOUT_TARGET"_s);
+    QCOMPARE(consoleApp->threshold(), Level::OFF_INT);
+    auto *consoleTtcc = qobject_cast<TTCCLayout *>(consoleApp->layout().data());
+    QVERIFY(consoleTtcc);
+    QCOMPARE(consoleTtcc->dateFormat(), u"dd.MM.yyyy hh:mm:ss.zzz"_s);
+
+    // Daily file appender
+    QVERIFY(dailyApp);
+    QVERIFY(dailyApp->file().contains(u"myapp"_s));
+    QCOMPARE(dailyApp->appendFile(), true);
+
+    // Named logger
+    Logger *myApp = LogManager::logger(u"MyApp"_s);
+    QCOMPARE(myApp->level(), Level::ERROR_INT);
+    QCOMPARE(myApp->additivity(), false);
+}
+
+void PropertyConfiguratorTest::testLegacyVariableSubstitution()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString logDir = dir.path() + "/logging";
+    QVERIFY(QDir().mkpath(logDir));
+
+    // Variable defined without log4j. prefix, used in log4j. keys
+    Properties props;
+    props.setProperty(u"logpath"_s, logDir);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
+    props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
+    props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
+    props.setProperty(u"log4j.appender.daily.layout"_s, u"org.apache.log4j.TTCCLayout"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"ALL, daily"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    auto *dailyApp = qobject_cast<DailyFileAppender *>(root->appenders().first().data());
+    QVERIFY(dailyApp);
+    QVERIFY(dailyApp->file().contains(u"app"_s));
+    QVERIFY(dailyApp->file().contains(logDir));
 }
 
 QTEST_GUILESS_MAIN(PropertyConfiguratorTest)

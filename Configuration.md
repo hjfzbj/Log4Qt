@@ -405,6 +405,69 @@ attributes on an element are flattened as child properties.
 
 ---
 
+## Legacy Log4j1 Format (Backward Compatibility)
+
+Property files using the old Log4j1-style format (keys prefixed with `log4j.`)
+are automatically detected and translated to the new format. No configuration
+changes are needed — existing property files continue to work.
+
+**Note:** Mixing legacy and new-format keys in the same file is not supported.
+
+### Key Mapping
+
+| Legacy Key | New Key |
+|------------|---------|
+| `log4j.appender.X=classname` | `appender.X.type=classname` |
+| `log4j.appender.X.layout=classname` | `appender.X.layout.type=classname` |
+| `log4j.appender.X.filter.F=classname` | `appender.X.filter.F.type=classname` |
+| `log4j.appender.X.<prop>=value` | `appender.X.<prop>=value` |
+| `log4j.rootLogger=LEVEL, A1, A2` | `rootLogger.level=LEVEL` + `rootLogger.appenderRef.N.ref=AN` |
+| `log4j.rootCategory=...` | Same as `rootLogger` (deprecated alias) |
+| `log4j.logger.name=LEVEL, A1` | `logger.<alias>.name=name` + `.level` + `.appenderRef` |
+| `log4j.category.name=...` | Same as `logger` (deprecated alias) |
+| `log4j.additivity.name=bool` | `logger.<alias>.additivity=bool` |
+| `log4j.Debug` / `log4j.configDebug` | `status` |
+| `log4j.reset` | `reset` |
+| `log4j.threshold` | `threshold` |
+| `log4j.handleQtMessages` | `handleQtMessages` |
+| `log4j.watchThisFile` | `watchThisFile` |
+| `log4j.qtLogging.filterRules` | `filterRules` |
+| `log4j.qtLogging.messagePattern` | `messagePattern` |
+
+### Legacy Format Example
+
+```properties
+# Variable (no log4j. prefix — passed through as-is)
+logpath=./logs
+
+# Global settings
+log4j.reset=true
+log4j.Debug=WARN
+log4j.threshold=NULL
+log4j.handleQtMessages=true
+
+# Appender (class name as value)
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.target=STDOUT_TARGET
+log4j.appender.console.layout=org.apache.log4j.TTCCLayout
+log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz
+
+log4j.appender.daily=Log4Qt::DailyFileAppender
+log4j.appender.daily.file=${logpath}/app.log
+log4j.appender.daily.appendFile=true
+log4j.appender.daily.datePattern=_yyyy_MM_dd
+log4j.appender.daily.layout=org.apache.log4j.TTCCLayout
+
+# Root logger (level + comma-separated appender list)
+log4j.rootLogger=ALL, console, daily
+
+# Named logger
+log4j.logger.MyApp=ERROR, console
+log4j.additivity.MyApp=false
+```
+
+---
+
 ## Programmatic Configuration via QSettings
 
 You can also configure Log4Qt from QSettings. The keys are stored under the

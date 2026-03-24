@@ -137,10 +137,11 @@ void PropertyConfigurator::configureFromProperties(const Properties &properties,
     if (!loggerRepository)
         loggerRepository = LogManager::loggerRepository();
 
-    configureGlobalSettings(properties, loggerRepository);
-    configureAppenders(properties);
-    configureRootLogger(properties, loggerRepository);
-    configureLoggers(properties, loggerRepository);
+    Properties translated = translateLegacyProperties(properties);
+    configureGlobalSettings(translated, loggerRepository);
+    configureAppenders(translated);
+    configureRootLogger(translated, loggerRepository);
+    configureLoggers(translated, loggerRepository);
     mAppenderRegistry.clear();
 }
 
@@ -501,6 +502,176 @@ QStringList PropertyConfigurator::extractAliases(const Properties &properties,
 
     QStringList result(aliasSet.begin(), aliasSet.end());
     result.sort();
+    return result;
+}
+
+
+Properties PropertyConfigurator::translateLegacyProperties(const Properties &properties)
+{
+    // Detect legacy format: any key starting with "log4j."
+    bool isLegacy = false;
+    const QStringList allKeys = properties.propertyNames();
+    for (const auto &key : allKeys)
+    {
+        if (key.startsWith(u"log4j."_s))
+        {
+            isLegacy = true;
+            break;
+        }
+    }
+
+    if (!isLegacy)
+        return properties;
+
+    staticLogger()->debug(u"Detected legacy Log4j1-style properties, translating to Log4j2 format"_s);
+
+    Properties result;
+
+    // Pass 1: Copy non-log4j keys verbatim (variable definitions, etc.)
+    for (const auto &key : allKeys)
+    {
+        if (!key.startsWith(u"log4j."_s))
+            result.setProperty(key, properties.property(key));
+    }
+
+    // Pass 2: Global settings
+    const std::pair<QString, QString> globalMappings[] = {
+        {u"log4j.reset"_s,                    u"reset"_s},
+        {u"log4j.configDebug"_s,              u"status"_s},
+        {u"log4j.Debug"_s,                    u"status"_s},
+        {u"log4j.threshold"_s,                u"threshold"_s},
+        {u"log4j.handleQtMessages"_s,         u"handleQtMessages"_s},
+        {u"log4j.watchThisFile"_s,            u"watchThisFile"_s},
+        {u"log4j.qtLogging.filterRules"_s,    u"filterRules"_s},
+        {u"log4j.qtLogging.messagePattern"_s, u"messagePattern"_s},
+    };
+    for (const auto &[oldKey, newKey] : globalMappings)
+    {
+        QString value = properties.property(oldKey);
+        if (!value.isNull())
+            result.setProperty(newKey, value);
+    }
+
+    // Pass 3: Appenders (log4j.appender.*)
+    const QString appenderOldPrefix = u"log4j.appender."_s;
+    for (const auto &key : allKeys)
+    {
+        if (!key.startsWith(appenderOldPrefix))
+            continue;
+
+        QString remainder = key.mid(appenderOldPrefix.length());
+        QString value = properties.property(key);
+        int firstDot = remainder.indexOf(u'.');
+
+        if (firstDot < 0)
+        {
+            // log4j.appender.A1=classname -> appender.A1.type=classname
+            result.setProperty(u"appender."_s + remainder + u".type"_s, value);
+        }
+        else
+        {
+            QString alias = remainder.left(firstDot);
+            QString subKey = remainder.mid(firstDot + 1);
+
+            if (subKey == u"layout"_s)
+            {
+                // log4j.appender.A1.layout=classname -> appender.A1.layout.type=classname
+                result.setProperty(u"appender."_s + alias + u".layout.type"_s, value);
+            }
+            else if (subKey.startsWith(u"filter."_s))
+            {
+                // Check if this is filter.F=classname (class-as-value) or filter.F.prop=value
+                QString filterRemainder = subKey.mid(7); // after "filter."
+                int filterDot = filterRemainder.indexOf(u'.');
+                if (filterDot < 0)
+                {
+                    // log4j.appender.A1.filter.F=classname -> appender.A1.filter.F.type=classname
+                    result.setProperty(u"appender."_s + remainder + u".type"_s, value);
+                }
+                else
+                {
+                    // log4j.appender.A1.filter.F.prop=value -> appender.A1.filter.F.prop=value
+                    result.setProperty(u"appender."_s + remainder, value);
+                }
+            }
+            else
+            {
+                // log4j.appender.A1.target=X -> appender.A1.target=X
+                result.setProperty(u"appender."_s + remainder, value);
+            }
+        }
+    }
+
+    // Pass 4: Root logger (log4j.rootLogger or log4j.rootCategory)
+    QString rootValue = properties.property(u"log4j.rootLogger"_s);
+    if (rootValue.isNull())
+        rootValue = properties.property(u"log4j.rootCategory"_s);
+    if (!rootValue.isNull())
+    {
+        const QStringList parts = rootValue.split(u',');
+        QString level = parts.at(0).trimmed();
+        if (!level.isEmpty())
+            result.setProperty(u"rootLogger.level"_s, level);
+        for (qsizetype i = 1; i < parts.size(); ++i)
+        {
+            QString ref = parts.at(i).trimmed();
+            if (!ref.isEmpty())
+                result.setProperty(u"rootLogger.appenderRef.%1.ref"_s.arg(i - 1), ref);
+        }
+    }
+
+    // Pass 5: Named loggers (log4j.logger.* and log4j.category.*)
+    QHash<QString, QString> loggerNameToAlias;
+    for (const auto &key : allKeys)
+    {
+        QString prefix;
+        if (key.startsWith(u"log4j.logger."_s))
+            prefix = u"log4j.logger."_s;
+        else if (key.startsWith(u"log4j.category."_s))
+            prefix = u"log4j.category."_s;
+        else
+            continue;
+
+        QString loggerName = key.mid(prefix.length());
+        QString alias = loggerName;
+        alias.replace(u'.', u'_');
+        loggerNameToAlias.insert(loggerName, alias);
+
+        QString value = properties.property(key);
+        const QStringList parts = value.split(u',');
+        QString level = parts.at(0).trimmed();
+
+        result.setProperty(u"logger.%1.name"_s.arg(alias), loggerName);
+        if (!level.isEmpty())
+            result.setProperty(u"logger.%1.level"_s.arg(alias), level);
+        for (qsizetype i = 1; i < parts.size(); ++i)
+        {
+            QString ref = parts.at(i).trimmed();
+            if (!ref.isEmpty())
+                result.setProperty(u"logger.%1.appenderRef.%2.ref"_s.arg(alias).arg(i - 1), ref);
+        }
+    }
+
+    // Pass 6: Additivity (log4j.additivity.*)
+    const QString additivityPrefix = u"log4j.additivity."_s;
+    for (const auto &key : allKeys)
+    {
+        if (!key.startsWith(additivityPrefix))
+            continue;
+
+        QString loggerName = key.mid(additivityPrefix.length());
+        QString value = properties.property(key);
+        QString alias = loggerNameToAlias.value(loggerName);
+        if (alias.isEmpty())
+        {
+            // Logger not defined via log4j.logger.X, create minimal entry
+            alias = loggerName;
+            alias.replace(u'.', u'_');
+            result.setProperty(u"logger.%1.name"_s.arg(alias), loggerName);
+        }
+        result.setProperty(u"logger.%1.additivity"_s.arg(alias), value);
+    }
+
     return result;
 }
 
