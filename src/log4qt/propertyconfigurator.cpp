@@ -527,12 +527,10 @@ Properties PropertyConfigurator::translateLegacyProperties(const Properties &pro
 
     Properties result;
 
-    // Pass 1: Copy non-log4j keys verbatim (variable definitions, etc.)
+    // Pass 1: Copy all original keys so ${log4j.*} variable references still resolve.
+    // The log4j.* keys won't interfere with parsing (it only matches appender.*, rootLogger.*, etc.)
     for (const auto &key : allKeys)
-    {
-        if (!key.startsWith(u"log4j."_s))
-            result.setProperty(key, properties.property(key));
-    }
+        result.setProperty(key, properties.property(key));
 
     // Pass 2: Global settings
     const std::pair<QString, QString> globalMappings[] = {

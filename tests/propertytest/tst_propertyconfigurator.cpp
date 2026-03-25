@@ -74,6 +74,7 @@ private Q_SLOTS:
     void testLegacyMultipleAppenders();
     void testLegacyRealWorldConfig();
     void testLegacyVariableSubstitution();
+    void testLegacyCrossReferenceSubstitution();
 
 private:
     void writePropertiesFile(const QString &path, const QByteArray &content);
@@ -687,6 +688,45 @@ void PropertyConfiguratorTest::testLegacyVariableSubstitution()
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"app"_s));
     QVERIFY(dailyApp->file().contains(logDir));
+}
+
+void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
+{
+    // Test that ${log4j.*} references in values resolve correctly after translation,
+    // e.g. reusing one appender's layout class in another appender.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString logDir = dir.path() + "/logging";
+    QVERIFY(QDir().mkpath(logDir));
+
+    Properties props;
+    props.setProperty(u"logpath"_s, logDir);
+    props.setProperty(u"log4j.appender.console"_s, u"org.apache.log4j.ConsoleAppender"_s);
+    props.setProperty(u"log4j.appender.console.layout"_s, u"org.apache.log4j.TTCCLayout"_s);
+    props.setProperty(u"log4j.appender.console.layout.dateFormat"_s, u"ISO8601"_s);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
+    props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
+    props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
+    props.setProperty(u"log4j.appender.daily.layout"_s, u"${log4j.appender.console.layout}"_s);
+    props.setProperty(u"log4j.appender.daily.layout.dateFormat"_s, u"${log4j.appender.console.layout.dateFormat}"_s);
+    props.setProperty(u"log4j.rootLogger"_s, u"ALL, console, daily"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->appenders().count(), 2);
+
+    DailyFileAppender *dailyApp = nullptr;
+    for (const auto &a : root->appenders())
+    {
+        if (a->name() == u"daily"_s)
+            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+    }
+    QVERIFY(dailyApp);
+    auto *ttcc = qobject_cast<TTCCLayout *>(dailyApp->layout().data());
+    QVERIFY(ttcc);
+    QCOMPARE(ttcc->dateFormat(), u"ISO8601"_s);
 }
 
 QTEST_GUILESS_MAIN(PropertyConfiguratorTest)
