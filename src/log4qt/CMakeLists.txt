@@ -5,19 +5,11 @@ set(log4qt_SOURCES
     appenderskeleton.cpp
     asyncappender.cpp
     basicconfigurator.cpp
-    binaryfileappender.cpp
-    binarylayout.cpp
-    binarylogger.cpp
-    binaryloggingevent.cpp
-    binarylogstream.cpp
-    binarytotextlayout.cpp
-    binarywriterappender.cpp
     consoleappender.cpp
     dailyfileappender.cpp
     dailyrollingfileappender.cpp
     fileappender.cpp
     helpers/appenderattachable.cpp
-    helpers/binaryclasslogger.cpp
     helpers/classlogger.cpp
     helpers/configuratorhelper.cpp
     helpers/datetime.cpp
@@ -28,7 +20,9 @@ set(log4qt_SOURCES
     helpers/optionconverter.cpp
     helpers/patternformatter.cpp
     helpers/properties.cpp
+    helpers/timestampprovider.cpp
     hierarchy.cpp
+    jsonconfigurator.cpp
     layout.cpp
     level.cpp
     logger.cpp
@@ -41,7 +35,6 @@ set(log4qt_SOURCES
     ndc.cpp                                                                                                                                                           
     patternlayout.cpp                                                                                                                                                 
     propertyconfigurator.cpp                                                                                                                                          
-    rollingbinaryfileappender.cpp                                                                                                                                     
     rollingfileappender.cpp                                                                                                                                           
     signalappender.cpp                                                                                                                                                
     simplelayout.cpp                                                                                                                                                  
@@ -49,7 +42,6 @@ set(log4qt_SOURCES
     spi/filter.cpp                                                                                                                                                                                                                             
     systemlogappender.cpp                                                                                                                                                                                                                      
     ttcclayout.cpp                                                                                                                                                                                                                             
-    varia/binaryeventfilter.cpp                                                                                                                                                                                                                
     varia/debugappender.cpp                                                                                                                                                                                                                    
     varia/denyallfilter.cpp                                                                                                                                                                                                                    
     varia/levelmatchfilter.cpp                                                                                                                                                                                                                 
@@ -58,6 +50,7 @@ set(log4qt_SOURCES
     varia/nullappender.cpp
     varia/stringmatchfilter.cpp
     writerappender.cpp
+    xmlconfigurator.cpp
     xmllayout.cpp
 )
 set(log4qt_HEADERS
@@ -65,18 +58,12 @@ set(log4qt_HEADERS
     appenderskeleton.h
     asyncappender.h
     basicconfigurator.h
-    binaryfileappender.h
-    binarylayout.h
-    binarylogger.h
-    binaryloggingevent.h
-    binarylogstream.h
-    binarytotextlayout.h
-    binarywriterappender.h
     consoleappender.h
     dailyfileappender.h
     dailyrollingfileappender.h
     fileappender.h
     hierarchy.h
+    jsonconfigurator.h
     layout.h
     level.h
     log4qtdefs.h
@@ -93,7 +80,6 @@ set(log4qt_HEADERS
     ndc.h
     patternlayout.h
     propertyconfigurator.h
-    rollingbinaryfileappender.h
     rollingfileappender.h
     signalappender.h
     simplelayout.h
@@ -101,11 +87,11 @@ set(log4qt_HEADERS
     systemlogappender.h
     ttcclayout.h
     writerappender.h
+    xmlconfigurator.h
     xmllayout.h
 )
 set(log4qt_HEADERS_helpers
     helpers/appenderattachable.h
-    helpers/binaryclasslogger.h
     helpers/classlogger.h
     helpers/configuratorhelper.h
     helpers/datetime.h
@@ -116,12 +102,12 @@ set(log4qt_HEADERS_helpers
     helpers/optionconverter.h
     helpers/patternformatter.h
     helpers/properties.h
+    helpers/timestampprovider.h
 )
 set(log4qt_HEADERS_spi
     spi/filter.h
 )
 set(log4qt_HEADERS_varia
-    varia/binaryeventfilter.h
     varia/debugappender.h
     varia/denyallfilter.h
     varia/levelmatchfilter.h
@@ -142,13 +128,35 @@ if(WIN32)
 endif()
 
 add_library(log4qt ${log4qt_SOURCES} ${log4qt_HEADERS} ${log4qt_HEADERS_helpers} ${log4qt_HEADERS_spi} ${log4qt_HEADERS_varia})
+add_library(Log4Qt::log4qt ALIAS log4qt)
 
+# Set target properties
+set_target_properties(log4qt PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    EXPORT_NAME log4qt
+)
+
+# Link dependencies
 target_link_libraries(log4qt
     PUBLIC
         Qt${QT_VERSION_MAJOR}::Core
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Concurrent
 )
+
+# Apply compile definitions from parent
+target_compile_definitions(log4qt
+    PRIVATE
+        ${LOG4QT_QT_DEFINITIONS}
+        ${LOG4QT_VERSION_DEFINITIONS}
+        ${LOG4QT_COMPILE_DEFINITIONS}
+)
+
+# Apply compile options from parent
+if(LOG4QT_COMPILE_OPTIONS)
+    target_compile_options(log4qt PRIVATE ${LOG4QT_COMPILE_OPTIONS})
+endif()
 
 if(BUILD_WITH_QML_LOGGING)
     target_sources(log4qt
@@ -190,9 +198,11 @@ else()
     message(STATUS "Log4Qt: Disabling qml logging support - disabled by cmake option")
 endif()
 
-target_include_directories(log4qt PUBLIC
-    $<BUILD_INTERFACE:${LOG4QT_BUILD_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>)
+target_include_directories(log4qt
+    PUBLIC
+        $<BUILD_INTERFACE:${LOG4QT_BUILD_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:include>
+)
 #
 # add databaseappender if database logging support was enabled
 #
@@ -263,20 +273,30 @@ else()
             LOG4QT_LIBRARY
     )
 endif()
-set_target_properties(log4qt PROPERTIES VERSION ${Log4Qt_VERSION_MAJOR}.${Log4Qt_VERSION_MINOR}.${Log4Qt_VERSION_PATCH})
-set_target_properties(log4qt PROPERTIES SOVERSION ${Log4Qt_VERSION_MAJOR}.${Log4Qt_VERSION_MINOR})
-#
-# Install the whole stuff
-#
-install(TARGETS log4qt EXPORT log4qt_targets
-                       COMPONENT Library
-                       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                       INCLUDES DESTINATION include
-                       )
+# Install the library and export targets
+install(TARGETS log4qt
+    EXPORT log4qt_targets
+    COMPONENT Library
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION include
+)
 
-install(FILES ${log4qt_HEADERS}         COMPONENT Devel DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt)
-install(FILES ${log4qt_HEADERS_helpers} COMPONENT Devel DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/helpers)
-install(FILES ${log4qt_HEADERS_spi}     COMPONENT Devel DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/spi)
-install(FILES ${log4qt_HEADERS_varia}   COMPONENT Devel DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/varia)
+# Install headers
+install(FILES ${log4qt_HEADERS}
+    COMPONENT Devel
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt
+)
+install(FILES ${log4qt_HEADERS_helpers}
+    COMPONENT Devel
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/helpers
+)
+install(FILES ${log4qt_HEADERS_spi}
+    COMPONENT Devel
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/spi
+)
+install(FILES ${log4qt_HEADERS_varia}
+    COMPONENT Devel
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/log4qt/varia
+)

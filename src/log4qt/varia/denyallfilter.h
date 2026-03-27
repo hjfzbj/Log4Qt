@@ -39,9 +39,8 @@ class LOG4QT_EXPORT DenyAllFilter : public Filter
 public:
     DenyAllFilter(QObject *parent = nullptr);
 
-    Decision decide(const LoggingEvent &event) const override
+    Decision decide([[maybe_unused]] const LoggingEvent &event) const override
     {
-        Q_UNUSED(&event);
         return Filter::DENY;
     }
 };

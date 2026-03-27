@@ -31,10 +31,6 @@
 #include <QThread>
 #include <QCoreApplication>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
@@ -52,7 +48,7 @@ Logger::Logger(LoggerRepository *loggerRepository, Level level,
 
 Logger::~Logger()
 {
-    logger()->warn(QStringLiteral("Unexpected destruction of Logger"));
+    logger()->warn(u"Unexpected destruction of Logger"_s);
 }
 
 void Logger::setLevel(Level level)
@@ -60,7 +56,7 @@ void Logger::setLevel(Level level)
     if ((parentLogger() == nullptr) && (level == Level::NULL_INT))
     {
         logger()->warn(
-            QStringLiteral("Invalid root logger level NULL_INT. Using DEBUG_INT instead"));
+            u"Invalid root logger level NULL_INT. Using DEBUG_INT instead"_s);
         level = Level::DEBUG_INT;
     }
     mLevel = level;
@@ -72,11 +68,7 @@ void Logger::callAppenders(const LoggingEvent &event) const
 {
     QReadLocker locker(&mAppenderGuard);
 
-#if (__cplusplus >= 201703L)
-    for (auto &&appender : std::as_const(mAppenders))
-#else
-    for (auto &&appender : qAsConst(mAppenders))
-#endif
+    for (const auto& appender : mAppenders)
         appender->doAppend(event);
     if (additivity() && (parentLogger() != nullptr))
         parentLogger()->callAppenders(event);
@@ -295,6 +287,18 @@ void Logger::logWithLocation(Level level, const char *file, int line, const char
                                              QString());
     forcedLog(loggingEvent);
 }
+
+#ifdef __cpp_lib_source_location
+void Logger::logWithLocation(Level level, const QString &message, const std::source_location &loc) const
+{
+    LoggingEvent loggingEvent = LoggingEvent(this,
+                                             level,
+                                             message,
+                                             MessageContext(loc),
+                                             QString());
+    forcedLog(loggingEvent);
+}
+#endif
 
 void Logger::log(Level level,
                  const LogError &logError) const

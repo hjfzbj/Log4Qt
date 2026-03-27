@@ -25,8 +25,17 @@
 
 #include <QTextStream>
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 #include <QPointer>
+
+#ifdef __cpp_concepts
+#include <concepts>
+
+template<typename T>
+concept QTextStreamable = requires(QTextStream &ts, const T &t) {
+    { ts << t } -> std::same_as<QTextStream &>;
+};
+#endif
 
 namespace Log4Qt
 {
@@ -35,11 +44,19 @@ class Logger;
 class LOG4QT_EXPORT LogStream
 {
 public:
+    //! Constructs a LogStream for the given logger and level.
+    //! If the level is disabled on the logger, no internal stream is allocated
+    //! and all data streamed via operator<< is silently discarded.
     LogStream(const Logger &iLogger, Level iLevel);
+#ifdef __cpp_concepts
+    template<QTextStreamable T>
+#else
     template<typename T>
+#endif
     LogStream &operator<<(const T &t)
     {
-        stream->ts << t;
+        if (stream)
+            stream->ts << t;
         return *this;
     }
 
@@ -54,7 +71,7 @@ private:
         QPointer<const Logger> mLogger;
         Level mLevel;
     };
-    QSharedPointer<Stream> stream;
+    std::shared_ptr<Stream> stream;
 };
 }
 

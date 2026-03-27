@@ -59,44 +59,44 @@ inline RecursionGuardLocker::~RecursionGuardLocker()
     *mGuard = false;
 }
 
-AppenderSkeleton::AppenderSkeleton(QObject *parent) :
-    Appender(parent),
+AppenderSkeleton::AppenderSkeleton(QObject *parent) 
+    : Appender(parent)
 #if QT_VERSION < 0x050E00
-    mObjectGuard(QMutex::Recursive), // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
 #endif
-    mAppendRecursionGuard(false),
-    mIsActive(true),
-    mIsClosed(false),
-    mThreshold(Level::NULL_INT)
+    , mAppendRecursionGuard(false)
+    , mThreshold(Level::NULL_INT)
 {
+    mIsActive.store(true, std::memory_order_relaxed);
+    mIsClosed.store(false, std::memory_order_relaxed);
 }
 
 AppenderSkeleton::AppenderSkeleton(bool isActive,
-                                   QObject *parent) :
-    Appender(parent),
+                                   QObject *parent) 
+    : Appender(parent)
 #if QT_VERSION < 0x050E00
-    mObjectGuard(QMutex::Recursive), // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
 #endif
-    mAppendRecursionGuard(false),
-    mIsActive(isActive),
-    mIsClosed(false),
-    mThreshold(Level::NULL_INT)
+    , mAppendRecursionGuard(false)
+    , mThreshold(Level::NULL_INT)
 {
+    mIsActive.store(isActive, std::memory_order_relaxed);
+    mIsClosed.store(false, std::memory_order_relaxed);
 }
 
 AppenderSkeleton::AppenderSkeleton(bool isActive,
                                    const LayoutSharedPtr &layout,
-                                   QObject *parent) :
-    Appender(parent),
+                                   QObject *parent) 
+    : Appender(parent)
 #if QT_VERSION < 0x050E00
-    mObjectGuard(QMutex::Recursive), // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
 #endif
-    mAppendRecursionGuard(false),
-    mIsActive(isActive),
-    mIsClosed(false),
-    mpLayout(layout),
-    mThreshold(Level::NULL_INT)
+    , mAppendRecursionGuard(false)
+    , mpLayout(layout)
+    , mThreshold(Level::NULL_INT)
 {
+    mIsActive.store(isActive, std::memory_order_relaxed);
+    mIsClosed.store(false, std::memory_order_relaxed);
 }
 
 AppenderSkeleton::~AppenderSkeleton()
@@ -116,14 +116,14 @@ void AppenderSkeleton::activateOptions()
         logger()->error(e);
         return;
     }
-    mIsActive = true;
+    mIsActive.store(true, std::memory_order_relaxed);
 }
 
 void AppenderSkeleton::addFilter(const FilterSharedPtr &filter)
 {
     if (!filter)
     {
-        logger()->warn(QStringLiteral("Adding null Filter to Appender '%1'"), name());
+        logger()->warn(u"Adding null Filter to Appender '%1'"_s, name());
         return;
     }
 
@@ -159,8 +159,8 @@ void AppenderSkeleton::closeInternal()
 {
     QMutexLocker locker(&mObjectGuard);
 
-    mIsClosed = true;
-    mIsActive = false;
+    mIsClosed.store(true, std::memory_order_relaxed);
+    mIsActive.store(false, std::memory_order_relaxed);
 }
 
 void AppenderSkeleton::customEvent(QEvent *event)

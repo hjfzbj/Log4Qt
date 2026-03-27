@@ -25,7 +25,7 @@
 
 #include <QDate>
 #include <QFutureSynchronizer>
-#include <QSharedPointer>
+#include <memory>
 #include <QString>
 
 namespace Log4Qt
@@ -80,7 +80,7 @@ public:
 
     void append(const LoggingEvent &event) override;
 
-    void setDateRetriever(const QSharedPointer<const IDateRetriever> &dateRetriever);
+    void setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever);
 
 private:
     Q_DISABLE_COPY_MOVE(DailyFileAppender)
@@ -89,7 +89,7 @@ private:
     void rollOver();
     QString appendDateToFilename() const;
 
-    QSharedPointer<const IDateRetriever> mDateRetriever;
+    std::shared_ptr<const IDateRetriever> mDateRetriever;
 
     QString mDatePattern;
     QDate mLastDate;

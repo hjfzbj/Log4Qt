@@ -67,7 +67,7 @@ public:
          *
          * \sa registerAppender(), createAppender()
      */
-    typedef Appender *(*AppenderFactoryFunc)();
+    using AppenderFactoryFunc = Appender *(*)();
 
     /*!
          * Prototype for a Filter factory function. The function creates
@@ -75,7 +75,7 @@ public:
          *
          * \sa registerFilter(), createFilter()
      */
-    typedef Filter *(*FilterFactoryFunc)();
+    using FilterFactoryFunc = Filter *(*)();
 
     /*!
          * Prototype for a Layout factory function. The function creates
@@ -83,7 +83,7 @@ public:
          *
          * \sa registerLayout(), createLayout()
      */
-    typedef Layout *(*LayoutFactoryFunc)();
+    using LayoutFactoryFunc = Layout *(*)();
 
 private:
     Factory();

@@ -75,30 +75,30 @@ public:
      *
      * \sa setHandleQtMessages()
      */
-    static bool handleQtMessages();
+    [[nodiscard]] static bool handleQtMessages();
 
     /*!
      * Returns true, if the current properties file is watched with a QFileWatcher
      *
      * \sa setWatchThisFile()
      */
-    static bool watchThisFile();
+    [[nodiscard]] static bool watchThisFile();
 
     /*!
      * Returns the filter rules for qc[Info|Debug|Warning|Critical]
      *
      * \sa setFilterRules()
      */
-    static QString filterRules();
+    [[nodiscard]] static QString filterRules();
 
     /*!
      * Returns the message pattern for qc[Info|Debug|Warning|Critical]
      *
      * \sa setMessagePattern()
      */
-    static QString messagePattern();
+    [[nodiscard]] static QString messagePattern();
 
-    static LoggerRepository *loggerRepository();
+    [[nodiscard]] static LoggerRepository *loggerRepository();
 
     /*!
      * Returns the logger used for logging internal messages. See
@@ -106,7 +106,7 @@ public:
      *
      * Calling this function is equivalent to calling logger("Log4Qt").
      */
-    static Logger *logLogger();
+    [[nodiscard]] static Logger *logLogger();
 
     /*!
      * Returns a pointer to the logger used for logging messages created by
@@ -116,11 +116,11 @@ public:
      *
      * \sa setHandleQtMessages()
      */
-    static Logger *qtLogger();
+    [[nodiscard]] static Logger *qtLogger();
 
-    static Logger *rootLogger();
-    static QList<Logger *> loggers();
-    static Level threshold();
+    [[nodiscard]] static Logger *rootLogger();
+    [[nodiscard]] static QList<Logger *> loggers();
+    [[nodiscard]] static Level threshold();
     static void setThreshold(Level level);
 
     /*!
@@ -206,14 +206,14 @@ public:
      */
     static void configureLogLogger();
 
-    static bool exists(const char *pName);
+    [[nodiscard]] static bool exists(const char *pName);
 
     /*!
      * Returns the LogManager instance.
      */
-    static LogManager *instance();
+    [[nodiscard]] static LogManager *instance();
 
-    static Logger *logger(const QString &name);
+    [[nodiscard]] static Logger *logger(const QString &name);
 
     /*!
      * Reset all values contained in logger repository to their default.
@@ -275,8 +275,8 @@ public:
      *     \ref Log4Qt::LOG4QT_VERSION_STR "LOG4QT_VERSION_STR"
 
      */
-    static const char *version();
-    static QVersionNumber versionNumber();
+    [[nodiscard]] static const char *version();
+    [[nodiscard]] static QVersionNumber versionNumber();
 
 private:
     void doSetHandleQtMessages(bool handleQtMessages);

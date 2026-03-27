@@ -53,7 +53,7 @@ QSqlRecord DatabaseLayout::formatRecord(const LoggingEvent &event)
         field.setName(mLoggename);
         field.setMetaType(QMetaType(QMetaType::QString));
         field.setGenerated(true);
-        field.setValue(event.loggename());
+        field.setValue(event.loggername());
         record.append(field);
     }
 
@@ -95,7 +95,7 @@ QString DatabaseLayout::format(const LoggingEvent &event)
     {
         result.append(mTimeStamp);
         result.append(":");
-        result.append(DateTime::fromMSecsSinceEpoch(event.timeStamp()).toString(QStringLiteral("dd.MM.yyyy hh:mm")));
+        result.append(DateTime::fromMSecsSinceEpoch(event.timeStamp()).toString(u"dd.MM.yyyy hh:mm"_s));
     }
 
     if (!mThreadName.isEmpty())

@@ -69,7 +69,7 @@ public:
                      , QObject *parent = nullptr);
 
 private:
-    Q_DISABLE_COPY(DatabaseAppender)
+    Q_DISABLE_COPY_MOVE(DatabaseAppender)
 
 public:
     bool requiresLayout() const override;

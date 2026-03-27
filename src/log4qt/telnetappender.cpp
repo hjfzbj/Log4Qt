@@ -31,10 +31,6 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
@@ -137,11 +133,7 @@ void TelnetAppender::append(const LoggingEvent &event)
 
     QString message(layout()->format(event));
 
-#if (__cplusplus >= 201703L)
-    for (auto &&clientConnection : std::as_const(mTcpSockets))
-#else
-    for (auto &&clientConnection : qAsConst(mTcpSockets))
-#endif
+    for (auto &&clientConnection : mTcpSockets)
     {
         clientConnection->write(message.toLocal8Bit().constData());
         if (immediateFlush())
@@ -175,11 +167,7 @@ void TelnetAppender::closeServer()
     if (mTcpServer != nullptr)
         mTcpServer->close();
 
-#if (__cplusplus >= 201703L)
-    for (auto &&clientConnection : std::as_const(mTcpSockets))
-#else
-    for (auto &&clientConnection : qAsConst(mTcpSockets))
-#endif
+    for (auto &&clientConnection : mTcpSockets)
         delete clientConnection;
 
     mTcpSockets.clear();
@@ -199,8 +187,7 @@ void TelnetAppender::onNewConnection()
 
     if ((mTcpServer != nullptr) && mTcpServer->hasPendingConnections())
     {
-        QTcpSocket *clientConnection = mTcpServer->nextPendingConnection();
-        if (clientConnection != nullptr)
+        if (QTcpSocket *clientConnection = mTcpServer->nextPendingConnection(); clientConnection != nullptr)
         {
             mTcpSockets.append(clientConnection);
             connect(clientConnection, &QTcpSocket::disconnected,

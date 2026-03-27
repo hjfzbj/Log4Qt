@@ -26,18 +26,12 @@
 #include <QReadLocker>
 #include <QThread>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
-AsyncAppender::AsyncAppender(QObject *parent) : AppenderSkeleton(parent)
-    , mThread(nullptr)
-    , mDispatcher(nullptr)
-{
-}
+AsyncAppender::AsyncAppender(QObject *parent) 
+    : AppenderSkeleton(parent)
+{}
 
 AsyncAppender::~AsyncAppender()
 {
@@ -51,15 +45,15 @@ bool AsyncAppender::requiresLayout() const
 
 void AsyncAppender::activateOptions()
 {
-    if (mThread != nullptr)
+    if (mpThread)
         return;
 
-    mThread = new QThread();
-    mDispatcher = new Dispatcher();
-    mDispatcher->setAsyncAppender(this);
+    mpThread = std::make_unique<QThread>();
+    mpDispatcher = std::make_unique<Dispatcher>();
+    mpDispatcher->setAsyncAppender(this);
 
-    mDispatcher->moveToThread(mThread);
-    mThread->start();
+    mpDispatcher->moveToThread(mpThread.get());
+    mpThread->start();
 }
 
 void AsyncAppender::close()
@@ -75,40 +69,37 @@ void AsyncAppender::closeInternal()
     if (isClosed())
         return;
 
-    if (mThread != nullptr)
+    if (mpThread)
     {
-        mDispatcher->setAsyncAppender(nullptr);
-        mThread->quit();
-        mThread->wait();
-        delete mThread;
-        mThread = nullptr;
-        delete mDispatcher;
-        mDispatcher = nullptr;
+        if (mpDispatcher)
+            mpDispatcher->setAsyncAppender(nullptr);
+        
+        mpThread->quit();
+        mpThread->wait();
+        
+        // Automatic cleanup via unique_ptr destructors
+        mpDispatcher.reset();
+        mpThread.reset();
     }
 }
 
 void AsyncAppender::callAppenders(const LoggingEvent &event) const
 {
-    Q_UNUSED(event)
     QReadLocker locker(&mAppenderGuard);
 
-#if (__cplusplus >= 201703L)
-    for (auto &&pAppender : std::as_const(mAppenders))
-#else
-    for (auto &&pAppender : qAsConst(mAppenders))
-#endif
-        pAppender->doAppend(event);
+    for (const auto& appender : mAppenders)
+        appender->doAppend(event);
 }
 
 void AsyncAppender::append(const LoggingEvent &event)
 {
-    // Post to the event loop of the dispatcher
-    qApp->postEvent(mDispatcher, new LoggingEvent(event));
+    if (mpDispatcher)
+        qApp->postEvent(mpDispatcher.get(), new LoggingEvent(event));
 }
 
 bool AsyncAppender::checkEntryConditions() const
 {
-    if ((mThread != nullptr) && !mThread->isRunning())
+    if (mpThread && !mpThread->isRunning())
     {
         LogError e =
             LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without a running dispatcher thread"),

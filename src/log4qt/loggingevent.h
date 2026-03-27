@@ -28,6 +28,11 @@
 #include <QEvent>
 
 #include <atomic>
+#ifdef __cpp_lib_source_location
+#include <source_location>
+#endif
+
+#include <QSharedDataPointer>
 
 namespace Log4Qt
 {
@@ -41,6 +46,10 @@ public:
         : file(nullptr), line(-1), function(nullptr) {}
     explicit MessageContext(const char *fileName, int lineNumber, const char *functionName)
         : file(fileName), line(lineNumber), function(functionName) {}
+#ifdef __cpp_lib_source_location
+    explicit MessageContext(const std::source_location &loc)
+        : file(loc.file_name()), line(static_cast<int>(loc.line())), function(loc.function_name()) {}
+#endif
     const char *file;
     int line;
     const char *function;
@@ -60,6 +69,10 @@ public:
     static const QEvent::Type eventId;
     LoggingEvent();
     virtual ~LoggingEvent();
+    
+    // Explicitly default copy operations
+    LoggingEvent(const LoggingEvent &other);
+    LoggingEvent &operator=(const LoggingEvent &other);
 
     LoggingEvent(const Logger *logger,
                  Level level,
@@ -97,35 +110,45 @@ public:
                  qint64 timeStamp,
                  const MessageContext &context,
                  const QString &categoryName);
+    
+    // Move-enabled constructors for zero-copy construction
+    LoggingEvent(const Logger *logger,
+                 Level level,
+                 QString &&message);
+    LoggingEvent(const Logger *logger,
+                 Level level,
+                 QString &&message,
+                 const MessageContext &context,
+                 QString &&categoryName);
 
-    inline Level level() const;
+    [[nodiscard]] Level level() const;
     // LocationInformation locationInformation() const;
-    inline const Logger *logger() const;
-    inline QString message() const;
-    inline QHash<QString, QString> mdc() const;
-    inline QString ndc() const;
-    inline QHash<QString, QString> properties() const;
-    inline qint64 sequenceNumber() const;
-    inline QString threadName() const;
-    inline qint64 timeStamp() const;
+    [[nodiscard]] const Logger *logger() const;
+    [[nodiscard]] QString message() const;
+    [[nodiscard]] QHash<QString, QString> mdc() const;
+    [[nodiscard]] QString ndc() const;
+    [[nodiscard]] QHash<QString, QString> properties() const;
+    [[nodiscard]] qint64 sequenceNumber() const;
+    [[nodiscard]] QString threadName() const;
+    [[nodiscard]] qint64 timeStamp() const;
 
-    QString loggename() const;
-    inline QString property(const QString &key) const;
-    inline QStringList propertyKeys() const;
-    inline void setProperty(const QString &key, const QString &value);
+    [[nodiscard]] QString loggername() const;
+    [[nodiscard]] QString property(const QString &key) const;
+    [[nodiscard]] QStringList propertyKeys() const;
+    void setProperty(const QString &key, const QString &value);
     QString toString() const;
     static qint64 sequenceCount();
     static qint64 startTime();
 
-    int lineNumber() const;
+    [[nodiscard]] int lineNumber() const;
     void setLineNumber(int lineNumber);
-    QString fileName() const;
+    [[nodiscard]] QString fileName() const;
     void setFileName(const QString &fileName);
-    QString functionName() const;
+    [[nodiscard]] QString functionName() const;
     void setMethodName(const QString &functionName);
-    QString categoryName() const;
+    [[nodiscard]] QString categoryName() const;
     void setCategoryName(const QString &categoryName);
-    MessageContext context() const;
+    [[nodiscard]] MessageContext context() const;
     void setContext(const MessageContext &context);
 
 private:
@@ -133,16 +156,40 @@ private:
     static qint64 nextSequenceNumber();
 
 private:
-    Level mLevel;
-    const Logger *mLogger;
-    QString mMessage;
-    QString mNdc;
-    QHash<QString, QString> mProperties;
-    qint64 mSequenceNumber;
-    QString mThreadName;
-    qint64 mTimeStamp;
-    MessageContext mContext;
-    QString mCategoryName;
+    struct Data : public QSharedData
+    {
+        Data();
+        Data(const Logger *logger,
+             Level level,
+             QString message);
+        Data(const Logger *logger,
+             Level level,
+             QString message,
+             const MessageContext &context,
+             QString categoryName);
+        Data(const Logger *logger,
+             Level level,
+             QString message,
+             const QString &ndc,
+             const QHash<QString, QString> &properties,
+             const QString &threadName,
+             qint64 timeStamp,
+             const MessageContext &context,
+             const QString &categoryName);
+
+        Level mLevel;
+        const Logger *mLogger;
+        QString mMessage;
+        QString mNdc;
+        QHash<QString, QString> mProperties;
+        qint64 mSequenceNumber;
+        QString mThreadName;
+        qint64 mTimeStamp;
+        MessageContext mContext;
+        QString mCategoryName;
+    };
+
+    QSharedDataPointer<Data> d;
 
     static std::atomic<qint64> msSequenceCount;
 
@@ -175,72 +222,11 @@ LOG4QT_EXPORT QDataStream &operator>>(QDataStream &in,
                                       LoggingEvent &loggingEvent);
 #endif // QT_NO_DATASTREAM
 
-inline Level LoggingEvent::level() const
-{
-    return mLevel;
-}
-
-inline const Logger *LoggingEvent::logger() const
-{
-    return mLogger;
-}
-
-inline QString LoggingEvent::message() const
-{
-    return mMessage;
-}
-
-inline QHash<QString, QString> LoggingEvent::mdc() const
-{
-    return mProperties;
-}
-
-inline QString LoggingEvent::ndc() const
-{
-    return mNdc;
-}
-
-inline QHash<QString, QString> LoggingEvent::properties() const
-{
-    return mProperties;
-}
-
-inline qint64 LoggingEvent::sequenceNumber() const
-{
-    return mSequenceNumber;
-}
-
-inline QString LoggingEvent::threadName() const
-{
-    return mThreadName;
-}
-
-inline qint64 LoggingEvent::timeStamp() const
-{
-    return mTimeStamp;
-}
-
-inline QString LoggingEvent::property(const QString &key) const
-{
-    return mProperties.value(key);
-}
-
-inline QStringList LoggingEvent::propertyKeys() const
-{
-    return QStringList(mProperties.keys());
-}
-
-inline void LoggingEvent::setProperty(const QString &key, const QString &value)
-{
-    mProperties.insert(key, value);
-}
-
-
 } // namespace Log4Qt
 
 
 Q_DECLARE_METATYPE(Log4Qt::LoggingEvent)
-Q_DECLARE_TYPEINFO(Log4Qt::LoggingEvent, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Log4Qt::LoggingEvent, Q_RELOCATABLE_TYPE);
 
 
 #endif // LOG4QT_LOG4QTEVENT_H

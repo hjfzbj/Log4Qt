@@ -24,6 +24,8 @@
 #include "appenderskeleton.h"
 #include "helpers/appenderattachable.h"
 
+#include <memory>
+
 namespace Log4Qt
 {
 
@@ -81,9 +83,9 @@ protected:
 private:
     Q_DISABLE_COPY_MOVE(AsyncAppender)
 
-    //! Event dispatcher trhead
-    QThread       *mThread;
-    Dispatcher    *mDispatcher;
+    //! Event dispatcher thread
+    std::unique_ptr<QThread> mpThread;
+    std::unique_ptr<Dispatcher> mpDispatcher;
     void closeInternal();
 };
 

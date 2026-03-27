@@ -79,8 +79,8 @@ ConsoleAppender::~ConsoleAppender()
 QString ConsoleAppender::target() const
 {
     if (mTarget == STDOUT_TARGET)
-        return QStringLiteral("STDOUT_TARGET");
-    return QStringLiteral("STDERR_TARGET");
+        return u"STDOUT_TARGET"_s;
+    return u"STDERR_TARGET"_s;
 }
 
 void ConsoleAppender::setTarget(const QString &target)
@@ -98,10 +98,10 @@ void ConsoleAppender::activateOptions()
     closeStream();
 
     if (mTarget == STDOUT_TARGET)
-        mtextStream = new QTextStream(stdout);
+        mtextStream = std::make_unique<QTextStream>(stdout);
     else
-        mtextStream = new QTextStream(stderr);
-    setWriter(mtextStream);
+        mtextStream = std::make_unique<QTextStream>(stderr);
+    setWriter(mtextStream.get());
 
     WriterAppender::activateOptions();
 }
@@ -125,8 +125,7 @@ void ConsoleAppender::closeInternal()
 void ConsoleAppender::closeStream()
 {
     setWriter(nullptr);
-    delete mtextStream;
-    mtextStream = nullptr;
+    mtextStream.reset();
 }
 
 void ConsoleAppender::append(const LoggingEvent &event)

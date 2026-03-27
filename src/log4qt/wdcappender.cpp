@@ -26,9 +26,8 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #else
-static void OutputDebugString(const wchar_t *lpOutputString)
+static void OutputDebugString([[maybe_unused]] const wchar_t *lpOutputString)
 {
-    Q_UNUSED(lpOutputString)
 }
 #endif
 

@@ -24,69 +24,66 @@
 #include "layout.h"
 
 #include <QTextStream>
+#include <vector>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
+constexpr int NIX_BACK_BLACK      = 40;
+constexpr int NIX_BACK_RED        = 41;
+constexpr int NIX_BACK_GREEN      = 42;
+constexpr int NIX_BACK_YELLOW     = 43;
+constexpr int NIX_BACK_BLUE       = 44;
+constexpr int NIX_BACK_MAGNETTA   = 45;
+constexpr int NIX_BACK_CYAN       = 46;
+constexpr int NIX_BACK_GRAY       = 47;
 
-#define NIX_BACK_BLACK      40
-#define NIX_BACK_RED        41
-#define NIX_BACK_GREEN      42
-#define NIX_BACK_YELLOW     43
-#define NIX_BACK_BLUE       44
-#define NIX_BACK_MAGNETTA   45
-#define NIX_BACK_CYAN       46
-#define NIX_BACK_GRAY       47
+constexpr int NIX_FORE_BLACK      = 30;
+constexpr int NIX_FORE_RED        = 31;
+constexpr int NIX_FORE_GREEN      = 2;
+constexpr int NIX_FORE_YELLOW     = 33;
+constexpr int NIX_FORE_BLUE       = 34;
+constexpr int NIX_FORE_MAGNETTA   = 35;
+constexpr int NIX_FORE_CYAN       = 36;
+constexpr int NIX_FORE_GRAY       = 37;
 
-#define NIX_FORE_BLACK      30
-#define NIX_FORE_RED        31
-#define NIX_FORE_GREEN      2
-#define NIX_FORE_YELLOW     33
-#define NIX_FORE_BLUE       34
-#define NIX_FORE_MAGNETTA   35
-#define NIX_FORE_CYAN       36
-#define NIX_FORE_GRAY       37
+constexpr int NIX_FORE_BOLD       = 1;
 
-#define NIX_FORE_BOLD       1
-
-#define NIX_DEFAULT         0
+constexpr int NIX_DEFAULT         = 0;
 
 #ifdef Q_OS_WIN
-#define WIN_BACK_BLACK                  0
-#define WIN_BACK_RED                    BACKGROUND_RED
-#define WIN_BACK_LIGHT_RED              BACKGROUND_RED | BACKGROUND_INTENSITY
-#define WIN_BACK_GREEN                  BACKGROUND_GREEN
-#define WIN_BACK_LIGHT_GREEN            BACKGROUND_GREEN | BACKGROUND_INTENSITY
-#define WIN_BACK_YELLOW                 BACKGROUND_GREEN | BACKGROUND_RED
-#define WIN_BACK_LIGHT_YELLOW           BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
-#define WIN_BACK_BLUE                   BACKGROUND_BLUE
-#define WIN_BACK_LIGHT_BLUE             BACKGROUND_BLUE | BACKGROUND_INTENSITY
-#define WIN_BACK_MAGNETTA               BACKGROUND_RED | BACKGROUND_BLUE
-#define WIN_BACK_LIGHT_MAGNETTA         BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY
-#define WIN_BACK_CYAN                   BACKGROUND_BLUE | BACKGROUND_GREEN
-#define WIN_BACK_LIGHT_CYAN             BACKGROUND_BLUE | BACKGROUND_GREEN
-#define WIN_BACK_GRAY                   BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED
-#define WIN_BACK_WHITE                  BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY
+constexpr WORD WIN_BACK_BLACK             = 0;
+constexpr WORD WIN_BACK_RED               = BACKGROUND_RED;
+constexpr WORD WIN_BACK_LIGHT_RED         = BACKGROUND_RED | BACKGROUND_INTENSITY;
+constexpr WORD WIN_BACK_GREEN             = BACKGROUND_GREEN;
+constexpr WORD WIN_BACK_LIGHT_GREEN       = BACKGROUND_GREEN | BACKGROUND_INTENSITY;
+constexpr WORD WIN_BACK_YELLOW            = BACKGROUND_GREEN | BACKGROUND_RED;
+constexpr WORD WIN_BACK_LIGHT_YELLOW      = BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY;
+constexpr WORD WIN_BACK_BLUE              = BACKGROUND_BLUE;
+constexpr WORD WIN_BACK_LIGHT_BLUE        = BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+constexpr WORD WIN_BACK_MAGNETTA          = BACKGROUND_RED | BACKGROUND_BLUE;
+constexpr WORD WIN_BACK_LIGHT_MAGNETTA    = BACKGROUND_RED | BACKGROUND_BLUE | BACKGROUND_INTENSITY;
+constexpr WORD WIN_BACK_CYAN              = BACKGROUND_BLUE | BACKGROUND_GREEN;
+constexpr WORD WIN_BACK_LIGHT_CYAN        = BACKGROUND_BLUE | BACKGROUND_GREEN;
+constexpr WORD WIN_BACK_GRAY              = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED;
+constexpr WORD WIN_BACK_WHITE             = BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY;
 
-#define WIN_FORE_BLACK                  0
-#define WIN_FORE_RED                    FOREGROUND_RED
-#define WIN_FORE_LIGHT_RED              FOREGROUND_RED | FOREGROUND_INTENSITY
-#define WIN_FORE_GREEN                  FOREGROUND_GREEN
-#define WIN_FORE_LIGHT_GREEN            FOREGROUND_GREEN | FOREGROUND_INTENSITY
-#define WIN_FORE_YELLOW                 FOREGROUND_GREEN | FOREGROUND_RED
-#define WIN_FORE_LIGHT_YELLOW           FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-#define WIN_FORE_BLUE                   FOREGROUND_BLUE
-#define WIN_FORE_LIGHT_BLUE             FOREGROUND_BLUE | FOREGROUND_INTENSITY
-#define WIN_FORE_MAGNETTA               FOREGROUND_RED | FOREGROUND_BLUE
-#define WIN_FORE_LIGHT_MAGNETTA         FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-#define WIN_FORE_CYAN                   FOREGROUND_BLUE | FOREGROUND_GREEN
-#define WIN_FORE_LIGHT_CYAN             FOREGROUND_BLUE | FOREGROUND_GREEN
-#define WIN_FORE_GRAY                   FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
-#define WIN_FORE_WHITE                  FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
+constexpr WORD WIN_FORE_BLACK             = 0;
+constexpr WORD WIN_FORE_RED               = FOREGROUND_RED;
+constexpr WORD WIN_FORE_LIGHT_RED         = FOREGROUND_RED | FOREGROUND_INTENSITY;
+constexpr WORD WIN_FORE_GREEN             = FOREGROUND_GREEN;
+constexpr WORD WIN_FORE_LIGHT_GREEN       = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+constexpr WORD WIN_FORE_YELLOW            = FOREGROUND_GREEN | FOREGROUND_RED;
+constexpr WORD WIN_FORE_LIGHT_YELLOW      = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY;
+constexpr WORD WIN_FORE_BLUE              = FOREGROUND_BLUE;
+constexpr WORD WIN_FORE_LIGHT_BLUE        = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+constexpr WORD WIN_FORE_MAGNETTA          = FOREGROUND_RED | FOREGROUND_BLUE;
+constexpr WORD WIN_FORE_LIGHT_MAGNETTA    = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+constexpr WORD WIN_FORE_CYAN              = FOREGROUND_BLUE | FOREGROUND_GREEN;
+constexpr WORD WIN_FORE_LIGHT_CYAN        = FOREGROUND_BLUE | FOREGROUND_GREEN;
+constexpr WORD WIN_FORE_GRAY              = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
+constexpr WORD WIN_FORE_WHITE             = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY;
 
-#define WIN_FORE_BOLD                   FOREGROUND_INTENSITY
+constexpr WORD WIN_FORE_BOLD              = FOREGROUND_INTENSITY;
 
-#define WIN_DEFAULT                     FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED
+constexpr WORD WIN_DEFAULT                = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
 
 static void colorOutputString(HANDLE hConsole, const QString &output)
 {
@@ -101,8 +98,6 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
         return;
     }
 
-    wchar_t *wideMessage;
-
     QStringList colorizedMessage = message.split('\033');
 
     int actualSize;
@@ -114,10 +109,9 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
     // display first part of message
     if (!colorizedMessage.at(0).isEmpty())
     {
-        wideMessage = new wchar_t [colorizedMessage.at(0).size()];
-        actualSize = colorizedMessage.at(0).toWCharArray(wideMessage);
-        WriteConsoleW(hConsole, wideMessage, actualSize, &out, nullptr);
-        delete [] wideMessage;
+        std::vector<wchar_t> wideBuf(colorizedMessage.at(0).size());
+        actualSize = colorizedMessage.at(0).toWCharArray(wideBuf.data());
+        WriteConsoleW(hConsole, wideBuf.data(), actualSize, &out, nullptr);
         colorizedMessage.removeAt(0);
     }
     for (QString it : colorizedMessage)
@@ -134,11 +128,7 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
                 parsedWordString = it.mid(1, indexOfM - 1);
 
                 escParams = parsedWordString.split(';');
-#if (__cplusplus >= 201703L)
-                for (const auto &param : std::as_const(escParams))
-#else
-                for (const auto &param : qAsConst(escParams))
-#endif
+                for (const auto &param : escParams)
                 {
                     WORD color = param.toUInt();
                     switch (color)
@@ -207,10 +197,9 @@ static void colorOutputString(HANDLE hConsole, const QString &output)
             }
         }
 
-        wideMessage = new wchar_t [it.size()];
-        actualSize = it.toWCharArray(wideMessage);
-        WriteConsoleW(hConsole, wideMessage, actualSize, &out, nullptr);
-        delete [] wideMessage;
+        std::vector<wchar_t> wideBuf(it.size());
+        actualSize = it.toWCharArray(wideBuf.data());
+        WriteConsoleW(hConsole, wideBuf.data(), actualSize, &out, nullptr);
     }
     // load old colors
     SetConsoleTextAttribute(hConsole, cbi.wAttributes);
@@ -273,7 +262,7 @@ void ColorConsoleAppender::activateOptions()
 {
     ConsoleAppender::activateOptions();
 
-    if (target() == QStringLiteral("STDOUT_TARGET"))
+    if (target() == u"STDOUT_TARGET"_s)
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     else
         hConsole = GetStdHandle(STD_ERROR_HANDLE);

@@ -38,9 +38,8 @@ NullAppender::~NullAppender()
     close();
 }
 
-void NullAppender::append(const LoggingEvent &event)
+void NullAppender::append([[maybe_unused]] const LoggingEvent &event)
 {
-    Q_UNUSED(event);
 }
 
 } // namespace Log4Qt

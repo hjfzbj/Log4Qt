@@ -37,19 +37,19 @@ QString XMLLayout::format(const LoggingEvent &event)
     QString output;
     QXmlStreamWriter writer(&output);
 
-    writer.writeStartElement(QStringLiteral("log4j:event"));
-    writer.writeAttribute(QStringLiteral("logger"), event.loggename());
-    writer.writeAttribute(QStringLiteral("timestamp"), QString::number(event.timeStamp()));
-    writer.writeAttribute(QStringLiteral("level"), event.level().toString());
-    writer.writeAttribute(QStringLiteral("thread"), event.threadName());
+    writer.writeStartElement(u"log4j:event"_s);
+    writer.writeAttribute(u"logger"_s, event.loggername());
+    writer.writeAttribute(u"timestamp"_s, QString::number(event.timeStamp()));
+    writer.writeAttribute(u"level"_s, event.level().toString());
+    writer.writeAttribute(u"thread"_s, event.threadName());
 
-    writer.writeStartElement(QStringLiteral("log4j:message"));
+    writer.writeStartElement(u"log4j:message"_s);
     writer.writeCDATA(event.message());
     writer.writeEndElement();
 
     if (!event.ndc().isEmpty())
     {
-        writer.writeStartElement(QStringLiteral("log4j:NDC"));
+        writer.writeStartElement(u"log4j:NDC"_s);
         writer.writeCDATA(event.ndc());
         writer.writeEndElement();
     }
@@ -57,12 +57,12 @@ QString XMLLayout::format(const LoggingEvent &event)
     auto props = event.properties();
     if (!props.isEmpty())
     {
-        writer.writeStartElement(QStringLiteral("log4j:properties"));
-        for (auto pos = props.constBegin(); pos != props.constEnd(); ++pos)
+        writer.writeStartElement(u"log4j:properties"_s);
+        for (const auto &[key, value] : props.asKeyValueRange())
         {
-            writer.writeStartElement(QStringLiteral("log4j:data"));
-            writer.writeAttribute(QStringLiteral("name"), pos.key());
-            writer.writeAttribute(QStringLiteral("value"), pos.value());
+            writer.writeStartElement(u"log4j:data"_s);
+            writer.writeAttribute(u"name"_s, key);
+            writer.writeAttribute(u"value"_s, value);
             writer.writeEndElement();
         }
         writer.writeEndElement();

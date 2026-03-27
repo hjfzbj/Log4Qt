@@ -72,10 +72,10 @@ public:
     Appender(QObject *parent = nullptr);
     virtual ~Appender();
 
-    virtual FilterSharedPtr filter() const = 0;
-    virtual QString name() const = 0;
-    virtual LayoutSharedPtr layout() const = 0;
-    virtual bool requiresLayout() const = 0;
+    [[nodiscard]] virtual FilterSharedPtr filter() const = 0;
+    [[nodiscard]] virtual QString name() const = 0;
+    [[nodiscard]] virtual LayoutSharedPtr layout() const = 0;
+    [[nodiscard]] virtual bool requiresLayout() const = 0;
     virtual void setLayout(const LayoutSharedPtr &layout) = 0;
     virtual void setName(const QString &name) = 0;
 

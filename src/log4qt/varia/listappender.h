@@ -102,9 +102,9 @@ protected:
 
 private:
     Q_DISABLE_COPY_MOVE(ListAppender)
-    volatile bool mConfiguratorList;
+    std::atomic<bool> mConfiguratorList;
     QList<LoggingEvent> mList;
-    volatile int mMaxCount;
+    std::atomic<int> mMaxCount;
 };
 
 inline bool ListAppender::configuratorList() const

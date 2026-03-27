@@ -26,10 +26,6 @@
 #include <QReadLocker>
 #include <QThread>
 
-#if (__cplusplus >= 201703L) // C++17 or later
-#include <utility>
-#endif
-
 namespace Log4Qt
 {
 
@@ -49,11 +45,7 @@ void MainThreadAppender::append(const LoggingEvent &event)
 {
     QReadLocker locker(&mAppenderGuard);
 
-#if (__cplusplus >= 201703L)
-    for (auto &&pAppender : std::as_const(mAppenders))
-#else
-    for (auto &&pAppender : qAsConst(mAppenders))
-#endif
+    for (const auto& pAppender : mAppenders)
     {
         if (QThread::currentThread() != qApp->thread())
             qApp->postEvent(pAppender.data(), new LoggingEvent(event));

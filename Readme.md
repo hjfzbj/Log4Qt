@@ -22,6 +22,8 @@ which was itself a clone of the original Log4Qt project on SourceForge http://so
 
 Additional features
 -------------------
+* JSON configuration support (`log4qt.json`) alongside the classic `.properties` format
+* XML configuration support (`log4qt.xml`) alongside `.properties` and `.json` formats
 * SimpleTimeLayout (“dd.MM.yyyy hh:mm [Thread] Level Logger Message”)
 * ColorConsoleAppender (render colorized message by escape sequence and put it to console)
 * SignalAppender (emit signal when log event happens)
@@ -35,11 +37,92 @@ Additional features
 * Binary logger
 * Windows Debug Console Appender
 
+JSON Configuration
+------------------
+As an alternative to `log4qt.properties`, you can use a `log4qt.json` file:
+
+```json
+{
+    "log4j": {
+        "rootLogger": "DEBUG, console",
+        "appender": {
+            "console": {
+                "@class": "org.apache.log4j.ConsoleAppender",
+                "target": "STDOUT_TARGET",
+                "layout": {
+                    "@class": "org.apache.log4j.TTCCLayout",
+                    "dateFormat": "ISO8601"
+                }
+            }
+        },
+        "logger": {
+            "MyApp": "ERROR, console"
+        },
+        "additivity": {
+            "MyApp": "false"
+        }
+    }
+}
+```
+
+Nested objects produce dot-separated property keys, and the `@class` key sets the class
+name for the parent object. Place the file next to your executable or in the working
+directory. When both `log4qt.properties` and `log4qt.json` exist, the `.properties` file
+takes priority.
+
+You can also configure programmatically:
+
+```cpp
+#include <log4qt/jsonconfigurator.h>
+
+Log4Qt::JsonConfigurator::configure("path/to/config.json");
+// or with file watching:
+Log4Qt::JsonConfigurator::configureAndWatch("path/to/config.json");
+```
+
+XML Configuration
+------------------
+As an alternative to `.properties` and `.json`, you can use a `log4qt.xml` file:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<log4j>
+    <rootLogger>DEBUG, console</rootLogger>
+    <appender>
+        <console class="org.apache.log4j.ConsoleAppender">
+            <target>STDOUT_TARGET</target>
+            <layout class="org.apache.log4j.TTCCLayout">
+                <dateFormat>ISO8601</dateFormat>
+            </layout>
+        </console>
+    </appender>
+    <logger>
+        <MyApp>ERROR, console</MyApp>
+    </logger>
+    <additivity>
+        <MyApp>false</MyApp>
+    </additivity>
+</log4j>
+```
+
+Nested elements produce dot-separated property keys, and the `class` attribute sets the
+class name for the element. Priority order: `.properties` > `.json` > `.xml`.
+
+You can also configure programmatically:
+
+```cpp
+#include <log4qt/xmlconfigurator.h>
+
+Log4Qt::XmlConfigurator::configure("path/to/config.xml");
+// or with file watching:
+Log4Qt::XmlConfigurator::configureAndWatch("path/to/config.xml");
+```
+
 Requirements
 ------------
-* Minimum Qt version required Qt5.12 (for support of Qt versions down to 5.3 use branch 1.4 or the lates 1.4.x release
-  or for support of Qt versions down to 5.7 use branch 1.5 or the lates 1.5.x release)
-* C++11 feature required (minimum compiler version MSVC14, GCC 4.8 or CLANG 3.3)
+* Minimum Qt version required Qt 6.4 (for support of Qt versions down to 5.3 use branch 1.4 or the lates 1.4.x release
+  or for support of Qt versions down to 5.7 use branch 1.6 or the lates 1.5.x release)
+* C++20 required (minimum compiler version MSVC 19.29 (Visual Studio 2019 16.11), GCC 10, or Clang 10)
 
 License
 -------
@@ -51,43 +134,13 @@ Clone
 
 Build and install
 -----------------
-### qmake
-use qmake to build the project
-
-    *NIX
-        qmake
-        make
-        make install
-
-    WIN* (mingw)
-        qmake
-        mingw32-make
-        mingw32-make install
-
-    WIN* (msvc)
-        qmake
-        msbuild Log4Qt.sln
-        msbuild /t:INSTALL Log4Qt.sln
-
-    For static build call qmake with
-    qmake "DEFINES+=LOG4QT_STATIC" or uncommend LOG4QT_STATIC in the build.pri file
-    Don't forget to define LOG4QT_STATIC also in your project.
-
-    Logging to a database via databaseappender can be enabled with qmake "CONFIG += build_with_db_logging"
-    Logging to a telnet via telnetappender can be enabled with qmake "CONFIG += build_with_telnet_logging"
-    QML logging support can be enabled with qmake "CONFIG += build_with_qml_logging"
-
-### include in your project
-Can also be used by adding the log4qt source directly to your Qt project file by adding the following line:
-include(<unpackdir>/src/log4qt/log4qt.pri)
-
 ### cmake
-cmake is the second option to build Log4Qt. An out-of-source build is required:
+cmake is used to build Log4Qt. An out-of-source build is required:
     <unpack/fetch to Log4Qt directory>
     mkdir Log4Qt-build
     cd Log4Qt-build
     cmake ../Log4Qt
-    make/mingw32-make/msbuild Log4Qt.sln (same as with qmake)
+    make/mingw32-make/msbuild Log4Qt.sln
     make/mingw32-make install
 
 

@@ -33,9 +33,7 @@
 #include <QDataStream>
 #endif
 
-#if (__cplusplus >= 201703L) // C++17 or later
 #include <utility>
-#endif
 
 namespace Log4Qt
 {
@@ -60,24 +58,16 @@ void InitialisationHelper::doInitialiseEnvironmentSettings()
     // object has been created?
 
     QStringList setting_keys;
-    setting_keys << QStringLiteral("Debug");
-    setting_keys << QStringLiteral("DefaultInitOverride");
-    setting_keys << QStringLiteral("Configuration");
+    setting_keys << u"Debug"_s;
+    setting_keys << u"DefaultInitOverride"_s;
+    setting_keys << u"Configuration"_s;
 
     QHash<QString, QString> env_keys;
-#if (__cplusplus >= 201703L)
     for (const auto &entry : std::as_const(setting_keys))
-#else
-    for (const auto &entry : qAsConst(setting_keys))
-#endif
-        env_keys.insert(QStringLiteral("log4qt_").append(entry).toUpper(), entry);
+        env_keys.insert(u"log4qt_"_s.append(entry).toUpper(), entry);
 
     QStringList sys_env = QProcess::systemEnvironment();
-#if (__cplusplus >= 201703L)
     for (const auto &entry : std::as_const(sys_env))
-#else
-    for (const auto &entry : qAsConst(sys_env))
-#endif
     {
         int i = entry.indexOf(QLatin1Char('='));
         if (i == -1)
@@ -114,7 +104,7 @@ QString InitialisationHelper::doSetting(const QString &key,
     if (QCoreApplication::instance() != nullptr)
     {
         QSettings s;
-        s.beginGroup(QStringLiteral("Log4Qt"));
+        s.beginGroup(u"Log4Qt"_s);
         return s.value(key, defaultValue).toString().trimmed();
     }
     return defaultValue;

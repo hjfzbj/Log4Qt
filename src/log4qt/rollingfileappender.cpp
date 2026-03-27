@@ -81,7 +81,7 @@ void RollingFileAppender::openFile()
 
 void RollingFileAppender::rollOver()
 {
-    logger()->debug(QStringLiteral("Rolling over with maxBackupIndex = %1"), mMaxBackupIndex);
+    logger()->debug(u"Rolling over with maxBackupIndex = %1"_s, mMaxBackupIndex);
 
     closeFile();
 
@@ -105,7 +105,7 @@ void RollingFileAppender::rollOver()
     // it may not exist on first startup, don't output a warning in this case
     if (f.exists())
     {
-        const QString target_file_name = file() + QStringLiteral(".1");
+        const QString target_file_name = file() + u".1"_s;
         if (!renameFile(f, target_file_name))
             return;
     }

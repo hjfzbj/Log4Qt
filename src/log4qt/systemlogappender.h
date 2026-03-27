@@ -23,6 +23,8 @@
 
 #include "appenderskeleton.h"
 
+#include <string>
+
 namespace Log4Qt
 {
 
@@ -60,7 +62,7 @@ protected:
     void append(const Log4Qt::LoggingEvent &event) override;
 
     QString mServiceName;
-    char *ident;
+    std::string mIdent;
 };
 
 inline bool SystemLogAppender::requiresLayout() const

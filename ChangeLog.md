@@ -2,7 +2,51 @@
 
 All notable changes to this project will be documented in this file.
 ----
+## [v2.0.0] - ??
+### Added
+- JsonConfigurator for configuring logging from JSON files (`log4qt.json`).
+  The JSON structure maps directly to flat property keys via dot-separated
+  nesting. Automatic initialization searches for `log4qt.json` alongside
+  `log4qt.properties` (`.properties` takes priority).
+- XmlConfigurator for configuring logging from XML files (`log4qt.xml`).
+  Nested elements produce dot-separated keys; XML attributes are flattened
+  as child properties. Automatic initialization searches for `log4qt.xml`
+  after `log4qt.json` (`.properties` > `.json` > `.xml` priority).
+- Short factory aliases for all built-in components (e.g. `Console`,
+  `File`, `RollingFile`, `PatternLayout`, `LevelMatch`) alongside the
+  existing `org.apache.log4j.*` and `Log4Qt::*` names.
+- Dedicated PropertyConfigurator unit test suite (`tests/propertytest`).
+
+### Changed
+- **Breaking:** Minimum required Qt version raised to Qt 6.4. Qt 5 is no longer
+  supported. Use branch 1.6 / release 1.6.x for Qt 5.7+ support.
+- **Breaking:** PropertyConfigurator now uses a Log4j2-style configuration
+  format. The `log4j.` prefix is removed, appenders use explicit `type` keys,
+  and loggers use appender references instead of inline declarations:
+  - `log4j.rootLogger=ALL, console` &rarr; `rootLogger.level=ALL` +
+    `rootLogger.appenderRef.0.ref=console`
+  - `log4j.appender.X=org.apache.log4j.ConsoleAppender` &rarr;
+    `appender.X.type=Console`
+  - `log4j.appender.X.layout=org.apache.log4j.TTCCLayout` &rarr;
+    `appender.X.layout.type=TTCCLayout`
+  - `log4j.logger.MyApp=ERROR, console` &rarr; `logger.MyApp.name=MyApp` +
+    `logger.MyApp.level=ERROR` + `logger.MyApp.appenderRef.0.ref=console`
+  - `log4j.additivity.MyApp=false` &rarr; `logger.MyApp.additivity=false`
+  - Global settings: `log4j.reset` &rarr; `reset`, `log4j.Debug` &rarr;
+    `status`, `log4j.threshold` &rarr; `threshold`, etc.
+- Appender filters now configured via `appender.X.filter.F.type=LevelMatch`
+  with properties under the same prefix.
+
+### Improvements
+- Performance optimizations
+- Modernize codebase to C++20 standard
+
+### Deprecated / Removed
+- Removed qmake support
+- Removed binary logger
+
 ## [v1.6.0] - ??
+
 ### Improvements
 - qmake: Make database, telnet appender and qml logger optional depending on CONFIG
 - cmake: Make database, telnet appender and qml logger optional depending on option

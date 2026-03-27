@@ -154,7 +154,8 @@ void WriterAppender::append(const LoggingEvent &event)
 {
     Q_ASSERT_X(layout(), "WriterAppender::append()", "Layout must not be null");
 
-    QString message(layout()->format(event));
+    // Optimize: avoid QString copy by using const reference
+    const QString &message = layout()->format(event);
 
     *mWriter << message;
     if (handleIoErrors())

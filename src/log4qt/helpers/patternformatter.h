@@ -27,6 +27,9 @@
 #include <QList>
 #include <QString>
 
+#include <memory>
+#include <vector>
+
 namespace Log4Qt
 {
 
@@ -120,14 +123,14 @@ private:
      * is returned. Returns the end of line seperator for the operating
      * system.
      */
-    int parseIntegeoption(const QString &option);
+    int parseIntegeoption(QStringView option);
 
 private:
     const QString mIgnoreCharacters;
     const QString mConversionCharacters;
     const QString mOptionCharacters;
     QString mPattern;
-    QList<PatternConverter *> mPatternConverters;
+    std::vector<std::unique_ptr<PatternConverter>> mPatternConverters;
 };
 
 

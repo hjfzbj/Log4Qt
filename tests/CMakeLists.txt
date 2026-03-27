@@ -1,4 +1,7 @@
-add_subdirectory(binaryloggertest)
 add_subdirectory(dailyfileappendertest)
+add_subdirectory(jsontest)
 add_subdirectory(log4qttest)
 add_subdirectory(filewatcher)
+add_subdirectory(performancetest)
+add_subdirectory(propertytest)
+add_subdirectory(xmltest)

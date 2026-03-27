@@ -52,10 +52,10 @@ void PatternLayout::setConversionPattern(ConversionPattern conversionPattern)
     switch (conversionPattern)
     {
     case DEFAULT_CONVERSION_PATTERN:
-        setConversionPattern(QStringLiteral("%m%n"));
+        setConversionPattern(u"%m%n"_s);
         break;
     case TTCC_CONVERSION_PATTERN:
-        setConversionPattern(QStringLiteral("%r [%t] %p %c %x - %m%n"));
+        setConversionPattern(u"%r [%t] %p %c %x - %m%n"_s);
         break;
     default:
         Q_ASSERT_X(false, "PatternLayout::setConversionFormat", "Unknown ConversionFormat");
@@ -65,14 +65,14 @@ void PatternLayout::setConversionPattern(ConversionPattern conversionPattern)
 
 QString PatternLayout::format(const LoggingEvent &event)
 {
-    Q_ASSERT_X(mPatternFormatter, "PatternLayout::format()", "mpPatternConverter must not be null");
+    Q_ASSERT_X(mpPatternFormatter, "PatternLayout::format()", "mpPatternConverter must not be null");
 
-    return mPatternFormatter->format(event);
+    return mpPatternFormatter->format(event);
 }
 
 void PatternLayout::updatePatternFormatter()
 {
-    mPatternFormatter.reset(new PatternFormatter(mPattern));
+    mpPatternFormatter = std::make_unique<PatternFormatter>(mPattern);
 }
 
 } // namespace Log4Qt

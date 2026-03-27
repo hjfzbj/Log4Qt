@@ -1451,7 +1451,7 @@ void Log4QtTest::LoggingEvent_stream()
     buffer.close();
 
     QCOMPARE(original.level(), streamed.level());
-    QCOMPARE(original.loggename(), streamed.loggename());
+    QCOMPARE(original.loggername(), streamed.loggername());
     QCOMPARE(original.message(), streamed.message());
     QCOMPARE(original.ndc(), streamed.ndc());
     QCOMPARE(original.properties().count(), streamed.properties().count());
@@ -1467,6 +1467,81 @@ void Log4QtTest::LoggingEvent_stream()
     QCOMPARE(original.timeStamp(), streamed.timeStamp());
 
     QCOMPARE(loggingEvents()->list().count(), 0);
+}
+
+void Log4QtTest::LoggingEvent_threadName()
+{
+    // Verify that a named thread produces the thread name
+    // and an unnamed thread produces the hex pointer fallback.
+    QThread *main = QThread::currentThread();
+    const QString savedName = main->objectName();
+
+    // Named thread: LoggingEvent should carry the object name
+    main->setObjectName(QStringLiteral("TestMainThread"));
+    LoggingEvent namedEvent(test_logger(), Level(Level::DEBUG_INT),
+                            QStringLiteral("named"));
+    QCOMPARE(namedEvent.threadName(), QStringLiteral("TestMainThread"));
+
+    // Unnamed thread: LoggingEvent should carry the hex pointer fallback
+    main->setObjectName(QString());
+    LoggingEvent unnamedEvent(test_logger(), Level(Level::DEBUG_INT),
+                              QStringLiteral("unnamed"));
+    const QString expected = QStringLiteral("0x%1").arg(
+        reinterpret_cast<quintptr>(main), QT_POINTER_SIZE * 2, 16, QChar('0'));
+    QCOMPARE(unnamedEvent.threadName(), expected);
+
+    main->setObjectName(savedName);
+}
+
+void Log4QtTest::LoggingEvent_threadNameReactive()
+{
+    // Verify that the QBindable notifier picks up thread renames
+    // so that a second LoggingEvent sees the new name.
+    QThread *main = QThread::currentThread();
+    const QString savedName = main->objectName();
+
+    main->setObjectName(QStringLiteral("BeforeRename"));
+    LoggingEvent before(test_logger(), Level(Level::DEBUG_INT),
+                        QStringLiteral("before"));
+    QCOMPARE(before.threadName(), QStringLiteral("BeforeRename"));
+
+    // Rename the thread — the notifier should mark the cache stale
+    main->setObjectName(QStringLiteral("AfterRename"));
+    LoggingEvent after(test_logger(), Level(Level::DEBUG_INT),
+                       QStringLiteral("after"));
+    QCOMPARE(after.threadName(), QStringLiteral("AfterRename"));
+
+    main->setObjectName(savedName);
+}
+
+void Log4QtTest::MessageContext_source_location()
+{
+#ifdef __cpp_lib_source_location
+    const auto loc = std::source_location::current();
+    const int expectedLine = static_cast<int>(loc.line());
+    MessageContext ctx(loc);
+
+    QCOMPARE(ctx.line, expectedLine);
+    QVERIFY(ctx.file != nullptr);
+    QVERIFY(ctx.function != nullptr);
+    // file should contain our test file name
+    QVERIFY(QString::fromUtf8(ctx.file).contains(QStringLiteral("log4qttest.cpp")));
+
+    // Verify it works through LoggingEvent and PatternFormatter
+    LoggingEvent event(test_logger(),
+                       Level(Level::DEBUG_INT),
+                       QStringLiteral("source_location test"),
+                       MessageContext(loc),
+                       QString());
+    Log4Qt::PatternFormatter formatter(QStringLiteral("%F:%L-%M - %m"));
+    const QString formatted = formatter.format(event);
+
+    QVERIFY(formatted.contains(QStringLiteral("log4qttest.cpp")));
+    QVERIFY(formatted.contains(QString::number(expectedLine)));
+    QVERIFY(formatted.contains(QStringLiteral("source_location test")));
+#else
+    QSKIP("std::source_location not available");
+#endif
 }
 
 void Log4QtTest::LogManager_configureLogLogger()
@@ -1506,11 +1581,16 @@ void Log4QtTest::PropertyConfigurator_missing_appender()
     mDefaultProperties.clear();
     mProperties.clear();
 
-    mProperties.setProperty(QStringLiteral("log4j.logger.MissingAppender"),
-                            QStringLiteral("INHERITED, A"));
-    QVERIFY(!PropertyConfigurator::configure(mProperties));
-    QCOMPARE(ConfiguratorHelper::configureError().count(), 1);
-    QCOMPARE(loggingEvents()->list().count(), 1);
+    // Logger references appender "A" which is not defined
+    mProperties.setProperty(QStringLiteral("logger.MissingAppender.name"),
+                            QStringLiteral("MissingAppender"));
+    mProperties.setProperty(QStringLiteral("logger.MissingAppender.level"),
+                            QStringLiteral("INHERITED"));
+    mProperties.setProperty(QStringLiteral("logger.MissingAppender.appenderRef.0.ref"),
+                            QStringLiteral("A"));
+    QVERIFY(PropertyConfigurator::configure(mProperties));
+    // Appender "A" not found is a warning, not an error
+    QCOMPARE(ConfiguratorHelper::configureError().count(), 0);
 }
 
 
@@ -1521,9 +1601,7 @@ void Log4QtTest::PropertyConfigurator_unknown_appender_class()
     mDefaultProperties.clear();
     mProperties.clear();
 
-    mProperties.setProperty(QStringLiteral("log4j.logger.UnknownAppender"),
-                            QStringLiteral("INHERITED, A"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A"),
+    mProperties.setProperty(QStringLiteral("appender.A.type"),
                             QStringLiteral("org.apache.log4j.UnknownAppender"));
     QVERIFY(!PropertyConfigurator::configure(mProperties));
     QCOMPARE(ConfiguratorHelper::configureError().count(), 1);
@@ -1537,10 +1615,9 @@ void Log4QtTest::PropertyConfigurator_missing_layout()
     mDefaultProperties.clear();
     mProperties.clear();
 
-    mProperties.setProperty(QStringLiteral("log4j.logger.MissingLayout"),
-                            QStringLiteral("INHERITED, A"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A"),
-                            QStringLiteral("org.apache.log4j.ConsoleAppender"));
+    // ConsoleAppender requires a layout, but none is specified
+    mProperties.setProperty(QStringLiteral("appender.A.type"),
+                            QStringLiteral("Console"));
     QVERIFY(!PropertyConfigurator::configure(mProperties));
     QCOMPARE(ConfiguratorHelper::configureError().count(), 1);
     QCOMPARE(loggingEvents()->list().count(), 1);
@@ -1553,11 +1630,9 @@ void Log4QtTest::PropertyConfigurator_unknown_layout_class()
     mDefaultProperties.clear();
     mProperties.clear();
 
-    mProperties.setProperty(QStringLiteral("log4j.logger.UnknownLayout"),
-                            QStringLiteral("INHERITED, A"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A"),
-                            QStringLiteral("org.apache.log4j.ConsoleAppender"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A.layout"),
+    mProperties.setProperty(QStringLiteral("appender.A.type"),
+                            QStringLiteral("Console"));
+    mProperties.setProperty(QStringLiteral("appender.A.layout.type"),
                             QStringLiteral("org.apache.log4j.UnknownLayout"));
     QVERIFY(!PropertyConfigurator::configure(mProperties));
     QCOMPARE(ConfiguratorHelper::configureError().count(), 1);
@@ -1577,7 +1652,7 @@ void Log4QtTest::PropertyConfigurator_reset()
     //   error and leave the appender
     // - If the reset flag is set, configure must remove the appender
 
-    const QLatin1String key_reset("log4j.reset");
+    const QLatin1String key_reset("reset");
     test_logger()->addAppender(new Log4Qt::ListAppender);
     mProperties.setProperty(key_reset,
                             QStringLiteral("false"));
@@ -1617,7 +1692,7 @@ void Log4QtTest::PropertyConfigurator_debug()
     // - If debug is set to the level TRACE, configure must set the log logger
     //   level to TRACE
 
-    const QLatin1String key_debug("log4j.Debug");
+    const QLatin1String key_debug("status");
     Logger *p_logger = LogManager::logLogger();
     p_logger->setLevel(Level::INFO_INT);
 
@@ -1657,7 +1732,7 @@ void Log4QtTest::PropertyConfigurator_threshold()
     // - If the threshold is set to WARN, configure must set the repository
     //   threshold to WARN
 
-    const QLatin1String key_threshold("log4j.threshold");
+    const QLatin1String key_threshold("threshold");
     LogManager::loggerRepository()->setThreshold(Level::INFO_INT);
 
     QVERIFY(PropertyConfigurator::configure(mProperties));
@@ -1696,7 +1771,7 @@ void Log4QtTest::PropertyConfigurator_handleQtMessages()
     // - If handle Qt messages is true, configure must set handle Qt messages
     //   to true
 
-    const QLatin1String key_handle_qt_messages("log4j.handleQtMessages");
+    const QLatin1String key_handle_qt_messages("handleQtMessages");
     LogManager::setHandleQtMessages(true);
 
     QVERIFY(PropertyConfigurator::configure(mProperties));
@@ -1730,45 +1805,49 @@ void Log4QtTest::PropertyConfigurator_example()
 
     QString file(mTemporaryDirectory.path() + "/PropertyConfigurator/log");
 
-    // Based on the JavaDoc example:
-    // - A1: JavaDoc uses SyslogAppender, which is not available on all platforms
-    // - A2: JavaDoc does not set a file, which causes error on activation
-    // - A2: JavaDoc uses default values for file size and backup index. Use
-    //       different values.
-    // - A2 Layout: ContextPrinting uses default enabled. Use disabled instead.
-    // - root: JavaDoc uses default level DEBUG. Use INFO instead.
-    // - SECURITY: JavaDoc uses INHERIT. Use INHERITED instead
-    // - log4j.logger.class.of.the.day: JavaDoc uses INHERIT. Use INHERITED
-    //   instead
-
+    // Log4j2-style property configuration example
     // Appender A1: ConsoleAppender with PatternLayout
-    mProperties.setProperty(QStringLiteral("log4j.appender.A1"),
-                            QStringLiteral("org.apache.log4j.ConsoleAppender"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A1.Target"), QStringLiteral("System.Out"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A1.layout"),
-                            QStringLiteral("org.apache.log4j.PatternLayout"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A1.layout.ConversionPattern"),
+    mProperties.setProperty(QStringLiteral("appender.A1.type"),
+                            QStringLiteral("Console"));
+    mProperties.setProperty(QStringLiteral("appender.A1.target"),
+                            QStringLiteral("STDOUT_TARGET"));
+    mProperties.setProperty(QStringLiteral("appender.A1.layout.type"),
+                            QStringLiteral("PatternLayout"));
+    mProperties.setProperty(QStringLiteral("appender.A1.layout.conversionPattern"),
                             QStringLiteral("%-4r %-5p %c{2} %M.%L %x - %m\n"));
     // Appender A2: RollingFileAppender with TTCCLayout
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2"),
-                            QStringLiteral("org.apache.log4j.RollingFileAppender"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.File"), file);
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.MaxFileSize"), QStringLiteral("13MB"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.MaxBackupIndex"), QStringLiteral("7"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.layout"),
-                            QStringLiteral("org.apache.log4j.TTCCLayout"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.layout.ContextPrinting"),
+    mProperties.setProperty(QStringLiteral("appender.A2.type"),
+                            QStringLiteral("RollingFile"));
+    mProperties.setProperty(QStringLiteral("appender.A2.file"), file);
+    mProperties.setProperty(QStringLiteral("appender.A2.maxFileSize"),
+                            QStringLiteral("13MB"));
+    mProperties.setProperty(QStringLiteral("appender.A2.maxBackupIndex"),
+                            QStringLiteral("7"));
+    mProperties.setProperty(QStringLiteral("appender.A2.layout.type"),
+                            QStringLiteral("TTCCLayout"));
+    mProperties.setProperty(QStringLiteral("appender.A2.layout.contextPrinting"),
                             QStringLiteral("disabled"));
-    mProperties.setProperty(QStringLiteral("log4j.appender.A2.layout.DateFormat"), QStringLiteral("ISO8601"));
+    mProperties.setProperty(QStringLiteral("appender.A2.layout.dateFormat"),
+                            QStringLiteral("ISO8601"));
     // Root Logger: Uses A2
-    mProperties.setProperty(QStringLiteral("log4j.rootLogger"), QStringLiteral("INFO, A2"));
+    mProperties.setProperty(QStringLiteral("rootLogger.level"),
+                            QStringLiteral("INFO"));
+    mProperties.setProperty(QStringLiteral("rootLogger.appenderRef.0.ref"),
+                            QStringLiteral("A2"));
     // Logger SECURITY: Uses A1
-    mProperties.setProperty(QStringLiteral("log4j.logger.SECURITY"), QStringLiteral("INHERITED, A1"));
-    mProperties.setProperty(QStringLiteral("log4j.additivity.SECURITY"), QStringLiteral("false"));
-    // Logger SECURITY.access:
-    mProperties.setProperty(QStringLiteral("log4j.logger.SECURITY.access"), QStringLiteral("WARN"));
-    // Logger class.of.the.day:
-    mProperties.setProperty(QStringLiteral("log4j.logger.class.of.the.day"), QStringLiteral("INHERITED"));
+    mProperties.setProperty(QStringLiteral("logger.SECURITY.name"),
+                            QStringLiteral("SECURITY"));
+    mProperties.setProperty(QStringLiteral("logger.SECURITY.level"),
+                            QStringLiteral("INHERITED"));
+    mProperties.setProperty(QStringLiteral("logger.SECURITY.additivity"),
+                            QStringLiteral("false"));
+    mProperties.setProperty(QStringLiteral("logger.SECURITY.appenderRef.0.ref"),
+                            QStringLiteral("A1"));
+    // Logger SECURITY::access
+    mProperties.setProperty(QStringLiteral("logger.SECURITYaccess.name"),
+                            QStringLiteral("SECURITY::access"));
+    mProperties.setProperty(QStringLiteral("logger.SECURITYaccess.level"),
+                            QStringLiteral("WARN"));
 
     // No warnings, no errors expected
     QVERIFY(PropertyConfigurator::configure(mProperties));
@@ -1809,9 +1888,6 @@ void Log4QtTest::PropertyConfigurator_example()
     QVERIFY(LogManager::exists("SECURITY::access"));
     p_logger = LogManager::logger(QStringLiteral("SECURITY::access"));
     QCOMPARE(p_logger->level(), Level(Level::WARN_INT));
-
-    // Logger class::of::the::day
-    QVERIFY(LogManager::exists("class::of::the::day"));
 }
 
 void Log4QtTest::RollingFileAppender()

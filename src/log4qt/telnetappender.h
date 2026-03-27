@@ -82,7 +82,7 @@ public:
     ~TelnetAppender() override;
 
 private:
-    Q_DISABLE_COPY(TelnetAppender)
+    Q_DISABLE_COPY_MOVE(TelnetAppender)
 
 public:
     bool requiresLayout() const override;
@@ -168,7 +168,7 @@ private:
     QTcpServer     *mTcpServer;
     QList<QTcpSocket *> mTcpSockets;
     QString         mWelcomeMessage;
-    volatile bool   mImmediateFlush;
+    std::atomic<bool> mImmediateFlush;
 
     void sendWelcomeMessage(QTcpSocket *clientConnection);
 };

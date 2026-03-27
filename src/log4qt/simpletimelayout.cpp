@@ -29,11 +29,11 @@ namespace Log4Qt
 
 QString SimpleTimeLayout::format(const LoggingEvent &event)
 {
-    return DateTime::fromMSecsSinceEpoch(event.timeStamp()).toString(QStringLiteral("dd.MM.yyyy hh:mm"))
-           + QStringLiteral("[") + event.threadName() + QStringLiteral("]")
-           + QStringLiteral(" ") + event.level().toString()
-           + QStringLiteral(" ") + event.loggename()
-           + QStringLiteral(" - ") + event.message() + Layout::endOfLine();
+    return DateTime::fromMSecsSinceEpoch(event.timeStamp()).toString(u"dd.MM.yyyy hh:mm"_s)
+           + u"["_s + event.threadName() + u"]"_s
+           + u" "_s + event.level().toString()
+           + u" "_s + event.loggername()
+           + u" - "_s + event.message() + Layout::endOfLine();
 }
 
 

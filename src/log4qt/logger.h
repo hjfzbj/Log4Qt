@@ -163,12 +163,18 @@ public:
     explicit MessageLogger(Logger *logger, Level level) : mLogger(logger), mLevel(level) {}
     explicit MessageLogger(Logger *logger, Level level, const char *file, int line, const char *function)
         : mLogger(logger), mLevel(level), mContext(file, line, function) {}
+#ifdef __cpp_lib_source_location
+    explicit MessageLogger(Logger *logger, Level level, const std::source_location &loc)
+        : mLogger(logger), mLevel(level), mContext(loc) {}
+#endif
 
     void log(const QString &message) const;
-    template <typename T, typename ...Ts>
-    void log(const QString &message, T &&t, Ts &&...ts) const
+    template <typename ...Ts>
+    void log(const QString &message, Ts &&...ts) const
     {
-        log(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        auto msg = message;
+        ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+        log(msg);
     }
     LogStream log() const;
 
@@ -178,25 +184,25 @@ private:
     MessageContext mContext;
 };
 
-// Macros to log with location information, teh logger must have the name
+// Macros to log with location information, the logger must have the name
 #define l4qFatal(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::FATAL_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::FATAL_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::FATAL_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::FATAL_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qError(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::ERROR_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::ERROR_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::ERROR_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::ERROR_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qWarn(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::WARN_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::WARN_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::WARN_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::WARN_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qInfo(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::INFO_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::INFO_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::INFO_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::INFO_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qDebug(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::DEBUG_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::DEBUG_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::DEBUG_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::DEBUG_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 #define l4qTrace(...) \
-    for (bool enabled = logger()->isEnabledFor(Log4Qt::Level::TRACE_INT); enabled; enabled = false) \
-        Log4Qt::MessageLogger(logger(), Log4Qt::Level::TRACE_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
+    for (Log4Qt::Logger *l4q_p_logger = logger(); l4q_p_logger && l4q_p_logger->isEnabledFor(Log4Qt::Level::TRACE_INT); l4q_p_logger = nullptr) \
+        Log4Qt::MessageLogger(l4q_p_logger, Log4Qt::Level::TRACE_INT, __FILE__, __LINE__, Q_FUNC_INFO).log(__VA_ARGS__)
 
 class Appender;
 class LoggerRepository;
@@ -267,19 +273,19 @@ private:
     Q_DISABLE_COPY_MOVE(Logger)
 
 public:
-    bool additivity() const;
-    Level level() const;
-    LoggerRepository *loggerRepository() const;
-    QString name() const;
-    Logger *parentLogger() const;
+    [[nodiscard]] bool additivity() const;
+    [[nodiscard]] Level level() const;
+    [[nodiscard]] LoggerRepository *loggerRepository() const;
+    [[nodiscard]] QString name() const;
+    [[nodiscard]] Logger *parentLogger() const;
 
     void setAdditivity(bool additivity);
     virtual void setLevel(Level level);
 
     void callAppenders(const LoggingEvent &event) const;
 
-    Level effectiveLevel() const;
-    bool isDebugEnabled() const;
+    [[nodiscard]] Level effectiveLevel() const;
+    [[nodiscard]] bool isDebugEnabled() const;
 
     /*!
      * Checks if this logger is enabled for a given Level \a level. If the
@@ -292,22 +298,27 @@ public:
      *
      * \sa LoggerRepository::isDisabled(), effectiveLevel()
      */
-    bool isEnabledFor(Level level) const;
+    [[nodiscard]] bool isEnabledFor(Level level) const;
 
-    bool isErrorEnabled() const;
-    bool isFatalEnabled() const;
-    bool isInfoEnabled() const;
-    bool isTraceEnabled() const;
-    bool isWarnEnabled() const;
+    [[nodiscard]] bool isErrorEnabled() const;
+    [[nodiscard]] bool isFatalEnabled() const;
+    [[nodiscard]] bool isInfoEnabled() const;
+    [[nodiscard]] bool isTraceEnabled() const;
+    [[nodiscard]] bool isWarnEnabled() const;
 
     LogStream debug() const;
     void debug(const LogError &logError) const;
     void debug(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void debug(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void debug(const QString &message, Ts &&...ts) const
     {
-        debug(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::DEBUG_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::DEBUG_INT, msg);
+        }
     }
 
 
@@ -315,30 +326,45 @@ public:
     void error(const LogError &logError) const;
     void error(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void error(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void error(const QString &message, Ts &&...ts) const
     {
-        error(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::ERROR_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::ERROR_INT, msg);
+        }
     }
 
     LogStream fatal() const;
     void fatal(const LogError &logError) const;
     void fatal(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void fatal(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void fatal(const QString &message, Ts &&...ts) const
     {
-        fatal(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::FATAL_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::FATAL_INT, msg);
+        }
     }
 
     LogStream info() const;
     void info(const LogError &logError) const;
     void info(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void info(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void info(const QString &message, Ts &&...ts) const
     {
-        info(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::INFO_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::INFO_INT, msg);
+        }
     }
 
     LogStream log(Level level) const;
@@ -346,37 +372,59 @@ public:
     void log(const LoggingEvent &logEvent) const;
 
     void log(Level level, const QString &message) const;
-    template<typename T, typename ...Ts>
-    void log(Level level, const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void log(Level level, const QString &message, Ts &&...ts) const
     {
-        log(level, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(level))        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(level, msg);
+        }
     }
 
     void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message) const;
-    template<typename T, typename ...Ts>
-    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void logWithLocation(Level level, const char *file, int line, const char *function, const QString &message, Ts &&...ts) const
     {
-        logWithLocation(level, file, line, function, message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(level))        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            logWithLocation(level, file, line, function, msg);
+        }
     }
+
+#ifdef __cpp_lib_source_location
+    void logWithLocation(Level level, const QString &message, const std::source_location &loc = std::source_location::current()) const;
+#endif
 
     LogStream trace() const;
     void trace(const LogError &logError) const;
     void trace(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void trace(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void trace(const QString &message, Ts &&...ts) const
     {
-        trace(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::TRACE_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::TRACE_INT, msg);
+        }
     }
 
     LogStream warn() const;
     void warn(const LogError &logError) const;
     void warn(const QString &message) const;
 
-    template<typename T, typename ...Ts>
-    void warn(const QString &message, T &&t, Ts &&...ts) const
+    template<typename ...Ts>
+    void warn(const QString &message, Ts &&...ts) const
     {
-        warn(message.arg(std::forward<T>(t)), std::forward<Ts>(ts)...);
+        if (isEnabledFor(Level::WARN_INT))
+        {
+            auto msg = message;
+            ((msg = msg.arg(std::forward<Ts>(ts))), ...);
+            forcedLog(Level::WARN_INT, msg);
+        }
     }
 
     // LogManager operations
@@ -391,8 +439,8 @@ protected:
 private:
     const QString mName;
     LoggerRepository *mLoggerRepository;
-    volatile bool mAdditivity;
-    Level mLevel;
+    std::atomic<bool> mAdditivity;
+    std::atomic<Level> mLevel;
     Logger *mParentLogger;
 
     // Needs to be friend to create Logger objects

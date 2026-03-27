@@ -125,7 +125,7 @@ void FileAppender::closeInternal()
 
 bool FileAppender::checkEntryConditions() const
 {
-    if ((mFile == nullptr) || (mTextStream == nullptr))
+    if (!mFile || !mTextStream)
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without open file"),
                                          APPENDER_NO_OPEN_FILE_ERROR);
@@ -139,14 +139,12 @@ bool FileAppender::checkEntryConditions() const
 
 void FileAppender::closeFile()
 {
-    if (mFile != nullptr)
-        logger()->debug(QStringLiteral("Closing file '%1' for appender '%2'"), mFile->fileName(), name());
+    if (mFile)
+        logger()->debug(u"Closing file '%1' for appender '%2'"_s, mFile->fileName(), name());
 
     setWriter(nullptr);
-    delete mTextStream;
-    mTextStream = nullptr;
-    delete mFile;
-    mFile = nullptr;
+    mTextStream.reset();
+    mFile.reset();
 }
 
 bool FileAppender::handleIoErrors() const
@@ -165,13 +163,13 @@ bool FileAppender::handleIoErrors() const
 
 void FileAppender::openFile()
 {
-    Q_ASSERT_X(mFile == nullptr && mTextStream == nullptr, "FileAppender::openFile()", "Opening file without closing previous file");
+    Q_ASSERT_X(!mFile && !mTextStream, "FileAppender::openFile()", "Opening file without closing previous file");
 
     QFileInfo file_info(mFileName);
     QDir parent_dir = file_info.dir();
     if (!parent_dir.exists())
     {
-        logger()->trace(QStringLiteral("Creating missing parent directory for file %1"), mFileName);
+        logger()->trace(u"Creating missing parent directory for file %1"_s, mFileName);
         QString name = parent_dir.dirName();
         parent_dir.cdUp();
         parent_dir.mkdir(name);
@@ -184,7 +182,7 @@ void FileAppender::openFile()
         mFileName = QString::fromWCharArray(buffer);
 #endif
 
-    mFile = new QFile(mFileName);
+    mFile = std::make_unique<QFile>(mFileName);
     QFile::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
     if (mAppendFile)
         mode |= QIODevice::Append;
@@ -201,9 +199,9 @@ void FileAppender::openFile()
         logger()->error(e);
         return;
     }
-    mTextStream = new QTextStream(mFile);
-    setWriter(mTextStream);
-    logger()->debug(QStringLiteral("Opened file '%1' for appender '%2'"), mFile->fileName(), name());
+    mTextStream = std::make_unique<QTextStream>(mFile.get());
+    setWriter(mTextStream.get());
+    logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 }
 
 
@@ -223,7 +221,7 @@ bool FileAppender::removeFile(QFile &file) const
 bool FileAppender::renameFile(QFile &file,
                               const QString &fileName) const
 {
-    logger()->debug(QStringLiteral("Renaming file '%1' to '%2'"), file.fileName(), fileName);
+    logger()->debug(u"Renaming file '%1' to '%2'"_s, file.fileName(), fileName);
     if (file.rename(fileName))
         return true;
 

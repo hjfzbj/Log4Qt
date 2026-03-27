@@ -39,7 +39,7 @@ class LoggerRepository;
 
 /*!
  * \brief The class PropertyConfigurator allows the configuration of the
- *        package from a JAVA properties file.
+ *        package from a Log4j2-style properties file.
  *
  * \note All the functions declared in this class are thread-safe.
  */
@@ -110,27 +110,21 @@ private:
                                LoggerRepository *loggerRepository);
     void configureGlobalSettings(const Properties &properties,
                                  LoggerRepository *loggerRepository) const;
-    void configureNonRootElements(const Properties &properties,
-                                  LoggerRepository *loggerRepository);
+    void configureAppenders(const Properties &properties);
     void configureRootLogger(const Properties &properties,
                              LoggerRepository *loggerRepository);
-    void parseAdditivityForLogger(const Properties &properties,
-                                  Logger *logger,
-                                  const QString &log4jName) const;
-    AppenderSharedPtr parseAppender(const Properties &properties,
-                                    const QString &name);
-    LayoutSharedPtr parseLayout(const Properties &properties,
-                                const QString &appendename);
-    void parseLogger(const Properties &properties,
-                     Logger *logger,
-                     const QString &key,
-                     const QString &value);
+    void configureLoggers(const Properties &properties,
+                          LoggerRepository *loggerRepository);
     void setProperties(const Properties &properties,
                        const QString &prefix,
                        const QStringList &exclusion,
                        QObject *object);
     void startCaptureErrors();
     bool stopCaptureErrors();
+
+    static QStringList extractAliases(const Properties &properties,
+                                      const QString &prefix);
+    static Properties translateLegacyProperties(const Properties &properties);
 
 private:
     AppenderSharedPtr mpConfigureErrors;

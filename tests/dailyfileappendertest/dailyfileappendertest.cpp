@@ -4,7 +4,7 @@
 #include "log4qt/simplelayout.h"
 
 #include <QDate>
-#include <QSharedPointer>
+#include <memory>
 #include <QTemporaryDir>
 #include <QtTest/QTest>
 
@@ -52,7 +52,7 @@ private Q_SLOTS:
 
 private:
     QTemporaryDir *mLogDirectory;
-    QSharedPointer<DateRetrieverMock> mDateRetriever;
+    std::shared_ptr<DateRetrieverMock> mDateRetriever;
     DailyFileAppender *mAppender;
 };
 
@@ -60,7 +60,7 @@ void DailyFileAppenderTest::init()
 {
     mLogDirectory = new QTemporaryDir;
 
-    mDateRetriever.reset(new DateRetrieverMock);
+    mDateRetriever = std::make_shared<DateRetrieverMock>();
 
     mAppender = new DailyFileAppender;
     mAppender->setLayout(Log4Qt::LayoutSharedPtr(new Log4Qt::SimpleLayout));

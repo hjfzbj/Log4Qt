@@ -28,6 +28,7 @@
 #include "logger.h"
 
 #include <QMutex>
+#include <atomic>
 
 namespace Log4Qt
 {
@@ -80,12 +81,12 @@ protected:
     ~AppenderSkeleton() override;
 
 public:
-    inline FilterSharedPtr filter() const override;
-    LayoutSharedPtr layout() const override;
-    inline bool isActive() const;
-    inline bool isClosed() const;
-    inline QString name() const override;
-    inline Level threshold() const;
+    [[nodiscard]] inline FilterSharedPtr filter() const override;
+    [[nodiscard]] LayoutSharedPtr layout() const override;
+    [[nodiscard]] inline bool isActive() const;
+    [[nodiscard]] inline bool isClosed() const;
+    [[nodiscard]] inline QString name() const override;
+    [[nodiscard]] inline Level threshold() const;
     void setLayout(const LayoutSharedPtr &layout) override;
     inline void setName(const QString &name) override;
     inline void setThreshold(Level level);
@@ -144,8 +145,8 @@ protected:
 private:
     Q_DISABLE_COPY_MOVE(AppenderSkeleton)
     bool mAppendRecursionGuard;
-    volatile bool mIsActive;
-    volatile bool mIsClosed;
+    std::atomic<bool> mIsActive{false};
+    std::atomic<bool> mIsClosed{false};
     LayoutSharedPtr mpLayout;
     Level mThreshold;
     FilterSharedPtr mpHeadFilter;
@@ -181,14 +182,14 @@ inline void AppenderSkeleton::setThreshold(Level level)
     mThreshold = level;
 }
 
-inline bool AppenderSkeleton::isActive() const
+[[nodiscard]] inline bool AppenderSkeleton::isActive() const
 {
-    return mIsActive;
+    return mIsActive.load(std::memory_order_relaxed);
 }
 
-inline bool AppenderSkeleton::isClosed() const
+[[nodiscard]] inline bool AppenderSkeleton::isClosed() const
 {
-    return mIsClosed;
+    return mIsClosed.load(std::memory_order_relaxed);
 }
 
 inline FilterSharedPtr AppenderSkeleton::firstFilter() const

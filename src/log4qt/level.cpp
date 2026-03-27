@@ -31,7 +31,9 @@ LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::Level)
 
 int Level::syslogEquivalent() const
 {
-    switch (mValue)
+    const int value = toInt();
+    
+    switch (value)
     {
     case NULL_INT:
     case ALL_INT:
@@ -56,8 +58,9 @@ int Level::syslogEquivalent() const
 QString Level::toString() const
 {
     const char *p_context = "Level";
+    const int value = toInt();
 
-    switch (mValue)
+    switch (value)
     {
     case NULL_INT:
         return QCoreApplication::translate(p_context, "NULL");
@@ -83,41 +86,41 @@ QString Level::toString() const
     }
 }
 
-Level Level::fromString(const QString &level, bool *ok)
+Level Level::fromString(QStringView level, bool *ok)
 {
     const char *context = "Level";
     if (ok != nullptr)
         *ok = true;
 
-    if (level == QStringLiteral("OFF") ||
+    if (level == u"OFF"_s ||
             level == QCoreApplication::translate(context, "OFF"))
         return OFF_INT;
-    if (level == QStringLiteral("FATAL") ||
+    if (level == u"FATAL"_s ||
             level == QCoreApplication::translate(context, "FATAL"))
         return FATAL_INT;
-    if (level == QStringLiteral("ERROR") ||
+    if (level == u"ERROR"_s ||
             level == QCoreApplication::translate(context, "ERROR"))
         return ERROR_INT;
-    if (level == QStringLiteral("WARN") ||
+    if (level == u"WARN"_s ||
             level == QCoreApplication::translate(context, "WARN"))
         return WARN_INT;
-    if (level == QStringLiteral("INFO") ||
+    if (level == u"INFO"_s ||
             level == QCoreApplication::translate(context, "INFO"))
         return INFO_INT;
-    if (level == QStringLiteral("DEBUG") ||
+    if (level == u"DEBUG"_s ||
             level == QCoreApplication::translate(context, "DEBUG"))
         return DEBUG_INT;
-    if (level == QStringLiteral("TRACE") ||
+    if (level == u"TRACE"_s ||
             level == QCoreApplication::translate(context, "TRACE"))
         return TRACE_INT;
-    if (level == QStringLiteral("ALL") ||
+    if (level == u"ALL"_s ||
             level == QCoreApplication::translate(context, "ALL"))
         return ALL_INT;
-    if (level == QStringLiteral("NULL") ||
+    if (level == u"NULL"_s ||
             level == QCoreApplication::translate(context, "NULL"))
         return NULL_INT;
 
-    logger()->warn(QStringLiteral("Use of invalid level string '%1'. Using 'Level::NULL_INT' instead."), level);
+    logger()->warn(u"Use of invalid level string '%1'. Using 'Level::NULL_INT' instead."_s, level);
     if (ok != nullptr)
         *ok = false;
     return NULL_INT;
@@ -127,7 +130,7 @@ Level Level::fromString(const QString &level, bool *ok)
 QDataStream &operator<<(QDataStream &out,
                         Log4Qt::Level level)
 {
-    quint8 l = level.mValue;
+    const quint8 l = static_cast<quint8>(level.toInt());
     out << l;
     return out;
 }

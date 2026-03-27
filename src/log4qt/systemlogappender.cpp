@@ -49,7 +49,7 @@ static bool winServiceInit()
 {
     if (pDeregisterEventSource == nullptr)
     {
-        QLibrary lib(QStringLiteral("advapi32"));
+        QLibrary lib(u"advapi32"_s);
 
         // only resolve unicode versions
         RESOLVE(DeregisterEventSource);
@@ -72,9 +72,9 @@ static bool winServiceInit()
 static QString encodeName(const QString &name, bool allowUpper = false)
 {
     QString n = name.toLower();
-    QString legal = QStringLiteral("abcdefghijklmnopqrstuvwxyz1234567890");
+    QString legal = u"abcdefghijklmnopqrstuvwxyz1234567890"_s;
     if (allowUpper)
-        legal += QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        legal += u"ABCDEFGHIJKLMNOPQRSTUVWXYZ"_s;
     int pos = 0;
     while (pos < n.size())
     {
@@ -89,15 +89,12 @@ static QString encodeName(const QString &name, bool allowUpper = false)
 namespace Log4Qt
 {
 SystemLogAppender::SystemLogAppender(QObject *parent) :
-    AppenderSkeleton(parent), ident(nullptr)
+    AppenderSkeleton(parent)
 {
     setServiceName(QCoreApplication::applicationName());
 }
 
-SystemLogAppender::~SystemLogAppender()
-{
-    delete[] ident;
-}
+SystemLogAppender::~SystemLogAppender() = default;
 
 void SystemLogAppender::append(const LoggingEvent &event)
 {
@@ -126,8 +123,7 @@ void SystemLogAppender::append(const LoggingEvent &event)
         break;
     }
 
-    HANDLE h = pRegisterEventSource(nullptr, serviceName().toStdWString().c_str());
-    if (h != nullptr)
+    if (HANDLE h = pRegisterEventSource(nullptr, serviceName().toStdWString().c_str()); h != nullptr)
     {
         int id = 0;
         uint category = 0;
@@ -157,7 +153,7 @@ void SystemLogAppender::append(const LoggingEvent &event)
         st = LOG_INFO;
     }
 
-    openlog(ident, LOG_PID, LOG_DAEMON);
+    openlog(mIdent.c_str(), LOG_PID, LOG_DAEMON);
 
 #if QT_VERSION >= 0x050e00
     for (const auto &line : message.split('\n', Qt::SkipEmptyParts))
@@ -180,12 +176,7 @@ void SystemLogAppender::setServiceName(const QString &serviceName)
     mServiceName = serviceName;
 
 #if !defined(Q_OS_WIN)
-    delete[] ident;
-    QString tmp = encodeName(mServiceName, true);
-    int len = tmp.toLocal8Bit().size();
-    ident = new char[len + 1];
-    ident[len] = '\0';
-    ::memcpy(ident, tmp.toLocal8Bit().constData(), len);
+    mIdent = encodeName(mServiceName, true).toLocal8Bit().constData();
 #endif
 }
 

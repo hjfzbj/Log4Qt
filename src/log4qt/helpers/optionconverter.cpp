@@ -37,8 +37,8 @@ QString OptionConverter::findAndSubst(const Properties &properties,
     if (value.isNull())
         return value;
 
-    const QString begin_subst = QStringLiteral("${");
-    const QString end_subst = QStringLiteral("}");
+    const QString begin_subst = u"${"_s;
+    const QString end_subst = u"}"_s;
     const int begin_length = begin_subst.length();
     const int end_length = end_subst.length();
 
@@ -144,17 +144,17 @@ qint64 OptionConverter::toFileSize(const QString &option,
     QString s = option.trimmed().toLower();
     qint64 f = 1;
     int i;
-    i = s.indexOf(QStringLiteral("kb"));
+    i = s.indexOf(u"kb"_s);
     if (i >= 0)
         f = 1024;
     else
     {
-        i = s.indexOf(QStringLiteral("mb"));
+        i = s.indexOf(u"mb"_s);
         if (i >= 0)
             f = 1024 * 1024;
         else
         {
-            i = s.indexOf(QStringLiteral("gb"));
+            i = s.indexOf(u"gb"_s);
             if (i >= 0)
                 f = 1024 * 1024 * 1024;
         }
