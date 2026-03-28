@@ -137,7 +137,7 @@ If no strategy is specified, `DefaultRolloverStrategy` is used automatically.
 | Short Name | Class | Properties | Description |
 |------------|-------|------------|-------------|
 | `SizeBased` | SizeBasedTriggeringPolicy | `maxFileSize` (string, e.g. `10MB`), `maximumFileSize` (qint64) | Triggers when file size exceeds a threshold. Default: 10 MB. |
-| `TimeBased` | TimeBasedTriggeringPolicy | `datePattern` (QString) | Triggers based on a date/time pattern. The rollover frequency (minutely through monthly) is automatically inferred from the pattern. Default: `'.'yyyy-MM-dd` (daily). |
+| `TimeBased` | TimeBasedTriggeringPolicy | `datePattern` (QString), `interval` (int, default 1), `modulate` (bool, default false), `maxRandomDelay` (int, default 0) | Triggers based on a date/time pattern. The rollover frequency (minutely through monthly) is automatically inferred from the pattern. `interval` multiplies the base frequency (e.g. interval=4 with hourly = every 4 hours). `modulate` aligns rollovers to calendar boundaries. `maxRandomDelay` adds random jitter in seconds to prevent thundering herd. Default pattern: `'.'yyyy-MM-dd` (daily). |
 | `Cron` | CronTriggeringPolicy | `schedule` (QString) | Triggers on a Quartz-style cron schedule. 6-field format: `seconds minutes hours day-of-month month day-of-week`. Supports `*`, `?`, `,`, `-`, `/` specifiers and month/day-of-week names (JAN-DEC, SUN-SAT). Default: `0 0 0 * * ?` (midnight daily). |
 | `OnStartup` | OnStartupTriggeringPolicy | _(none)_ | Triggers once at application startup if the log file already exists and is non-empty. |
 
@@ -168,6 +168,18 @@ appender.cron.policy.CRON.schedule=0 0 0 * * ?
 appender.cron.strategy.type=DefaultRolloverStrategy
 appender.cron.strategy.maxIndex=30
 appender.cron.layout.type=SimpleLayout
+
+# Time-based rolling every 4 hours, aligned to clock boundaries, with jitter
+appender.time4h.type=RollingFile
+appender.time4h.file=logs/app.log
+appender.time4h.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.time4h.policy.TIME.datePattern='.'yyyy-MM-dd-HH
+appender.time4h.policy.TIME.interval=4
+appender.time4h.policy.TIME.modulate=true
+appender.time4h.policy.TIME.maxRandomDelay=30
+appender.time4h.strategy.type=DefaultRolloverStrategy
+appender.time4h.strategy.maxIndex=30
+appender.time4h.layout.type=SimpleLayout
 
 # Multiple policies (size + startup, OR-combined automatically)
 appender.multi.type=RollingFile

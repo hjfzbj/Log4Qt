@@ -66,6 +66,11 @@ private Q_SLOTS:
     void TimeBasedTriggeringPolicy_frequency_data();
     void TimeBasedTriggeringPolicy_frequency();
     void TimeBasedTriggeringPolicy_invalidPattern();
+    void TimeBasedTriggeringPolicy_intervalDefaults();
+    void TimeBasedTriggeringPolicy_intervalClamping();
+    void TimeBasedTriggeringPolicy_modulateAlignment();
+    void TimeBasedTriggeringPolicy_maxRandomDelayNonNegative();
+    void TimeBasedTriggeringPolicy_propertyConfigurator();
 
     // CronTriggeringPolicy
     void CronTriggeringPolicy_defaults();
@@ -334,6 +339,109 @@ void PolicyTest::TimeBasedTriggeringPolicy_invalidPattern()
     // Pattern that doesn't change at any frequency -> always returns false
     LoggingEvent event;
     QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+}
+
+void PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults()
+{
+    Log4Qt::TimeBasedTriggeringPolicy policy;
+    QCOMPARE(policy.interval(), 1);
+    QCOMPARE(policy.modulate(), false);
+    QCOMPARE(policy.maxRandomDelay(), 0);
+}
+
+void PolicyTest::TimeBasedTriggeringPolicy_intervalClamping()
+{
+    Log4Qt::TimeBasedTriggeringPolicy policy;
+
+    // interval=0 should be clamped to 1
+    policy.setInterval(0);
+    policy.activateOptions();
+    QCOMPARE(policy.interval(), 1);
+
+    // interval=-5 should be clamped to 1
+    policy.setInterval(-5);
+    policy.activateOptions();
+    QCOMPARE(policy.interval(), 1);
+
+    // interval=4 should remain 4
+    policy.setInterval(4);
+    policy.activateOptions();
+    QCOMPARE(policy.interval(), 4);
+}
+
+void PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment()
+{
+    // Minutely pattern with interval=5, modulate=true
+    // After activation, the policy should not trigger immediately
+    Log4Qt::TimeBasedTriggeringPolicy policy;
+    policy.setDatePattern("'.'mm");
+    policy.setInterval(5);
+    policy.setModulate(true);
+    policy.activateOptions();
+
+    QCOMPARE(policy.frequency(), Log4Qt::TimeBasedTriggeringPolicy::Minutely);
+
+    // Should not trigger immediately since rollover time is in the future
+    LoggingEvent event;
+    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+}
+
+void PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative()
+{
+    Log4Qt::TimeBasedTriggeringPolicy policy;
+
+    // Negative delay should be clamped to 0
+    policy.setMaxRandomDelay(-10);
+    policy.activateOptions();
+    QCOMPARE(policy.maxRandomDelay(), 0);
+
+    // Zero remains zero
+    policy.setMaxRandomDelay(0);
+    policy.activateOptions();
+    QCOMPARE(policy.maxRandomDelay(), 0);
+
+    // Positive value remains unchanged
+    policy.setMaxRandomDelay(60);
+    policy.activateOptions();
+    QCOMPARE(policy.maxRandomDelay(), 60);
+}
+
+void PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString file = tempDir.path() + "/timebased.log";
+
+    Properties props;
+    props.setProperty("appender.R.type", "RollingFile");
+    props.setProperty("appender.R.file", file);
+    props.setProperty("appender.R.layout.type", "SimpleLayout");
+    props.setProperty("appender.R.policy.TIME.type", "TimeBasedTriggeringPolicy");
+    props.setProperty("appender.R.policy.TIME.datePattern", "'.'HH");
+    props.setProperty("appender.R.policy.TIME.interval", "4");
+    props.setProperty("appender.R.policy.TIME.modulate", "true");
+    props.setProperty("appender.R.policy.TIME.maxRandomDelay", "30");
+    props.setProperty("appender.R.strategy.type", "DefaultRolloverStrategy");
+    props.setProperty("rootLogger.level", "DEBUG");
+    props.setProperty("rootLogger.appenderRef.0.ref", "R");
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->appenders().count(), 1);
+
+    auto *appender = qobject_cast<RollingFileAppender *>(root->appenders().first().data());
+    QVERIFY(appender != nullptr);
+    QVERIFY(appender->triggeringPolicy() != nullptr);
+
+    auto *timePolicy = qobject_cast<TimeBasedTriggeringPolicy *>(appender->triggeringPolicy().data());
+    QVERIFY(timePolicy != nullptr);
+    QCOMPARE(timePolicy->datePattern(), QString("'.'HH"));
+    QCOMPARE(timePolicy->interval(), 4);
+    QCOMPARE(timePolicy->modulate(), true);
+    QCOMPARE(timePolicy->maxRandomDelay(), 30);
+    QCOMPARE(timePolicy->frequency(), Log4Qt::TimeBasedTriggeringPolicy::Hourly);
 }
 
 // ---------------------------------------------------------------------------

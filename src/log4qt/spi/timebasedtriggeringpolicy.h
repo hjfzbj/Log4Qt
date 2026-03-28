@@ -43,6 +43,17 @@ namespace Log4Qt
  * - Weekly: pattern changes every week
  * - Monthly: pattern changes every month
  *
+ * The \c interval property multiplies the base frequency unit. For example,
+ * with an hourly pattern and interval=4, rollover occurs every 4 hours.
+ *
+ * When \c modulate is true, rollover times are aligned to calendar
+ * boundaries. For example, with interval=4 and hourly frequency,
+ * rollovers align to 00:00, 04:00, 08:00, 12:00, 16:00, 20:00.
+ *
+ * The \c maxRandomDelay property adds a random delay in seconds to the
+ * computed rollover time to prevent thundering herd in multi-process
+ * scenarios.
+ *
  * \note All the functions declared in this class are thread-safe.
  */
 class LOG4QT_EXPORT TimeBasedTriggeringPolicy : public TriggeringPolicy
@@ -54,6 +65,9 @@ class LOG4QT_EXPORT TimeBasedTriggeringPolicy : public TriggeringPolicy
      * The default is "'.'yyyy-MM-dd" (daily).
      */
     Q_PROPERTY(QString datePattern READ datePattern WRITE setDatePattern)
+    Q_PROPERTY(int interval READ interval WRITE setInterval)
+    Q_PROPERTY(bool modulate READ modulate WRITE setModulate)
+    Q_PROPERTY(int maxRandomDelay READ maxRandomDelay WRITE setMaxRandomDelay)
 
 public:
     enum Frequency
@@ -72,6 +86,15 @@ public:
     QString datePattern() const;
     void setDatePattern(const QString &datePattern);
 
+    int interval() const;
+    void setInterval(int interval);
+
+    bool modulate() const;
+    void setModulate(bool modulate);
+
+    int maxRandomDelay() const;
+    void setMaxRandomDelay(int maxRandomDelay);
+
     Frequency frequency() const;
 
     void activateOptions() override;
@@ -89,6 +112,9 @@ private:
     QString mDatePattern;
     QString mActiveDatePattern;
     Frequency mFrequency;
+    int mInterval{1};
+    bool mModulate{false};
+    int mMaxRandomDelay{0};
     QDateTime mRollOverTime;
 };
 
@@ -100,6 +126,36 @@ inline QString TimeBasedTriggeringPolicy::datePattern() const
 inline void TimeBasedTriggeringPolicy::setDatePattern(const QString &datePattern)
 {
     mDatePattern = datePattern;
+}
+
+inline int TimeBasedTriggeringPolicy::interval() const
+{
+    return mInterval;
+}
+
+inline void TimeBasedTriggeringPolicy::setInterval(int interval)
+{
+    mInterval = interval;
+}
+
+inline bool TimeBasedTriggeringPolicy::modulate() const
+{
+    return mModulate;
+}
+
+inline void TimeBasedTriggeringPolicy::setModulate(bool modulate)
+{
+    mModulate = modulate;
+}
+
+inline int TimeBasedTriggeringPolicy::maxRandomDelay() const
+{
+    return mMaxRandomDelay;
+}
+
+inline void TimeBasedTriggeringPolicy::setMaxRandomDelay(int maxRandomDelay)
+{
+    mMaxRandomDelay = maxRandomDelay;
 }
 
 inline TimeBasedTriggeringPolicy::Frequency TimeBasedTriggeringPolicy::frequency() const

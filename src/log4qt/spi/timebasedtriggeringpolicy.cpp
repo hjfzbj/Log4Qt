@@ -23,6 +23,8 @@
 #include "log4qtdefs.h"
 #include "helpers/datetime.h"
 
+#include <QRandomGenerator>
+
 namespace Log4Qt
 {
 
@@ -35,6 +37,11 @@ TimeBasedTriggeringPolicy::TimeBasedTriggeringPolicy(QObject *parent) :
 
 void TimeBasedTriggeringPolicy::activateOptions()
 {
+    if (mInterval < 1)
+        mInterval = 1;
+    if (mMaxRandomDelay < 0)
+        mMaxRandomDelay = 0;
+
     computeFrequency();
     if (!mActiveDatePattern.isEmpty())
         computeRollOverTime();
@@ -90,42 +97,121 @@ void TimeBasedTriggeringPolicy::computeRollOverTime()
     QDateTime now = QDateTime::currentDateTime();
     QDate nowDate = now.date();
     QTime nowTime = now.time();
-    QDateTime start;
 
-    switch (mFrequency)
+    if (mModulate)
     {
-    case Minutely:
-        start = QDateTime(nowDate, QTime(nowTime.hour(), nowTime.minute(), 0, 0));
-        mRollOverTime = start.addSecs(60);
-        break;
-    case Hourly:
-        start = QDateTime(nowDate, QTime(nowTime.hour(), 0, 0, 0));
-        mRollOverTime = start.addSecs(60 * 60);
-        break;
-    case HalfDaily:
-    {
-        int hour = nowTime.hour() >= 12 ? 12 : 0;
-        start = QDateTime(nowDate, QTime(hour, 0, 0, 0));
-        mRollOverTime = start.addSecs(60 * 60 * 12);
-        break;
+        switch (mFrequency)
+        {
+        case Minutely:
+        {
+            // Align to interval-minute boundaries within the hour
+            int minuteOfHour = nowTime.minute();
+            int nextBucket = (minuteOfHour / mInterval + 1) * mInterval;
+            QDateTime hourStart(nowDate, QTime(nowTime.hour(), 0, 0, 0));
+            mRollOverTime = hourStart.addSecs(nextBucket * 60);
+            break;
+        }
+        case Hourly:
+        {
+            // Align to interval-hour boundaries within the day
+            int hourOfDay = nowTime.hour();
+            int nextBucket = (hourOfDay / mInterval + 1) * mInterval;
+            QDateTime dayStart(nowDate, QTime(0, 0, 0, 0));
+            mRollOverTime = dayStart.addSecs(nextBucket * 3600);
+            break;
+        }
+        case HalfDaily:
+        {
+            // 12-hour blocks from midnight
+            int halfDayIndex = nowTime.hour() / 12;
+            int nextBucket = (halfDayIndex / mInterval + 1) * mInterval;
+            QDateTime dayStart(nowDate, QTime(0, 0, 0, 0));
+            mRollOverTime = dayStart.addSecs(nextBucket * 12 * 3600);
+            break;
+        }
+        case Daily:
+        {
+            // Align to interval-day boundaries from a fixed epoch
+            const QDate epoch(2000, 1, 1);
+            qint64 daysSinceEpoch = epoch.daysTo(nowDate);
+            qint64 nextBucket = (daysSinceEpoch / mInterval + 1) * mInterval;
+            mRollOverTime = QDateTime(epoch.addDays(nextBucket), QTime(0, 0, 0, 0));
+            break;
+        }
+        case Weekly:
+        {
+            // Align to interval-week boundaries from a known Sunday
+            const QDate epochSunday(2000, 1, 2); // 2000-01-02 is a Sunday
+            qint64 daysSinceEpoch = epochSunday.daysTo(nowDate);
+            qint64 weeksSinceEpoch = daysSinceEpoch / 7;
+            qint64 nextBucket = (weeksSinceEpoch / mInterval + 1) * mInterval;
+            mRollOverTime = QDateTime(epochSunday.addDays(nextBucket * 7), QTime(0, 0, 0, 0));
+            break;
+        }
+        case Monthly:
+        {
+            // Align to interval-month boundaries from January 2000
+            int monthsSinceEpoch = (nowDate.year() - 2000) * 12 + (nowDate.month() - 1);
+            int nextBucket = (monthsSinceEpoch / mInterval + 1) * mInterval;
+            int targetYear = 2000 + nextBucket / 12;
+            int targetMonth = (nextBucket % 12) + 1;
+            mRollOverTime = QDateTime(QDate(targetYear, targetMonth, 1), QTime(0, 0, 0, 0));
+            break;
+        }
+        }
     }
-    case Daily:
-        start = QDateTime(nowDate, QTime(0, 0, 0, 0));
-        mRollOverTime = start.addDays(1);
-        break;
-    case Weekly:
+    else
     {
-        int day = nowDate.dayOfWeek();
-        if (day == Qt::Sunday)
-            day = 0;
-        start = QDateTime(nowDate, QTime(0, 0, 0, 0)).addDays(-1 * day);
-        mRollOverTime = start.addDays(7);
-        break;
+        switch (mFrequency)
+        {
+        case Minutely:
+        {
+            QDateTime start(nowDate, QTime(nowTime.hour(), nowTime.minute(), 0, 0));
+            mRollOverTime = start.addSecs(mInterval * 60);
+            break;
+        }
+        case Hourly:
+        {
+            QDateTime start(nowDate, QTime(nowTime.hour(), 0, 0, 0));
+            mRollOverTime = start.addSecs(mInterval * 3600);
+            break;
+        }
+        case HalfDaily:
+        {
+            int hour = nowTime.hour() >= 12 ? 12 : 0;
+            QDateTime start(nowDate, QTime(hour, 0, 0, 0));
+            mRollOverTime = start.addSecs(mInterval * 12 * 3600);
+            break;
+        }
+        case Daily:
+        {
+            QDateTime start(nowDate, QTime(0, 0, 0, 0));
+            mRollOverTime = start.addDays(mInterval);
+            break;
+        }
+        case Weekly:
+        {
+            int day = nowDate.dayOfWeek();
+            if (day == Qt::Sunday)
+                day = 0;
+            QDateTime start = QDateTime(nowDate, QTime(0, 0, 0, 0)).addDays(-1 * day);
+            mRollOverTime = start.addDays(mInterval * 7);
+            break;
+        }
+        case Monthly:
+        {
+            QDateTime start(QDate(nowDate.year(), nowDate.month(), 1), QTime(0, 0, 0, 0));
+            mRollOverTime = start.addMonths(mInterval);
+            break;
+        }
+        }
     }
-    case Monthly:
-        start = QDateTime(QDate(nowDate.year(), nowDate.month(), 1), QTime(0, 0, 0, 0));
-        mRollOverTime = start.addMonths(1);
-        break;
+
+    // Apply random delay
+    if (mMaxRandomDelay > 0)
+    {
+        int delay = QRandomGenerator::global()->bounded(mMaxRandomDelay + 1);
+        mRollOverTime = mRollOverTime.addSecs(delay);
     }
 }
 
