@@ -24,6 +24,9 @@ Additional features
 -------------------
 * JSON configuration support (`log4qt.json`) alongside the classic `.properties` format
 * XML configuration support (`log4qt.xml`) alongside `.properties` and `.json` formats
+* Pluggable TriggeringPolicy / RolloverStrategy for RollingFileAppender (log4j2-style):
+  size-based, time-based, cron-based, and on-startup triggering policies with
+  composable OR-combination and a fixed-window numbered rollover strategy
 * SimpleTimeLayout (“dd.MM.yyyy hh:mm [Thread] Level Logger Message”)
 * ColorConsoleAppender (render colorized message by escape sequence and put it to console)
 * SignalAppender (emit signal when log event happens)

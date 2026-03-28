@@ -15,7 +15,30 @@ All notable changes to this project will be documented in this file.
 - Short factory aliases for all built-in components (e.g. `Console`,
   `File`, `RollingFile`, `PatternLayout`, `LevelMatch`) alongside the
   existing `org.apache.log4j.*` and `Log4Qt::*` names.
+- **TriggeringPolicy / RolloverStrategy architecture** for RollingFileAppender,
+  inspired by log4j2. Rolling is now decoupled into pluggable policies (WHEN
+  to roll) and strategies (HOW to roll):
+  - `SizeBasedTriggeringPolicy` -- triggers when file size exceeds a threshold.
+  - `TimeBasedTriggeringPolicy` -- triggers based on a date/time pattern
+    (minutely through monthly).
+  - `CronTriggeringPolicy` -- triggers on a Quartz-style cron schedule
+    (6-field format: seconds minutes hours day-of-month month day-of-week).
+  - `OnStartupTriggeringPolicy` -- triggers once at startup if the log file
+    already exists and is non-empty.
+  - `CompositeTriggeringPolicy` -- OR-combines multiple policies; created
+    automatically when multiple policies are added to an appender.
+  - `DefaultRolloverStrategy` -- fixed-window numbered backup rotation
+    (configurable min/max index).
+  - New `CronExpression` helper class for parsing and evaluating Quartz-style
+    cron expressions.
+  - Policies and strategies are configured via
+    `appender.X.policy.<alias>.type` and `appender.X.strategy.type` keys.
+  - Factory registration with short aliases (`SizeBased`, `TimeBased`,
+    `Cron`, `OnStartup`, `Default`).
 - Dedicated PropertyConfigurator unit test suite (`tests/propertytest`).
+- Dedicated policy/strategy unit test suite (`tests/policytest`) with 72
+  test cases covering all triggering policies, rollover strategy, cron
+  expression parsing, factory registration, and configurator integration.
 
 ### Changed
 - **Breaking:** Minimum required Qt version raised to Qt 6.4. Qt 5 is no longer
@@ -36,6 +59,13 @@ All notable changes to this project will be documented in this file.
     `status`, `log4j.threshold` &rarr; `threshold`, etc.
 - Appender filters now configured via `appender.X.filter.F.type=LevelMatch`
   with properties under the same prefix.
+- **Breaking:** RollingFileAppender no longer has `maxFileSize`,
+  `maximumFileSize`, or `maxBackupIndex` properties. Use the new
+  TriggeringPolicy and RolloverStrategy configuration instead:
+  - `appender.X.policy.<alias>.type=SizeBasedTriggeringPolicy` with
+    `maxFileSize=10MB` replaces the old `maxFileSize` property.
+  - `appender.X.strategy.type=DefaultRolloverStrategy` with
+    `maxIndex=7` replaces the old `maxBackupIndex` property.
 
 ### Improvements
 - Performance optimizations

@@ -82,7 +82,7 @@ arbitrary identifier used to reference the appender from loggers.
 |------------|-------|-------------|
 | `Console` | ConsoleAppender | Writes to stdout/stderr. |
 | `File` | FileAppender | Writes to a single file. |
-| `RollingFile` | RollingFileAppender | File with size-based rotation. |
+| `RollingFile` | RollingFileAppender | File with policy/strategy-based rotation. |
 | `DailyRollingFile` | DailyRollingFileAppender | File with date-based rotation. |
 | `DailyFile` | DailyFileAppender | Daily file with configurable retention. |
 | `Async` | AsyncAppender | Asynchronous wrapper appender. |
@@ -116,6 +116,69 @@ arbitrary identifier used to reference the appender from loggers.
 | `LevelMatch` | LevelMatchFilter | Matches a specific level. Properties: `levelToMatch`, `acceptOnMatch`. |
 | `LevelRange` | LevelRangeFilter | Matches a range of levels. Properties: `levelMin`, `levelMax`, `acceptOnMatch`. |
 | `StringMatch` | StringMatchFilter | Matches a substring. Properties: `stringToMatch`, `acceptOnMatch`. |
+
+### Triggering Policies (RollingFileAppender)
+
+`RollingFileAppender` uses pluggable **triggering policies** to decide WHEN to
+roll over and a **rollover strategy** to decide HOW. Multiple policies can be
+attached (OR-combined automatically via `CompositeTriggeringPolicy`).
+
+| Key | Description |
+|-----|-------------|
+| `appender.<alias>.policy.<palias>.type` | Triggering policy class name. |
+| `appender.<alias>.policy.<palias>.<property>` | Policy properties. |
+| `appender.<alias>.strategy.type` | Rollover strategy class name. |
+| `appender.<alias>.strategy.<property>` | Strategy properties. |
+
+If no strategy is specified, `DefaultRolloverStrategy` is used automatically.
+
+### Built-in Triggering Policy Types
+
+| Short Name | Class | Properties | Description |
+|------------|-------|------------|-------------|
+| `SizeBased` | SizeBasedTriggeringPolicy | `maxFileSize` (string, e.g. `10MB`), `maximumFileSize` (qint64) | Triggers when file size exceeds a threshold. Default: 10 MB. |
+| `TimeBased` | TimeBasedTriggeringPolicy | `datePattern` (QString) | Triggers based on a date/time pattern. The rollover frequency (minutely through monthly) is automatically inferred from the pattern. Default: `'.'yyyy-MM-dd` (daily). |
+| `Cron` | CronTriggeringPolicy | `schedule` (QString) | Triggers on a Quartz-style cron schedule. 6-field format: `seconds minutes hours day-of-month month day-of-week`. Supports `*`, `?`, `,`, `-`, `/` specifiers and month/day-of-week names (JAN-DEC, SUN-SAT). Default: `0 0 0 * * ?` (midnight daily). |
+| `OnStartup` | OnStartupTriggeringPolicy | _(none)_ | Triggers once at application startup if the log file already exists and is non-empty. |
+
+### Built-in Rollover Strategy Types
+
+| Short Name | Class | Properties | Description |
+|------------|-------|------------|-------------|
+| `Default` | DefaultRolloverStrategy | `minIndex` (int, default 1), `maxIndex` (int, default 7) | Fixed-window numbered rotation: deletes the oldest backup at `maxIndex`, shifts existing backups up by one, and renames the active file to `.minIndex`. |
+
+### RollingFileAppender Examples
+
+```properties
+# Size-based rolling with 5 numbered backups
+appender.rolling.type=RollingFile
+appender.rolling.file=logs/app.log
+appender.rolling.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.rolling.policy.SIZE.maxFileSize=10MB
+appender.rolling.strategy.type=DefaultRolloverStrategy
+appender.rolling.strategy.maxIndex=5
+appender.rolling.layout.type=PatternLayout
+appender.rolling.layout.conversionPattern=%d %p %c - %m%n
+
+# Cron-based rolling (midnight daily)
+appender.cron.type=RollingFile
+appender.cron.file=logs/app.log
+appender.cron.policy.CRON.type=CronTriggeringPolicy
+appender.cron.policy.CRON.schedule=0 0 0 * * ?
+appender.cron.strategy.type=DefaultRolloverStrategy
+appender.cron.strategy.maxIndex=30
+appender.cron.layout.type=SimpleLayout
+
+# Multiple policies (size + startup, OR-combined automatically)
+appender.multi.type=RollingFile
+appender.multi.file=logs/app.log
+appender.multi.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.multi.policy.SIZE.maxFileSize=50MB
+appender.multi.policy.STARTUP.type=OnStartupTriggeringPolicy
+appender.multi.strategy.type=DefaultRolloverStrategy
+appender.multi.strategy.maxIndex=10
+appender.multi.layout.type=SimpleLayout
+```
 
 ---
 
@@ -201,11 +264,13 @@ appender.daily.layout.type=TTCCLayout
 appender.daily.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz
 appender.daily.layout.contextPrinting=true
 
-# Rolling file with filter
+# Rolling file with size-based policy and filter
 appender.rolling.type=RollingFile
 appender.rolling.file=${logpath}/errors.log
-appender.rolling.maxFileSize=10MB
-appender.rolling.maxBackupIndex=5
+appender.rolling.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.rolling.policy.SIZE.maxFileSize=10MB
+appender.rolling.strategy.type=DefaultRolloverStrategy
+appender.rolling.strategy.maxIndex=5
 appender.rolling.layout.type=PatternLayout
 appender.rolling.layout.conversionPattern=%-5p %d{ISO8601} [%t] %c - %m%n
 appender.rolling.filter.level.type=LevelMatch
@@ -271,8 +336,16 @@ stringified.
         "rolling": {
             "type": "RollingFile",
             "file": "${logpath}/errors.log",
-            "maxFileSize": "10MB",
-            "maxBackupIndex": 5,
+            "policy": {
+                "SIZE": {
+                    "type": "SizeBasedTriggeringPolicy",
+                    "maxFileSize": "10MB"
+                }
+            },
+            "strategy": {
+                "type": "DefaultRolloverStrategy",
+                "maxIndex": 5
+            },
             "layout": {
                 "type": "PatternLayout",
                 "conversionPattern": "%-5p %d{ISO8601} [%t] %c - %m%n"
@@ -356,8 +429,16 @@ attributes on an element are flattened as child properties.
         <rolling>
             <type>RollingFile</type>
             <file>${logpath}/errors.log</file>
-            <maxFileSize>10MB</maxFileSize>
-            <maxBackupIndex>5</maxBackupIndex>
+            <policy>
+                <SIZE>
+                    <type>SizeBasedTriggeringPolicy</type>
+                    <maxFileSize>10MB</maxFileSize>
+                </SIZE>
+            </policy>
+            <strategy>
+                <type>DefaultRolloverStrategy</type>
+                <maxIndex>5</maxIndex>
+            </strategy>
             <layout>
                 <type>PatternLayout</type>
                 <conversionPattern>%-5p %d{ISO8601} [%t] %c - %m%n</conversionPattern>
@@ -490,12 +571,18 @@ s.setValue("rootLogger.appenderRef.0.ref", "A1");
 
 ## Custom Components
 
-Register custom appenders, layouts, or filters with the Factory before
-configuration:
+Register custom appenders, layouts, filters, triggering policies, or rollover
+strategies with the Factory before configuration:
 
 ```cpp
 Factory::registerAppender("MyAppender", []() -> Appender* {
     return new MyAppender;
+});
+Factory::registerTriggeringPolicy("MyPolicy", []() -> TriggeringPolicy* {
+    return new MyTriggeringPolicy;
+});
+Factory::registerRolloverStrategy("MyStrategy", []() -> RolloverStrategy* {
+    return new MyRolloverStrategy;
 });
 ```
 
@@ -504,6 +591,8 @@ Then use the registered name in any configuration file:
 ```properties
 appender.custom.type=MyAppender
 appender.custom.myProperty=value
+appender.custom.policy.P.type=MyPolicy
+appender.custom.strategy.type=MyStrategy
 ```
 
 Properties are set via Qt's meta-object system, so any `Q_PROPERTY` declared
