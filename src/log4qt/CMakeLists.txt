@@ -12,6 +12,7 @@ set(log4qt_SOURCES
     helpers/appenderattachable.cpp
     helpers/classlogger.cpp
     helpers/configuratorhelper.cpp
+    helpers/cronexpression.cpp
     helpers/datetime.cpp
     helpers/dispatcher.cpp
     helpers/factory.cpp
@@ -40,6 +41,7 @@ set(log4qt_SOURCES
     simplelayout.cpp                                                                                                                                                  
     simpletimelayout.cpp                                                                                                                                                                                                                       
     spi/compositetriggeringpolicy.cpp
+    spi/crontriggeringpolicy.cpp
     spi/defaultrolloverstrategy.cpp
     spi/filter.cpp
     spi/onstartuptriggeringpolicy.cpp
@@ -101,6 +103,7 @@ set(log4qt_HEADERS_helpers
     helpers/appenderattachable.h
     helpers/classlogger.h
     helpers/configuratorhelper.h
+    helpers/cronexpression.h
     helpers/datetime.h
     helpers/dispatcher.h
     helpers/factory.h
@@ -113,6 +116,7 @@ set(log4qt_HEADERS_helpers
 )
 set(log4qt_HEADERS_spi
     spi/compositetriggeringpolicy.h
+    spi/crontriggeringpolicy.h
     spi/defaultrolloverstrategy.h
     spi/filter.h
     spi/onstartuptriggeringpolicy.h

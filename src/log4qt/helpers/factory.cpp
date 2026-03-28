@@ -54,6 +54,7 @@
 
 #include "spi/sizebasedtriggeringpolicy.h"
 #include "spi/timebasedtriggeringpolicy.h"
+#include "spi/crontriggeringpolicy.h"
 #include "spi/onstartuptriggeringpolicy.h"
 #include "spi/defaultrolloverstrategy.h"
 #include "varia/debugappender.h"
@@ -226,6 +227,11 @@ TriggeringPolicy *create_size_based_triggering_policy()
 TriggeringPolicy *create_time_based_triggering_policy()
 {
     return new TimeBasedTriggeringPolicy;
+}
+
+TriggeringPolicy *create_cron_triggering_policy()
+{
+    return new CronTriggeringPolicy;
 }
 
 TriggeringPolicy *create_on_startup_triggering_policy()
@@ -632,6 +638,10 @@ void Factory::registerDefaultTriggeringPolicies()
     mTriggeringPolicyRegistry.insert(u"Log4Qt::TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
     mTriggeringPolicyRegistry.insert(u"TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
     mTriggeringPolicyRegistry.insert(u"TimeBased"_s, create_time_based_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::CronTriggeringPolicy"_s, create_cron_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"CronTriggeringPolicy"_s, create_cron_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"Cron"_s, create_cron_triggering_policy);
 
     mTriggeringPolicyRegistry.insert(u"Log4Qt::OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
     mTriggeringPolicyRegistry.insert(u"OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
