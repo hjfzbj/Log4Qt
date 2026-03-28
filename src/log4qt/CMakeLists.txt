@@ -39,7 +39,14 @@ set(log4qt_SOURCES
     signalappender.cpp                                                                                                                                                
     simplelayout.cpp                                                                                                                                                  
     simpletimelayout.cpp                                                                                                                                                                                                                       
-    spi/filter.cpp                                                                                                                                                                                                                             
+    spi/compositetriggeringpolicy.cpp
+    spi/defaultrolloverstrategy.cpp
+    spi/filter.cpp
+    spi/onstartuptriggeringpolicy.cpp
+    spi/rolloverstrategy.cpp
+    spi/sizebasedtriggeringpolicy.cpp
+    spi/timebasedtriggeringpolicy.cpp
+    spi/triggeringpolicy.cpp                                                                                                                                                                                                                             
     systemlogappender.cpp                                                                                                                                                                                                                      
     ttcclayout.cpp                                                                                                                                                                                                                             
     varia/debugappender.cpp                                                                                                                                                                                                                    
@@ -105,7 +112,14 @@ set(log4qt_HEADERS_helpers
     helpers/timestampprovider.h
 )
 set(log4qt_HEADERS_spi
+    spi/compositetriggeringpolicy.h
+    spi/defaultrolloverstrategy.h
     spi/filter.h
+    spi/onstartuptriggeringpolicy.h
+    spi/rolloverstrategy.h
+    spi/sizebasedtriggeringpolicy.h
+    spi/timebasedtriggeringpolicy.h
+    spi/triggeringpolicy.h
 )
 set(log4qt_HEADERS_varia
     varia/debugappender.h

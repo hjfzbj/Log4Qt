@@ -29,6 +29,9 @@
 #include "logger.h"
 #include "logmanager.h"
 #include "loggerrepository.h"
+#include "rollingfileappender.h"
+#include "spi/triggeringpolicy.h"
+#include "spi/rolloverstrategy.h"
 #include "varia/listappender.h"
 
 #include <QFile>
@@ -330,9 +333,61 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
                 staticLogger()->warn(u"Appender '%1' does not support filters (not an AppenderSkeleton)"_s, appenderName);
         }
 
+        // Triggering policies (multiple, like filters)
+        const QString policyPrefix = prefix + u"policy."_s;
+        QStringList policyAliases = extractAliases(properties, policyPrefix);
+        for (const auto &policyAlias : policyAliases)
+        {
+            const QString pPrefix = policyPrefix + policyAlias + u"."_s;
+            QString policyType = OptionConverter::findAndSubst(properties, pPrefix + u"type"_s);
+            if (policyType.isNull())
+                continue;
+
+            TriggeringPolicy *policy = Factory::createTriggeringPolicy(policyType);
+            if (!policy)
+            {
+                staticLogger()->warn(u"Unable to create triggering policy of class '%1' for appender '%2'"_s, policyType, appenderName);
+                continue;
+            }
+
+            QStringList policyExclusions;
+            policyExclusions << u"type"_s;
+            setProperties(properties, pPrefix, policyExclusions, policy);
+            policy->activateOptions();
+
+            if (auto *rolling = qobject_cast<RollingFileAppender *>(appender.data()))
+                rolling->addTriggeringPolicy(TriggeringPolicySharedPtr(policy));
+            else
+                staticLogger()->warn(u"Triggering policy specified for non-RollingFileAppender '%1'"_s, appenderName);
+        }
+
+        // Rollover strategy (single, like layout)
+        QString strategyType = OptionConverter::findAndSubst(properties, prefix + u"strategy.type"_s);
+        if (!strategyType.isNull())
+        {
+            RolloverStrategy *strategy = Factory::createRolloverStrategy(strategyType);
+            if (!strategy)
+            {
+                staticLogger()->warn(u"Unable to create rollover strategy of class '%1' for appender '%2'"_s, strategyType, appenderName);
+            }
+            else
+            {
+                const QString strategyPrefix = prefix + u"strategy."_s;
+                QStringList strategyExclusions;
+                strategyExclusions << u"type"_s;
+                setProperties(properties, strategyPrefix, strategyExclusions, strategy);
+                strategy->activateOptions();
+
+                if (auto *rolling = qobject_cast<RollingFileAppender *>(appender.data()))
+                    rolling->setRolloverStrategy(RolloverStrategySharedPtr(strategy));
+                else
+                    staticLogger()->warn(u"Rollover strategy specified for non-RollingFileAppender '%1'"_s, appenderName);
+            }
+        }
+
         // Set remaining appender properties
         QStringList exclusions;
-        exclusions << u"type"_s << u"name"_s << u"layout"_s << u"filter"_s;
+        exclusions << u"type"_s << u"name"_s << u"layout"_s << u"filter"_s << u"policy"_s << u"strategy"_s;
         setProperties(properties, prefix, exclusions, appender.data());
 
         if (auto *skeleton = qobject_cast<AppenderSkeleton *>(appender.data()))

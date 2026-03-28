@@ -52,6 +52,10 @@
 #include "wdcappender.h"
 #endif
 
+#include "spi/sizebasedtriggeringpolicy.h"
+#include "spi/timebasedtriggeringpolicy.h"
+#include "spi/onstartuptriggeringpolicy.h"
+#include "spi/defaultrolloverstrategy.h"
 #include "varia/debugappender.h"
 #include "varia/denyallfilter.h"
 #include "varia/levelmatchfilter.h"
@@ -212,11 +216,37 @@ Layout *create_xml_layout()
     return new XMLLayout;
 }
 
+// TriggeringPolicies
+
+TriggeringPolicy *create_size_based_triggering_policy()
+{
+    return new SizeBasedTriggeringPolicy;
+}
+
+TriggeringPolicy *create_time_based_triggering_policy()
+{
+    return new TimeBasedTriggeringPolicy;
+}
+
+TriggeringPolicy *create_on_startup_triggering_policy()
+{
+    return new OnStartupTriggeringPolicy;
+}
+
+// RolloverStrategies
+
+RolloverStrategy *create_default_rollover_strategy()
+{
+    return new DefaultRolloverStrategy;
+}
+
 Factory::Factory()
 {
     registerDefaultAppenders();
     registerDefaultFilters();
     registerDefaultLayouts();
+    registerDefaultTriggeringPolicies();
+    registerDefaultRolloverStrategies();
 }
 
 LOG4QT_IMPLEMENT_INSTANCE(Factory)
@@ -388,6 +418,86 @@ void Factory::doUnregisterFilter(const QString &filterClassName)
 }
 
 
+TriggeringPolicy *Factory::doCreateTriggeringPolicy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mTriggeringPolicyRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of TriggeringPolicy with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mTriggeringPolicyRegistry.value(className)();
+}
+
+
+void Factory::doRegisterTriggeringPolicy(const QString &className,
+                                          TriggeringPolicyFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering TriggeringPolicy factory function with empty class name"_s);
+        return;
+    }
+    mTriggeringPolicyRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterTriggeringPolicy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mTriggeringPolicyRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered TriggeringPolicy factory function for class '%1'"_s, className);
+        return;
+    }
+    mTriggeringPolicyRegistry.remove(className);
+}
+
+
+RolloverStrategy *Factory::doCreateRolloverStrategy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mRolloverStrategyRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of RolloverStrategy with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mRolloverStrategyRegistry.value(className)();
+}
+
+
+void Factory::doRegisterRolloverStrategy(const QString &className,
+                                          RolloverStrategyFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering RolloverStrategy factory function with empty class name"_s);
+        return;
+    }
+    mRolloverStrategyRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterRolloverStrategy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mRolloverStrategyRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered RolloverStrategy factory function for class '%1'"_s, className);
+        return;
+    }
+    mRolloverStrategyRegistry.remove(className);
+}
+
+
 void Factory::doUnregisterLayout(const QString &layoutClassName)
 {
     QMutexLocker locker(&mObjectGuard);
@@ -510,6 +620,30 @@ void Factory::registerDefaultLayouts()
     mLayoutRegistry.insert(u"org.apache.log4j.XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"Log4Qt::XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"XMLLayout"_s, create_xml_layout);
+}
+
+
+void Factory::registerDefaultTriggeringPolicies()
+{
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::SizeBasedTriggeringPolicy"_s, create_size_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"SizeBasedTriggeringPolicy"_s, create_size_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"SizeBased"_s, create_size_based_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"TimeBased"_s, create_time_based_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"OnStartup"_s, create_on_startup_triggering_policy);
+}
+
+
+void Factory::registerDefaultRolloverStrategies()
+{
+    mRolloverStrategyRegistry.insert(u"Log4Qt::DefaultRolloverStrategy"_s, create_default_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"DefaultRolloverStrategy"_s, create_default_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"Default"_s, create_default_rollover_strategy);
 }
 
 

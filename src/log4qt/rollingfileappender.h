@@ -22,15 +22,27 @@
 #define LOG4QT_ROLINGFILEAPPENDER_H
 
 #include "fileappender.h"
+#include "spi/triggeringpolicy.h"
+#include "spi/rolloverstrategy.h"
 
 namespace Log4Qt
 {
 
 /*!
- * \brief The class RollingFileAppender extends FileAppender to backup
- *        the log files when they reach a certain size.
- *        On application restart the existing log files are rolled
- *        if appendFile is set to false to avoid data loss.
+ * \brief The class RollingFileAppender extends FileAppender to roll over
+ *        the log file based on configurable triggering policies and
+ *        rollover strategies.
+ *
+ * A TriggeringPolicy determines WHEN a rollover should occur
+ * (e.g. when the file exceeds a certain size, at a time interval,
+ * or on application startup).
+ *
+ * A RolloverStrategy determines HOW the rollover is performed
+ * (e.g. numbered backup file rotation).
+ *
+ * Multiple triggering policies can be combined (OR logic) using
+ * addTriggeringPolicy(). If no strategy is set, a
+ * DefaultRolloverStrategy is used.
  *
  * \note All the functions declared in this class are thread-safe.
  *
@@ -40,31 +52,6 @@ namespace Log4Qt
 class LOG4QT_EXPORT RollingFileAppender : public FileAppender
 {
     Q_OBJECT
-
-    /*!
-     * The property holds the maximum backup count used by the appender.
-     *
-     * The default is 1.
-     *
-     * \sa maxBackupIndex(), setMaxBackupIndex()
-     */
-    Q_PROPERTY(int maxBackupIndex READ maxBackupIndex WRITE setMaxBackupIndex)
-
-    /*!
-     * The property holds the maximum file size used by the appender.
-     *
-     * The default is 10 MB (10 * 1024 * 1024).
-     *
-     * \sa maximumFileSize(), setMaximumFileSize()
-     */
-    Q_PROPERTY(qint64 maximumFileSize READ maximumFileSize WRITE setMaximumFileSize)
-
-    /*!
-     * The property sets the maximum file size from a string value.
-     *
-     * \sa setMaxFileSize(), maximumFileSize()
-     */
-    Q_PROPERTY(QString maxFileSize READ maxFileSize WRITE setMaxFileSize)
 
 public:
     RollingFileAppender(QObject *parent = nullptr);
@@ -80,53 +67,36 @@ private:
     Q_DISABLE_COPY_MOVE(RollingFileAppender)
 
 public:
-    int maxBackupIndex() const;
-    qint64 maximumFileSize() const;
-    QString maxFileSize() const;
-    void setMaxBackupIndex(int maxBackupIndex);
-    void setMaximumFileSize(qint64 maximumFileSize);
-    void setMaxFileSize(const QString &maxFileSize);
+    void setTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
+    void addTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
+    TriggeringPolicySharedPtr triggeringPolicy() const;
+
+    void setRolloverStrategy(const RolloverStrategySharedPtr &strategy);
+    RolloverStrategySharedPtr rolloverStrategy() const;
+
+    void activateOptions() override;
 
 protected:
     void append(const LoggingEvent &event) override;
-    void openFile() override;
 
 private:
     void rollOver();
 
 private:
-    int mMaxBackupIndex;
-    qint64 mMaximumFileSize;
+    TriggeringPolicySharedPtr mTriggeringPolicy;
+    RolloverStrategySharedPtr mRolloverStrategy;
 };
 
-inline int RollingFileAppender::maxBackupIndex() const
+inline TriggeringPolicySharedPtr RollingFileAppender::triggeringPolicy() const
 {
     QMutexLocker locker(&mObjectGuard);
-    return mMaxBackupIndex;
+    return mTriggeringPolicy;
 }
 
-inline qint64 RollingFileAppender::maximumFileSize() const
+inline RolloverStrategySharedPtr RollingFileAppender::rolloverStrategy() const
 {
     QMutexLocker locker(&mObjectGuard);
-    return mMaximumFileSize;
-}
-
-inline QString RollingFileAppender::maxFileSize() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return QString::number(mMaximumFileSize);
-}
-
-inline void RollingFileAppender::setMaxBackupIndex(int maxBackupIndex)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mMaxBackupIndex = maxBackupIndex;
-}
-
-inline void RollingFileAppender::setMaximumFileSize(qint64 maximumFileSize)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mMaximumFileSize = maximumFileSize;
+    return mRolloverStrategy;
 }
 
 } // namespace Log4Qt

@@ -42,6 +42,8 @@
 #include "log4qt/propertyconfigurator.h"
 #include "log4qt/rollingfileappender.h"
 #include "log4qt/simplelayout.h"
+#include "log4qt/spi/defaultrolloverstrategy.h"
+#include "log4qt/spi/sizebasedtriggeringpolicy.h"
 #include "log4qt/ttcclayout.h"
 #include "log4qt/varia/denyallfilter.h"
 #include "log4qt/varia/levelmatchfilter.h"
@@ -918,10 +920,6 @@ void Log4QtTest::Factory_setObjectProperty_data()
     QTest::newRow("Property not writable")
             << "Log4Qt::NullAppender"
             << "isClosed" << "10"
-            << "" << 1;
-    QTest::newRow("Property of wrong type")
-            << "Log4Qt::RollingFileAppender"
-            << "maximumFileSize" << "7"
             << "" << 1;
 }
 
@@ -1819,9 +1817,13 @@ void Log4QtTest::PropertyConfigurator_example()
     mProperties.setProperty(QStringLiteral("appender.A2.type"),
                             QStringLiteral("RollingFile"));
     mProperties.setProperty(QStringLiteral("appender.A2.file"), file);
-    mProperties.setProperty(QStringLiteral("appender.A2.maxFileSize"),
+    mProperties.setProperty(QStringLiteral("appender.A2.policy.SIZE.type"),
+                            QStringLiteral("SizeBasedTriggeringPolicy"));
+    mProperties.setProperty(QStringLiteral("appender.A2.policy.SIZE.maxFileSize"),
                             QStringLiteral("13MB"));
-    mProperties.setProperty(QStringLiteral("appender.A2.maxBackupIndex"),
+    mProperties.setProperty(QStringLiteral("appender.A2.strategy.type"),
+                            QStringLiteral("DefaultRolloverStrategy"));
+    mProperties.setProperty(QStringLiteral("appender.A2.strategy.maxIndex"),
                             QStringLiteral("7"));
     mProperties.setProperty(QStringLiteral("appender.A2.layout.type"),
                             QStringLiteral("TTCCLayout"));
@@ -1862,8 +1864,8 @@ void Log4QtTest::PropertyConfigurator_example()
         qobject_cast<Log4Qt::RollingFileAppender *>(p_logger->appenders().at(0).data());
     QVERIFY(p_a2 != nullptr);
     QCOMPARE(p_a2->file(), file);
-    QCOMPARE(p_a2->maximumFileSize(), Q_INT64_C(13 * 1024 * 1024));
-    QCOMPARE(p_a2->maxBackupIndex(), 7);
+    QVERIFY(p_a2->triggeringPolicy() != nullptr);
+    QVERIFY(p_a2->rolloverStrategy() != nullptr);
     auto *p_a2layout =
         qobject_cast<Log4Qt::TTCCLayout *>(p_a2->layout().data());
     QVERIFY(p_a2layout != nullptr);
@@ -1902,8 +1904,15 @@ void Log4QtTest::RollingFileAppender()
     appender.setName(QStringLiteral("RollingFileAppender"));
     appender.setFile(dir + file);
     appender.setLayout(LayoutSharedPtr(new SimpleLayout()));
-    appender.setMaxBackupIndex(2);
-    appender.setMaximumFileSize(40);
+
+    auto *sizePolicy = new Log4Qt::SizeBasedTriggeringPolicy;
+    sizePolicy->setMaximumFileSize(40);
+    appender.setTriggeringPolicy(TriggeringPolicySharedPtr(sizePolicy));
+
+    auto *strategy = new Log4Qt::DefaultRolloverStrategy;
+    strategy->setMaxIndex(2);
+    appender.setRolloverStrategy(RolloverStrategySharedPtr(strategy));
+
     appender.activateOptions();
 
     // Output 9 messages

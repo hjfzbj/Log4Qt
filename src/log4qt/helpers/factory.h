@@ -37,6 +37,8 @@ namespace Log4Qt
 class Appender;
 class Filter;
 class Layout;
+class TriggeringPolicy;
+class RolloverStrategy;
 
 /*!
  * \brief The class Factory provides factories for Appender, Filter and
@@ -85,6 +87,22 @@ public:
      */
     using LayoutFactoryFunc = Layout *(*)();
 
+    /*!
+         * Prototype for a TriggeringPolicy factory function. The function creates
+         * a TriggeringPolicy object on the heap and returns a pointer to it.
+         *
+         * \sa registerTriggeringPolicy(), createTriggeringPolicy()
+     */
+    using TriggeringPolicyFactoryFunc = TriggeringPolicy *(*)();
+
+    /*!
+         * Prototype for a RolloverStrategy factory function. The function creates
+         * a RolloverStrategy object on the heap and returns a pointer to it.
+         *
+         * \sa registerRolloverStrategy(), createRolloverStrategy()
+     */
+    using RolloverStrategyFactoryFunc = RolloverStrategy *(*)();
+
 private:
     Factory();
     Q_DISABLE_COPY_MOVE(Factory)
@@ -131,6 +149,12 @@ public:
      * This is an overloaded member function, provided for convenience.
      */
     static Layout *createLayout(const char *layoutClassName);
+
+    static TriggeringPolicy *createTriggeringPolicy(const QString &className);
+    static TriggeringPolicy *createTriggeringPolicy(const char *className);
+
+    static RolloverStrategy *createRolloverStrategy(const QString &className);
+    static RolloverStrategy *createRolloverStrategy(const char *className);
 
     /*!
      * Returns the Factory instance.
@@ -188,6 +212,16 @@ public:
     static void registerLayout(const char *layoutClassName,
                                LayoutFactoryFunc layoutFactoryFunc);
 
+    static void registerTriggeringPolicy(const QString &className,
+                                          TriggeringPolicyFactoryFunc func);
+    static void registerTriggeringPolicy(const char *className,
+                                          TriggeringPolicyFactoryFunc func);
+
+    static void registerRolloverStrategy(const QString &className,
+                                          RolloverStrategyFactoryFunc func);
+    static void registerRolloverStrategy(const char *className,
+                                          RolloverStrategyFactoryFunc func);
+
     /*!
     * Returns a list of the class names for registered Appender factory
     * functions.
@@ -211,6 +245,15 @@ public:
      * \sa registerLayout(), unregisterLayout()
      */
     static QStringList registeredLayouts();
+
+    static QStringList registeredTriggeringPolicies();
+    static QStringList registeredRolloverStrategies();
+
+    static void unregisterTriggeringPolicy(const QString &className);
+    static void unregisterTriggeringPolicy(const char *className);
+
+    static void unregisterRolloverStrategy(const QString &className);
+    static void unregisterRolloverStrategy(const char *className);
 
     /*!
      * Sets the property \a rProperty of the object \a pObject to the
@@ -280,6 +323,14 @@ private:
                           FilterFactoryFunc filterFactoryFunc);
     void doRegisterLayout(const QString &filterClassName,
                           LayoutFactoryFunc layoutFactoryFunc);
+    TriggeringPolicy *doCreateTriggeringPolicy(const QString &className);
+    void doRegisterTriggeringPolicy(const QString &className,
+                                     TriggeringPolicyFactoryFunc func);
+    void doUnregisterTriggeringPolicy(const QString &className);
+    RolloverStrategy *doCreateRolloverStrategy(const QString &className);
+    void doRegisterRolloverStrategy(const QString &className,
+                                     RolloverStrategyFactoryFunc func);
+    void doUnregisterRolloverStrategy(const QString &className);
     void doSetObjectProperty(QObject *object,
                              const QString &property,
                              const QString &value);
@@ -289,6 +340,8 @@ private:
     void registerDefaultAppenders();
     void registerDefaultFilters();
     void registerDefaultLayouts();
+    void registerDefaultTriggeringPolicies();
+    void registerDefaultRolloverStrategies();
     bool validateObjectProperty(QMetaProperty &metaProperty,
                                 const QString &property,
                                 QObject *object);
@@ -298,6 +351,8 @@ private:
     QHash<QString, AppenderFactoryFunc> mAppenderRegistry;
     QHash<QString, FilterFactoryFunc> mFilterRegistry;
     QHash<QString, LayoutFactoryFunc> mLayoutRegistry;
+    QHash<QString, TriggeringPolicyFactoryFunc> mTriggeringPolicyRegistry;
+    QHash<QString, RolloverStrategyFactoryFunc> mRolloverStrategyRegistry;
 };
 
 inline Appender *Factory::createAppender(const QString &appenderClassName)
@@ -426,6 +481,82 @@ inline void Factory::unregisterLayout(const QString &filterClassName)
 inline void Factory::unregisterLayout(const char *layoutClassName)
 {
     instance()->doUnregisterLayout(QLatin1String(layoutClassName));
+}
+
+inline TriggeringPolicy *Factory::createTriggeringPolicy(const QString &className)
+{
+    return instance()->doCreateTriggeringPolicy(className);
+}
+
+inline TriggeringPolicy *Factory::createTriggeringPolicy(const char *className)
+{
+    return instance()->doCreateTriggeringPolicy(QLatin1String(className));
+}
+
+inline RolloverStrategy *Factory::createRolloverStrategy(const QString &className)
+{
+    return instance()->doCreateRolloverStrategy(className);
+}
+
+inline RolloverStrategy *Factory::createRolloverStrategy(const char *className)
+{
+    return instance()->doCreateRolloverStrategy(QLatin1String(className));
+}
+
+inline void Factory::registerTriggeringPolicy(const QString &className,
+                                               TriggeringPolicyFactoryFunc func)
+{
+    instance()->doRegisterTriggeringPolicy(className, func);
+}
+
+inline void Factory::registerTriggeringPolicy(const char *className,
+                                               TriggeringPolicyFactoryFunc func)
+{
+    instance()->doRegisterTriggeringPolicy(QLatin1String(className), func);
+}
+
+inline void Factory::registerRolloverStrategy(const QString &className,
+                                               RolloverStrategyFactoryFunc func)
+{
+    instance()->doRegisterRolloverStrategy(className, func);
+}
+
+inline void Factory::registerRolloverStrategy(const char *className,
+                                               RolloverStrategyFactoryFunc func)
+{
+    instance()->doRegisterRolloverStrategy(QLatin1String(className), func);
+}
+
+inline QStringList Factory::registeredTriggeringPolicies()
+{
+    QMutexLocker locker(&instance()->mObjectGuard);
+    return instance()->mTriggeringPolicyRegistry.keys();
+}
+
+inline QStringList Factory::registeredRolloverStrategies()
+{
+    QMutexLocker locker(&instance()->mObjectGuard);
+    return instance()->mRolloverStrategyRegistry.keys();
+}
+
+inline void Factory::unregisterTriggeringPolicy(const QString &className)
+{
+    instance()->doUnregisterTriggeringPolicy(className);
+}
+
+inline void Factory::unregisterTriggeringPolicy(const char *className)
+{
+    instance()->doUnregisterTriggeringPolicy(QLatin1String(className));
+}
+
+inline void Factory::unregisterRolloverStrategy(const QString &className)
+{
+    instance()->doUnregisterRolloverStrategy(className);
+}
+
+inline void Factory::unregisterRolloverStrategy(const char *className)
+{
+    instance()->doUnregisterRolloverStrategy(QLatin1String(className));
 }
 
 } // namespace Log4Qt
