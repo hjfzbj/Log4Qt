@@ -36,12 +36,12 @@ namespace Log4Qt
  * when the current time passes the computed rollover time.
  *
  * Supported frequencies (determined automatically from the pattern):
- * - MINUTELY: pattern changes every minute
- * - HOURLY: pattern changes every hour
- * - HALFDAILY: pattern changes every 12 hours
- * - DAILY: pattern changes every day
- * - WEEKLY: pattern changes every week
- * - MONTHLY: pattern changes every month
+ * - Minutely: pattern changes every minute
+ * - Hourly: pattern changes every hour
+ * - HalfDaily: pattern changes every 12 hours
+ * - Daily: pattern changes every day
+ * - Weekly: pattern changes every week
+ * - Monthly: pattern changes every month
  *
  * \note All the functions declared in this class are thread-safe.
  */
@@ -58,12 +58,12 @@ class LOG4QT_EXPORT TimeBasedTriggeringPolicy : public TriggeringPolicy
 public:
     enum Frequency
     {
-        MINUTELY_ROLLOVER = 0,
-        HOURLY_ROLLOVER,
-        HALFDAILY_ROLLOVER,
-        DAILY_ROLLOVER,
-        WEEKLY_ROLLOVER,
-        MONTHLY_ROLLOVER
+        Minutely = 0,
+        Hourly,
+        HalfDaily,
+        Daily,
+        Weekly,
+        Monthly
     };
     Q_ENUM(Frequency)
 

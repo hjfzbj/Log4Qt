@@ -108,7 +108,7 @@ void setupRootLogger(const QString &introMessage)
     layout->setName(QStringLiteral("My Layout"));
     layout->activateOptions();
     // Create a console appender
-    Log4Qt::ConsoleAppender *consoleAppender = new Log4Qt::ConsoleAppender(layout, Log4Qt::ConsoleAppender::STDOUT_TARGET);
+    Log4Qt::ConsoleAppender *consoleAppender = new Log4Qt::ConsoleAppender(layout, Log4Qt::ConsoleAppender::StdOut);
     consoleAppender->setName(QStringLiteral("My Appender"));
     consoleAppender->activateOptions();
     // Add appender on root logger

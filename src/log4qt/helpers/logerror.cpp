@@ -63,10 +63,10 @@ LogError::LogError(const char *message,
 {
     switch (encoding)
     {
-    case LATIN1:
+    case Latin1:
         mMessage = QString::fromLatin1(message);
         break;
-    case UNICODEUTF8:
+    case UnicodeUtf8:
         mMessage = QString::fromUtf8(message);
         break;
     default:

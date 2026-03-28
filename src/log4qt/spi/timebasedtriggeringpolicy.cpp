@@ -29,7 +29,7 @@ namespace Log4Qt
 TimeBasedTriggeringPolicy::TimeBasedTriggeringPolicy(QObject *parent) :
     TriggeringPolicy(parent),
     mDatePattern(u"'.'yyyy-MM-dd"_s),
-    mFrequency(DAILY_ROLLOVER)
+    mFrequency(Daily)
 {
 }
 
@@ -66,17 +66,17 @@ void TimeBasedTriggeringPolicy::computeFrequency()
     mActiveDatePattern.clear();
 
     if (startString != static_cast<DateTime>(startTime.addSecs(60)).toString(mDatePattern))
-        mFrequency = MINUTELY_ROLLOVER;
+        mFrequency = Minutely;
     else if (startString != static_cast<DateTime>(startTime.addSecs(60 * 60)).toString(mDatePattern))
-        mFrequency = HOURLY_ROLLOVER;
+        mFrequency = Hourly;
     else if (startString != static_cast<DateTime>(startTime.addSecs(60 * 60 * 12)).toString(mDatePattern))
-        mFrequency = HALFDAILY_ROLLOVER;
+        mFrequency = HalfDaily;
     else if (startString != static_cast<DateTime>(startTime.addDays(1)).toString(mDatePattern))
-        mFrequency = DAILY_ROLLOVER;
+        mFrequency = Daily;
     else if (startString != static_cast<DateTime>(startTime.addDays(7)).toString(mDatePattern))
-        mFrequency = WEEKLY_ROLLOVER;
+        mFrequency = Weekly;
     else if (startString != static_cast<DateTime>(startTime.addMonths(1)).toString(mDatePattern))
-        mFrequency = MONTHLY_ROLLOVER;
+        mFrequency = Monthly;
     else
         return;
 
@@ -94,26 +94,26 @@ void TimeBasedTriggeringPolicy::computeRollOverTime()
 
     switch (mFrequency)
     {
-    case MINUTELY_ROLLOVER:
+    case Minutely:
         start = QDateTime(nowDate, QTime(nowTime.hour(), nowTime.minute(), 0, 0));
         mRollOverTime = start.addSecs(60);
         break;
-    case HOURLY_ROLLOVER:
+    case Hourly:
         start = QDateTime(nowDate, QTime(nowTime.hour(), 0, 0, 0));
         mRollOverTime = start.addSecs(60 * 60);
         break;
-    case HALFDAILY_ROLLOVER:
+    case HalfDaily:
     {
         int hour = nowTime.hour() >= 12 ? 12 : 0;
         start = QDateTime(nowDate, QTime(hour, 0, 0, 0));
         mRollOverTime = start.addSecs(60 * 60 * 12);
         break;
     }
-    case DAILY_ROLLOVER:
+    case Daily:
         start = QDateTime(nowDate, QTime(0, 0, 0, 0));
         mRollOverTime = start.addDays(1);
         break;
-    case WEEKLY_ROLLOVER:
+    case Weekly:
     {
         int day = nowDate.dayOfWeek();
         if (day == Qt::Sunday)
@@ -122,7 +122,7 @@ void TimeBasedTriggeringPolicy::computeRollOverTime()
         mRollOverTime = start.addDays(7);
         break;
     }
-    case MONTHLY_ROLLOVER:
+    case Monthly:
         start = QDateTime(QDate(nowDate.year(), nowDate.month(), 1), QTime(0, 0, 0, 0));
         mRollOverTime = start.addMonths(1);
         break;

@@ -40,10 +40,10 @@ bool BasicConfigurator::configure()
     list->setThreshold(Level::ERROR_INT);
     LogManager::logLogger()->addAppender(AppenderSharedPtr(list));
 
-    LayoutSharedPtr p_layout(new PatternLayout(PatternLayout::TTCC_CONVERSION_PATTERN));
+    LayoutSharedPtr p_layout(new PatternLayout(PatternLayout::TtccPattern));
     p_layout->setName(u"BasicConfigurator TTCC"_s);
     p_layout->activateOptions();
-    ConsoleAppender *p_appender = new ConsoleAppender(p_layout, ConsoleAppender::STDOUT_TARGET);
+    ConsoleAppender *p_appender = new ConsoleAppender(p_layout, ConsoleAppender::StdOut);
     p_appender->setName(u"BasicConfigurator stdout"_s);
     p_appender->activateOptions();
     LogManager::rootLogger()->addAppender(p_appender);

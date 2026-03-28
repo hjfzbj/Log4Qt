@@ -723,17 +723,17 @@ void Log4QtTest::OptionConverter_target_data()
     QTest::addColumn<int>("event_count");
 
     QTest::newRow("stdout cpp")
-            << "STDOUT_TARGET" << true << static_cast<int>(ConsoleAppender::STDOUT_TARGET) << 0;
+            << "STDOUT_TARGET" << true << static_cast<int>(ConsoleAppender::StdOut) << 0;
     QTest::newRow("stdout java")
-            << "System.out" << true << static_cast<int>(ConsoleAppender::STDOUT_TARGET) << 0;
+            << "System.out" << true << static_cast<int>(ConsoleAppender::StdOut) << 0;
     QTest::newRow("stderr cpp")
-            << "STDERR_TARGET" << true << static_cast<int>(ConsoleAppender::STDERR_TARGET) << 0;
+            << "STDERR_TARGET" << true << static_cast<int>(ConsoleAppender::StdErr) << 0;
     QTest::newRow("stderr java")
-            << "System.err" << true << static_cast<int>(ConsoleAppender::STDERR_TARGET) << 0;
+            << "System.err" << true << static_cast<int>(ConsoleAppender::StdErr) << 0;
     QTest::newRow("trim")
-            << "  STDOUT_TARGET  " << true << static_cast<int>(ConsoleAppender::STDOUT_TARGET) << 0;
+            << "  STDOUT_TARGET  " << true << static_cast<int>(ConsoleAppender::StdOut) << 0;
     QTest::newRow("error")
-            << "Hello" << false << static_cast<int>(ConsoleAppender::STDOUT_TARGET) << 1;
+            << "Hello" << false << static_cast<int>(ConsoleAppender::StdOut) << 1;
 }
 
 
@@ -982,7 +982,7 @@ void Log4QtTest::DenyAllFilter()
 {
     Log4Qt::DenyAllFilter filter;
     LoggingEvent event(test_logger(), Level::WARN_INT, QStringLiteral("Message"));
-    QCOMPARE(filter.decide(event), Filter::DENY);
+    QCOMPARE(filter.decide(event), Filter::Deny);
 }
 
 
@@ -1347,7 +1347,7 @@ void Log4QtTest::DailyRollingFileAppender()
     appender.setName(QStringLiteral("DailyRollingFileAppender"));
     appender.setFile(dir + file);
     appender.setLayout(LayoutSharedPtr(new SimpleLayout()));
-    appender.setDatePattern(DailyRollingFileAppender::MINUTELY_ROLLOVER);
+    appender.setDatePattern(DailyRollingFileAppender::Minutely);
 
     // Start on a full minute
     QDateTime now = QDateTime::currentDateTime();

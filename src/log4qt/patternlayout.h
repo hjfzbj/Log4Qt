@@ -69,12 +69,12 @@ public:
     enum ConversionPattern
     {
         /*! The default conversion pattern string is "%m,%n". */
-        DEFAULT_CONVERSION_PATTERN,
+        DefaultPattern,
         /*!
          * The ttcc conversion pattern string is
          * "%r [%t] %p %c %x - %m%n".
          */
-        TTCC_CONVERSION_PATTERN
+        TtccPattern
     };
     Q_ENUM(ConversionPattern)
 

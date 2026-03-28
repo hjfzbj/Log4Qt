@@ -35,11 +35,11 @@ Filter::Decision LevelMatchFilter::decide(const LoggingEvent &event) const
 {
     if (mLevelToMatch == Level::NULL_INT ||
             event.level() != mLevelToMatch)
-        return Filter::NEUTRAL;
+        return Filter::Neutral;
 
     if (mAcceptOnMatch)
-        return Filter::ACCEPT;
-    return Filter::DENY;
+        return Filter::Accept;
+    return Filter::Deny;
 }
 
 } // namespace Log4Qt

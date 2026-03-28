@@ -298,7 +298,7 @@ void PolicyTest::TimeBasedTriggeringPolicy_defaults()
 {
     Log4Qt::TimeBasedTriggeringPolicy policy;
     QCOMPARE(policy.datePattern(), QString("'.'yyyy-MM-dd"));
-    QCOMPARE(policy.frequency(), Log4Qt::TimeBasedTriggeringPolicy::DAILY_ROLLOVER);
+    QCOMPARE(policy.frequency(), Log4Qt::TimeBasedTriggeringPolicy::Daily);
 }
 
 void PolicyTest::TimeBasedTriggeringPolicy_frequency_data()
@@ -306,11 +306,11 @@ void PolicyTest::TimeBasedTriggeringPolicy_frequency_data()
     QTest::addColumn<QString>("pattern");
     QTest::addColumn<int>("expectedFrequency");
 
-    QTest::newRow("minutely-mm")  << "'.'mm"         << static_cast<int>(TimeBasedTriggeringPolicy::MINUTELY_ROLLOVER);
-    QTest::newRow("hourly-HH")   << "'.'HH"         << static_cast<int>(TimeBasedTriggeringPolicy::HOURLY_ROLLOVER);
-    QTest::newRow("halfdaily-a")  << "'.'a"          << static_cast<int>(TimeBasedTriggeringPolicy::HALFDAILY_ROLLOVER);
-    QTest::newRow("daily-dd")     << "'.'yyyy-MM-dd" << static_cast<int>(TimeBasedTriggeringPolicy::DAILY_ROLLOVER);
-    QTest::newRow("monthly-MM")   << "'.'yyyy-MM"    << static_cast<int>(TimeBasedTriggeringPolicy::MONTHLY_ROLLOVER);
+    QTest::newRow("minutely-mm")  << "'.'mm"         << static_cast<int>(TimeBasedTriggeringPolicy::Minutely);
+    QTest::newRow("hourly-HH")   << "'.'HH"         << static_cast<int>(TimeBasedTriggeringPolicy::Hourly);
+    QTest::newRow("halfdaily-a")  << "'.'a"          << static_cast<int>(TimeBasedTriggeringPolicy::HalfDaily);
+    QTest::newRow("daily-dd")     << "'.'yyyy-MM-dd" << static_cast<int>(TimeBasedTriggeringPolicy::Daily);
+    QTest::newRow("monthly-MM")   << "'.'yyyy-MM"    << static_cast<int>(TimeBasedTriggeringPolicy::Monthly);
 }
 
 void PolicyTest::TimeBasedTriggeringPolicy_frequency()

@@ -107,7 +107,7 @@ protected:
      * is returned.
      *
      * The checked conditions are:
-     * - That a file is set and open (APPENDER_NO_OPEN_FILE_ERROR)
+     * - That a file is set and open (AppenderNoOpenFileError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().
@@ -136,7 +136,7 @@ protected:
 
     /*!
      * Removes the file \a file. If the operation is successful, true is
-     * returned. Otherwise an APPENDER_REMOVE_FILE_ERROR error is logged
+     * returned. Otherwise an AppenderRemoveFileError error is logged
      * and false is returned.
      */
     bool removeFile(QFile &file) const;
@@ -144,7 +144,7 @@ protected:
     /*!
      * Renames the file \a file to \a fileName. If the operation is
      * successful, true is returned. Otherwise an
-     * APPENDER_RENAMING_FILE_ERROR error is logged and false is returned.
+     * AppenderRenamingFileError error is logged and false is returned.
      */
     bool renameFile(QFile &file,
                     const QString &fileName) const;

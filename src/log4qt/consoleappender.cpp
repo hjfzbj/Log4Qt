@@ -35,7 +35,7 @@ namespace Log4Qt
 
 ConsoleAppender::ConsoleAppender(QObject *parent) :
     WriterAppender(parent),
-    mTarget(STDOUT_TARGET),
+    mTarget(StdOut),
     mtextStream(nullptr)
 {
 }
@@ -44,7 +44,7 @@ ConsoleAppender::ConsoleAppender(QObject *parent) :
 ConsoleAppender::ConsoleAppender(const LayoutSharedPtr &pLayout,
                                  QObject *parent) :
     WriterAppender(pLayout, parent),
-    mTarget(STDOUT_TARGET),
+    mTarget(StdOut),
     mtextStream(nullptr)
 {
 }
@@ -54,7 +54,7 @@ ConsoleAppender::ConsoleAppender(const LayoutSharedPtr &pLayout,
                                  const QString &target,
                                  QObject *parent) :
     WriterAppender(pLayout, parent),
-    mTarget(STDOUT_TARGET),
+    mTarget(StdOut),
     mtextStream(nullptr)
 {
     setTarget(target);
@@ -78,7 +78,7 @@ ConsoleAppender::~ConsoleAppender()
 
 QString ConsoleAppender::target() const
 {
-    if (mTarget == STDOUT_TARGET)
+    if (mTarget == StdOut)
         return u"STDOUT_TARGET"_s;
     return u"STDERR_TARGET"_s;
 }
@@ -97,7 +97,7 @@ void ConsoleAppender::activateOptions()
 
     closeStream();
 
-    if (mTarget == STDOUT_TARGET)
+    if (mTarget == StdOut)
         mtextStream = std::make_unique<QTextStream>(stdout);
     else
         mtextStream = std::make_unique<QTextStream>(stderr);

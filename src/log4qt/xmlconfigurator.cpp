@@ -68,7 +68,7 @@ bool XmlConfigurator::xmlToProperties(const QString &file, Properties &propertie
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to open XML file '%1'"),
-                                  CONFIGURATOR_OPENING_FILE_ERROR,
+                                  ConfiguratorOpeningFileError,
                                   "Log4Qt::XmlConfigurator");
         e << file;
         e.addCausingError(LogError(f.errorString(), f.error()));
@@ -85,7 +85,7 @@ bool XmlConfigurator::xmlToProperties(const QString &file, Properties &propertie
     if (xml.hasError())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read XML file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::XmlConfigurator");
         e << file;
         e.addCausingError(LogError(xml.errorString(), static_cast<int>(xml.error())));
@@ -96,7 +96,7 @@ bool XmlConfigurator::xmlToProperties(const QString &file, Properties &propertie
     if (xml.atEnd())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read XML file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::XmlConfigurator");
         e << file;
         e.addCausingError(LogError(u"XML file contains no root element"_s, 0));
@@ -118,7 +118,7 @@ bool XmlConfigurator::xmlToProperties(const QString &file, Properties &propertie
     if (xml.hasError())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read XML file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::XmlConfigurator");
         e << file;
         e.addCausingError(LogError(xml.errorString(), static_cast<int>(xml.error())));

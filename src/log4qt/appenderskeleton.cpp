@@ -111,7 +111,7 @@ void AppenderSkeleton::activateOptions()
     if (requiresLayout() && !layout())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Activation of appender '%1' that requires layout and has no layout set"),
-                                         APPENDER_ACTIVATE_MISSING_LAYOUT_ERROR);
+                                         AppenderActivateMissingLayoutError);
         e << name();
         logger()->error(e);
         return;
@@ -201,9 +201,9 @@ void AppenderSkeleton::doAppend(const LoggingEvent &event)
     while (filter)
     {
         Filter::Decision decision = filter->decide(event);
-        if (decision == Filter::ACCEPT)
+        if (decision == Filter::Accept)
             break;
-        else if (decision == Filter::DENY)
+        else if (decision == Filter::Deny)
             return;
         else
             filter = filter->next().data();
@@ -217,7 +217,7 @@ bool AppenderSkeleton::checkEntryConditions() const
     if (!isActive())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of non activated appender '%1'"),
-                                         APPENDER_NOT_ACTIVATED_ERROR);
+                                         AppenderNotActivatedError);
         e << name();
         logger()->error(e);
         return false;
@@ -225,7 +225,7 @@ bool AppenderSkeleton::checkEntryConditions() const
     if (isClosed())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of closed appender '%1'"),
-                                         APPENDER_CLOSED_ERROR);
+                                         AppenderClosedError);
         e << name();
         logger()->error(e);
         return false;
@@ -233,7 +233,7 @@ bool AppenderSkeleton::checkEntryConditions() const
     if (requiresLayout() && !layout())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' that requires layout and has no layout set"),
-                                         APPENDER_USE_MISSING_LAYOUT_ERROR);
+                                         AppenderUseMissingLayoutError);
         e << name();
         logger()->error(e);
         return false;

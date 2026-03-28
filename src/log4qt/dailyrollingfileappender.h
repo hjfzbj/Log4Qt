@@ -44,7 +44,7 @@ class LOG4QT_EXPORT DailyRollingFileAppender : public FileAppender
     /*!
      * The property holds the date pattern used by the appender.
      *
-     * The default is DAILY_ROLLOVER for rollover at midnight each day.
+     * The default is Daily for rollover at midnight each day.
      *
      * \sa datePattern(), setDatePattern()
      */
@@ -59,17 +59,17 @@ public:
     enum DatePattern
     {
         /*! The minutely date pattern string is "'.'yyyy-MM-dd-hh-mm". */
-        MINUTELY_ROLLOVER = 0,
+        Minutely = 0,
         /*! The hourly date pattern string is "'.'yyyy-MM-dd-hh". */
-        HOURLY_ROLLOVER,
+        Hourly,
         /*! The half-daily date pattern string is "'.'yyyy-MM-dd-a". */
-        HALFDAILY_ROLLOVER,
+        HalfDaily,
         /*! The daily date pattern string is "'.'yyyy-MM-dd". */
-        DAILY_ROLLOVER,
+        Daily,
         /*! The weekly date pattern string is "'.'yyyy-ww". */
-        WEEKLY_ROLLOVER,
+        Weekly,
         /*! The monthly date pattern string is "'.'yyyy-MM". */
-        MONTHLY_ROLLOVER
+        Monthly
     };
     Q_ENUM(DatePattern)
 
@@ -106,7 +106,7 @@ protected:
      * FileAppender::checkEntryConditions() is returned.
      *
      * The checked conditions are:
-     * - A valid pattern has been set (APPENDER_USE_INVALID_PATTERN_ERROR)
+     * - A valid pattern has been set (AppenderUseInvalidPatternError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().

@@ -39,7 +39,7 @@ namespace Log4Qt
  * if (!c.isDigit())
      * {
      *     Error e = LOG4QT_ERROR(QT_TR_NOOP("Found character '%1' where digit was expected."),
-     *                            LAYOUT_EXPECTED_DIGIT_ERROR,
+     *                            LayoutExpectedDigitError,
      *                            "Log4Qt::PatternFormatter");
      *     e << QString(c);
  *     logger()->error(e);
@@ -61,7 +61,7 @@ namespace Log4Qt
  * if (!mpFile->open(mode))
  * {
  *      LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Unable to open file '%1' for appender '%2'"),
-     *                                       APPENDER_OPENING_FILE_ERROR);
+     *                                       AppenderOpeningFileError);
  *      e << mFileName << name();
  *      e.addCausingError(LogError(mpFile->errorString(), mpFile->error()));
  *      logger()->error(e);
@@ -121,14 +121,14 @@ public:
     enum Encoding
     {
         /*! LATIN-1 */
-        LATIN1,
+        Latin1,
         /*!
          * The encoding specified by QTextCodec::codecForTr()
          * (Latin-1 if none has been set).
          */
-        CODECFORTR,
+        CodecForTr,
         /*! UTF-8 */
-        UNICODEUTF8
+        UnicodeUtf8
     };
 
     /*!
@@ -176,7 +176,7 @@ public:
                       int code = 0,
                       const char *symbol = nullptr,
                       const char *context = nullptr,
-                      Encoding encoding = LATIN1);
+                      Encoding encoding = Latin1);
 
     /*!
      * Returns the error code.

@@ -67,7 +67,7 @@ public:
      * AppenderSkeleton::checkEntryConditions() is returned.
      *
      * The checked conditions are:
-     * - dispatcher thread running (APPENDER_ASNC_DISPATCHER_NOT_RUNNING)
+     * - dispatcher thread running (AppenderAsncDispatcherNotRunning)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().

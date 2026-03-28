@@ -45,7 +45,7 @@ class LOG4QT_EXPORT ConsoleAppender : public WriterAppender
     /*!
      * The property holds the target used by the appender.
      *
-     * The default is STDOUT_TARGET for the standard output.
+     * The default is StdOut for the standard output.
      *
      * \sa Target, target(), setTarget()
      */
@@ -60,9 +60,9 @@ public:
     enum Target
     {
         /*! The output target is standard out. */
-        STDOUT_TARGET,
+        StdOut,
         /*! The output target is standard error. */
-        STDERR_TARGET
+        StdErr
     };
     Q_ENUM(Target)
 

@@ -119,10 +119,10 @@ protected:
      * returns false.
      *
      * The checked conditions are:
-     * - That the appender has been activated (APPENDER_NOT_ACTIVATED_ERROR)
-     * - That the appender was not closed (APPENDER_CLOSED_ERROR)
+     * - That the appender has been activated (AppenderNotActivatedError)
+     * - That the appender was not closed (AppenderClosedError)
      * - That the appender has a layout set, if it requires one
-     *   (logging_error(APPENDER_USE_MISSING_LAYOUT_ERROR)
+     *   (logging_error(AppenderUseMissingLayoutError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by doAppend(). The doAppend() function calls the subclass

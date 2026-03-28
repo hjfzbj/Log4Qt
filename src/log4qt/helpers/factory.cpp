@@ -380,7 +380,7 @@ void Factory::doSetObjectProperty(QObject *object,
     else
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Cannot convert to type '%1' for property '%2' on object of class '%3'"),
-                                  CONFIGURATOR_UNKNOWN_TYPE_ERROR,
+                                  ConfiguratorUnknownTypeError,
                                   "Log4Qt::Factory");
         e << type
           << property
@@ -670,7 +670,7 @@ bool Factory::validateObjectProperty(QMetaProperty &metaProperty,
 
     const char *context = "Log4Qt::Factory";
     LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to set property value on object"),
-                              CONFIGURATOR_PROPERTY_ERROR,
+                              ConfiguratorPropertyError,
                               context);
 
     if (object == nullptr)

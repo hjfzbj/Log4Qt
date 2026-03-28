@@ -30,7 +30,7 @@ namespace Log4Qt
 PatternLayout::PatternLayout(QObject *parent) :
     Layout(parent)
 {
-    setConversionPattern(DEFAULT_CONVERSION_PATTERN);
+    setConversionPattern(DefaultPattern);
 }
 
 PatternLayout::PatternLayout(const QString &pattern,
@@ -51,10 +51,10 @@ void PatternLayout::setConversionPattern(ConversionPattern conversionPattern)
 {
     switch (conversionPattern)
     {
-    case DEFAULT_CONVERSION_PATTERN:
+    case DefaultPattern:
         setConversionPattern(u"%m%n"_s);
         break;
-    case TTCC_CONVERSION_PATTERN:
+    case TtccPattern:
         setConversionPattern(u"%r [%t] %p %c %x - %m%n"_s);
         break;
     default:

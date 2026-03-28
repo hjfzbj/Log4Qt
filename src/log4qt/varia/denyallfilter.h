@@ -41,7 +41,7 @@ public:
 
     Decision decide([[maybe_unused]] const LoggingEvent &event) const override
     {
-        return Filter::DENY;
+        return Filter::Deny;
     }
 };
 

@@ -189,7 +189,7 @@
  * TTCCLayout *p_layout = new TTCCLayout();
  *
  * // Create appender
- * ConsoleAppender *p_appender = new ConsoleAppender(p_layout, ConsoleAppender::STDOUT_TARGET);
+ * ConsoleAppender *p_appender = new ConsoleAppender(p_layout, ConsoleAppender::StdOut);
  * p_appender->activateOptions();
  *
  * // Get logger
@@ -213,7 +213,7 @@
  * TTCCLayout *p_layout = new TTCCLayout(p_appender);
  *
  * // Configure appender
- * p_appender->setTarget(ConsoleAppender::STDOUT_TARGET);
+ * p_appender->setTarget(ConsoleAppender::StdOut);
  * p_appender->setLayout(LayoutSharedPtr(p_layout));
  * p_appender->activateOptions();
  *
@@ -540,46 +540,46 @@ namespace Log4Qt
 
 enum ErrorCode
 {
-    OK = 0,
+    Ok = 0,
     // AppenderSkeleton, FileAppender, WriterAppender
-    APPENDER_ACTIVATE_MISSING_LAYOUT_ERROR,
-    APPENDER_ACTIVATE_MISSING_WRITER_ERROR,
-    APPENDER_ACTIVATE_MISSING_FILE_ERROR,
-    APPENDER_CLOSED_ERROR,
-    APPENDER_INVALID_PATTERN_ERROR,
-    APPENDER_NO_OPEN_FILE_ERROR,
-    APPENDER_NOT_ACTIVATED_ERROR,
-    APPENDER_OPENING_FILE_ERROR,
-    APPENDER_RENAMING_FILE_ERROR,
-    APPENDER_REMOVE_FILE_ERROR,
-    APPENDER_USE_INVALID_PATTERN_ERROR,
-    APPENDER_USE_MISSING_LAYOUT_ERROR,
-    APPENDER_USE_MISSING_WRITER_ERROR,
-    APPENDER_WRITING_FILE_ERROR,
+    AppenderActivateMissingLayoutError,
+    AppenderActivateMissingWriterError,
+    AppenderActivateMissingFileError,
+    AppenderClosedError,
+    AppenderInvalidPatternError,
+    AppenderNoOpenFileError,
+    AppenderNotActivatedError,
+    AppenderOpeningFileError,
+    AppenderRenamingFileError,
+    AppenderRemoveFileError,
+    AppenderUseInvalidPatternError,
+    AppenderUseMissingLayoutError,
+    AppenderUseMissingWriterError,
+    AppenderWritingFileError,
     // Level
-    LEVEL_INVALID_LEVEL_STRING,
+    LevelInvalidLevelString,
     // Layouts, PatternFormatter
-    LAYOUT_EXPECTED_DIGIT_ERROR,
-    LAYOUT_OPTION_IS_NOT_INTEGER_ERROR,
-    LAYOUT_INTEGER_IS_NOT_POSITIVE_ERROR,
+    LayoutExpectedDigitError,
+    LayoutOptionIsNotIntegerError,
+    LayoutIntegerIsNotPositiveError,
     // Logger
-    LOGGER_INVALID_LEVEL_FOR_ROOT,
+    LoggerInvalidLevelForRoot,
     // PropertyConfigurator, OptionHandler
-    CONFIGURATOR_OPENING_FILE_ERROR,
-    CONFIGURATOR_READING_FILE_ERROR,
-    CONFIGURATOR_INVALID_SUBSTITUTION_ERROR,
-    CONFIGURATOR_INVALID_OPTION_ERROR,
-    CONFIGURATOR_MISSING_APPENDER_ERROR,
-    CONFIGURATOR_UNKNOWN_APPENDER_CLASS_ERROR,
-    CONFIGURATOR_MISSING_LAYOUT_ERROR,
-    CONFIGURATOR_UNKNOWN_LAYOUT_CLASS_ERROR,
-    CONFIGURATOR_PROPERTY_ERROR,
-    CONFIGURATOR_UNKNOWN_TYPE_ERROR,
-    APPENDER_MISSING_DATABASE_OR_TABLE_ERROR,
-    APPENDER_EXEC_SQL_QUERY_ERROR,
-    APPENDER_INVALID_DATABASE_LAYOUT_ERROR,
-    APPENDER_TELNET_SERVER_NOT_RUNNING,
-    APPENDER_ASNC_DISPATCHER_NOT_RUNNING
+    ConfiguratorOpeningFileError,
+    ConfiguratorReadingFileError,
+    ConfiguratorInvalidSubstitutionError,
+    ConfiguratorInvalidOptionError,
+    ConfiguratorMissingAppenderError,
+    ConfiguratorUnknownAppenderClassError,
+    ConfiguratorMissingLayoutError,
+    ConfiguratorUnknownLayoutClassError,
+    ConfiguratorPropertyError,
+    ConfiguratorUnknownTypeError,
+    AppenderMissingDatabaseOrTableError,
+    AppenderExecSqlQueryError,
+    AppenderInvalidDatabaseLayoutError,
+    AppenderTelnetServerNotRunning,
+    AppenderAsncDispatcherNotRunning
 };
 
 } // namespace Log4Qt

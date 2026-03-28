@@ -70,7 +70,7 @@ bool JsonConfigurator::jsonToProperties(const QString &file, Properties &propert
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to open JSON file '%1'"),
-                                  CONFIGURATOR_OPENING_FILE_ERROR,
+                                  ConfiguratorOpeningFileError,
                                   "Log4Qt::JsonConfigurator");
         e << file;
         e.addCausingError(LogError(f.errorString(), f.error()));
@@ -83,7 +83,7 @@ bool JsonConfigurator::jsonToProperties(const QString &file, Properties &propert
     if (f.error())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read JSON file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::JsonConfigurator");
         e << file;
         e.addCausingError(LogError(f.errorString(), f.error()));
@@ -94,7 +94,7 @@ bool JsonConfigurator::jsonToProperties(const QString &file, Properties &propert
     if (parseError.error != QJsonParseError::NoError)
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read JSON file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::JsonConfigurator");
         e << file;
         e.addCausingError(LogError(parseError.errorString(), parseError.error));
@@ -105,7 +105,7 @@ bool JsonConfigurator::jsonToProperties(const QString &file, Properties &propert
     if (!doc.isObject())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read JSON file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::JsonConfigurator");
         e << file;
         e.addCausingError(LogError(u"Root element is not a JSON object"_s, 0));

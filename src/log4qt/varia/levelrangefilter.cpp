@@ -36,14 +36,14 @@ LevelRangeFilter::LevelRangeFilter(QObject *parent) :
 Filter::Decision LevelRangeFilter::decide(const LoggingEvent &event) const
 {
     if (event.level() < mLevelMin)
-        return Filter::DENY;
+        return Filter::Deny;
 
     if (event.level() > mLevelMax)
-        return Filter::DENY;
+        return Filter::Deny;
 
     if (mAcceptOnMatch)
-        return Filter::ACCEPT;
-    return Filter::NEUTRAL;
+        return Filter::Accept;
+    return Filter::Neutral;
 }
 
 } // namespace Log4Qt

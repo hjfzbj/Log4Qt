@@ -88,27 +88,27 @@ public:
     enum DateFormat
     {
         /*! The none date format string is "NONE".  */
-        NONE,
+        None,
         /*!
          * The iso8601 date format string is "ISO8601". The date will be
          * formatted as yyyy-MM-dd hh:mm:ss.zzz.
          */
-        ISO8601,
+        Iso8601,
         /*!
          * The absolute date format string is "ABSOLUTE". The date will be
          * formatted as HH:mm:ss.zzz.
          */
-        ABSOLUTE,
+        Absolute,
         /*!
          * The date date format string is "DATE". The date will be formatted
          * as MMM YYYY HH:mm:ss.zzz.
          */
-        DATE,
+        Date,
         /*!
          * The relative date format string is "RELATIVE". The date will be
          * formatted as milliseconds since start of the program.
          */
-        RELATIVE
+        Relative
     };
     Q_ENUM(DateFormat)
 

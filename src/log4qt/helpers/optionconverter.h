@@ -113,7 +113,7 @@ public:
      * "System.err" and "STDERR_TARGET". If the conversion is successful,
      * the target is returned and \a ok is set to true. Otherwise an
      * error is written to the log, \a ok is set to false and
-     * ConsoleAppender::STDOUT_TARGET is returned.
+     * ConsoleAppender::StdOut is returned.
      */
     static int toTarget(const QString &option,
                         bool *ok = nullptr);

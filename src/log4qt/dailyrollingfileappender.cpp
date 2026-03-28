@@ -33,9 +33,9 @@ namespace Log4Qt
 DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent) :
     FileAppender(parent),
     mDatePattern(),
-    mFrequency(DAILY_ROLLOVER)
+    mFrequency(Daily)
 {
-    setDatePattern(DAILY_ROLLOVER);
+    setDatePattern(Daily);
 }
 
 
@@ -45,7 +45,7 @@ DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout
         QObject *parent) :
     FileAppender(layout, fileName, parent),
     mDatePattern(),
-    mFrequency(DAILY_ROLLOVER)
+    mFrequency(Daily)
 {
     setDatePattern(datePattern);
 }
@@ -54,27 +54,27 @@ void DailyRollingFileAppender::setDatePattern(DatePattern datePattern)
 {
     switch (datePattern)
     {
-    case MINUTELY_ROLLOVER:
+    case Minutely:
         setDatePattern(u"'.'yyyy-MM-dd-hh-mm"_s);
         break;
-    case HOURLY_ROLLOVER:
+    case Hourly:
         setDatePattern(u"'.'yyyy-MM-dd-hh"_s);
         break;
-    case HALFDAILY_ROLLOVER:
+    case HalfDaily:
         setDatePattern(u"'.'yyyy-MM-dd-a"_s);
         break;
-    case DAILY_ROLLOVER:
+    case Daily:
         setDatePattern(u"'.'yyyy-MM-dd"_s);
         break;
-    case WEEKLY_ROLLOVER:
+    case Weekly:
         setDatePattern(u"'.'yyyy-ww"_s);
         break;
-    case MONTHLY_ROLLOVER:
+    case Monthly:
         setDatePattern(u"'.'yyyy-MM"_s);
         break;
     default:
         Q_ASSERT_X(false, "DailyRollingFileAppender::setDatePattern()", "Invalid datePattern constant");
-        setDatePattern(DAILY_ROLLOVER);
+        setDatePattern(Daily);
     };
 }
 
@@ -105,7 +105,7 @@ bool DailyRollingFileAppender::checkEntryConditions() const
     if (mActiveDatePattern.isEmpty())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without having a valid date pattern set"),
-                                         APPENDER_USE_INVALID_PATTERN_ERROR);
+                                         AppenderUseInvalidPatternError);
         e << name();
         logger()->error(e);
         return false;
@@ -121,21 +121,21 @@ void DailyRollingFileAppender::computeFrequency()
     mActiveDatePattern.clear();
 
     if (start_string != static_cast<DateTime>(start_time.addSecs(60)).toString(mDatePattern))
-        mFrequency = MINUTELY_ROLLOVER;
+        mFrequency = Minutely;
     else if (start_string != static_cast<DateTime>(start_time.addSecs(60 * 60)).toString(mDatePattern))
-        mFrequency = HOURLY_ROLLOVER;
+        mFrequency = Hourly;
     else if (start_string != static_cast<DateTime>(start_time.addSecs(60 * 60 * 12)).toString(mDatePattern))
-        mFrequency = HALFDAILY_ROLLOVER;
+        mFrequency = HalfDaily;
     else if (start_string != static_cast<DateTime>(start_time.addDays(1)).toString(mDatePattern))
-        mFrequency = DAILY_ROLLOVER;
+        mFrequency = Daily;
     else if (start_string != static_cast<DateTime>(start_time.addDays(7)).toString(mDatePattern))
-        mFrequency = WEEKLY_ROLLOVER;
+        mFrequency = Weekly;
     else if (start_string != static_cast<DateTime>(start_time.addMonths(1)).toString(mDatePattern))
-        mFrequency = MONTHLY_ROLLOVER;
+        mFrequency = Monthly;
     else
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("The pattern '%1' does not specify a frequency for appender '%2'"),
-                                         APPENDER_INVALID_PATTERN_ERROR);
+                                         AppenderInvalidPatternError);
         e << mDatePattern << name();
         logger()->error(e);
         return;
@@ -159,7 +159,7 @@ void DailyRollingFileAppender::computeRollOvetime()
 
     switch (mFrequency)
     {
-    case MINUTELY_ROLLOVER:
+    case Minutely:
     {
         start = QDateTime(now_date,
                           QTime(now_time.hour(),
@@ -168,7 +168,7 @@ void DailyRollingFileAppender::computeRollOvetime()
         mRollOvetime = start.addSecs(60);
     }
     break;
-    case HOURLY_ROLLOVER:
+    case Hourly:
     {
         start = QDateTime(now_date,
                           QTime(now_time.hour(),
@@ -176,7 +176,7 @@ void DailyRollingFileAppender::computeRollOvetime()
         mRollOvetime = start.addSecs(60 * 60);
     }
     break;
-    case HALFDAILY_ROLLOVER:
+    case HalfDaily:
     {
         int hour = now_time.hour();
         if (hour >=  12)
@@ -188,14 +188,14 @@ void DailyRollingFileAppender::computeRollOvetime()
         mRollOvetime = start.addSecs(60 * 60 * 12);
     }
     break;
-    case DAILY_ROLLOVER:
+    case Daily:
     {
         start = QDateTime(now_date,
                           QTime(0, 0, 0, 0));
         mRollOvetime = start.addDays(1);
     }
     break;
-    case WEEKLY_ROLLOVER:
+    case Weekly:
     {
         // QT numbers the week days 1..7. The week starts on Monday.
         // Change it to being numbered 0..6, starting with Sunday.
@@ -207,7 +207,7 @@ void DailyRollingFileAppender::computeRollOvetime()
         mRollOvetime = start.addDays(7);
     }
     break;
-    case MONTHLY_ROLLOVER:
+    case Monthly:
     {
         start = QDateTime(QDate(now_date.year(),
                                 now_date.month(),

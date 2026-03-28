@@ -125,13 +125,13 @@ void Properties::parseProperty(const QString &property,
 
     enum State
     {
-        KEY_STATE,
-        KEYSPACE_STATE,
-        SPACEVALUE_STATE,
-        VALUE_STATE,
-        KEYESCAPE_STATE,
-        VALUEESCAPE_STATE,
-        UNICODEESCAPE_STATE
+        KeyState,
+        KeySpaceState,
+        SpaceValueState,
+        ValueState,
+        KeyEscapeState,
+        ValueEscapeState,
+        UnicodeEscapeState
     };
     const QString value_escape_codes = QLatin1String(msValueEscapeCodes);
     const QString value_escape_chars = QLatin1String(msValueEscapeChars);
@@ -145,7 +145,7 @@ void Properties::parseProperty(const QString &property,
 
     int i = 0;
     QChar c;
-    State state = KEY_STATE;
+    State state = KeyState;
     QString key;
     QString value;
     QString *p_string = &key;
@@ -164,47 +164,47 @@ void Properties::parseProperty(const QString &property,
 
         switch (state)
         {
-        case KEY_STATE:
+        case KeyState:
             if (ch == '!' || ch == '#' )
                 return;
             else if (c.isSpace())
             {
                 p_string = &value;
-                state = KEYSPACE_STATE;
+                state = KeySpaceState;
             }
             else if (ch == '=' || ch == ':')
             {
                 p_string = &value;
-                state = SPACEVALUE_STATE;
+                state = SpaceValueState;
             }
             else if (ch == msEscapeChar)
-                state = KEYESCAPE_STATE;
+                state = KeyEscapeState;
             else
                 *p_string += c;
             break;
-        case KEYSPACE_STATE:
+        case KeySpaceState:
             if (ch == '=' || ch == ':')
-                state = SPACEVALUE_STATE;
+                state = SpaceValueState;
             else if (!c.isSpace())
             {
                 *p_string += c;
-                state = VALUE_STATE;
+                state = ValueState;
             }
             break;
-        case SPACEVALUE_STATE:
+        case SpaceValueState:
             if (!c.isSpace())
             {
                 *p_string += c;
-                state = VALUE_STATE;
+                state = ValueState;
             }
             break;
-        case VALUE_STATE:
+        case ValueState:
             if (ch == msEscapeChar)
-                state = VALUEESCAPE_STATE;
+                state = ValueEscapeState;
             else
                 *p_string += c;
             break;
-        case KEYESCAPE_STATE:
+        case KeyEscapeState:
         {
             int convert = key_escape_codes.indexOf(c);
             if (convert >= 0)
@@ -216,32 +216,32 @@ void Properties::parseProperty(const QString &property,
                                line);
                 *p_string += c;
             }
-            state = KEY_STATE;
+            state = KeyState;
             break;
         }
-        case VALUEESCAPE_STATE:
+        case ValueEscapeState:
         {
             int convert = value_escape_codes.indexOf(c);
             if (convert >= 0)
             {
                 *p_string += value_escape_chars.at(convert);
-                state = VALUE_STATE;
+                state = ValueState;
             }
             else if (ch == 'u')
             {
                 ucs = 0;
                 ucs_digits = 0;
-                state = UNICODEESCAPE_STATE;
+                state = UnicodeEscapeState;
             }
             else
             {
                 logger()->warn(u"Unknown escape sequence '\\%1' in value of property starting at line %2"_s, QString(c), line);
                 *p_string += c;
-                state = VALUE_STATE;
+                state = ValueState;
             }
             break;
         }
-        case UNICODEESCAPE_STATE:
+        case UnicodeEscapeState:
         {
             int hex = hexDigitValue(c);
             if (hex >= 0)
@@ -251,14 +251,14 @@ void Properties::parseProperty(const QString &property,
                 if (ucs_digits == 4 || i == property.length() - 1)
                 {
                     *p_string += QChar(ucs);
-                    state = VALUE_STATE;
+                    state = ValueState;
                 }
             }
             else
             {
                 if (ucs_digits > 0)
                     *p_string += QChar(ucs);
-                state = VALUE_STATE;
+                state = ValueState;
                 continue;
             }
             break;

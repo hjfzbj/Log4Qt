@@ -38,12 +38,12 @@ Filter::Decision StringMatchFilter::decide(const LoggingEvent &event) const
     if (event.message().isEmpty() ||
         mStringToMatch.isEmpty() ||
         !event.message().contains(mStringToMatch,mCaseSensitivity))
-        return Filter::NEUTRAL;
+        return Filter::Neutral;
 
     if (mAcceptOnMatch)
-        return Filter::ACCEPT;
+        return Filter::Accept;
 
-    return Filter::DENY;
+    return Filter::Deny;
 }
 
 } // namespace Log4Qt

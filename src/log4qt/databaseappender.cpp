@@ -91,7 +91,7 @@ void DatabaseAppender::activateOptions()
     if (!QSqlDatabase::contains(connectionName) || tableName.isEmpty())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Activation of Appender '%1' that requires sql connection and table and has no connection or table set")
-                                         , APPENDER_MISSING_DATABASE_OR_TABLE_ERROR);
+                                         , AppenderMissingDatabaseOrTableError);
         e << name();
         logger()->error(e);
         return;
@@ -119,7 +119,7 @@ void DatabaseAppender::append(const LoggingEvent &event)
                         , tableName, record, false)))
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Sql query exec error: '%1'"),
-                                      APPENDER_EXEC_SQL_QUERY_ERROR,
+                                      AppenderExecSqlQueryError,
                                       Q_FUNC_INFO);
             e << query.lastQuery() + " " + query.lastError().text();
             logger()->error(e);
@@ -128,7 +128,7 @@ void DatabaseAppender::append(const LoggingEvent &event)
     else
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' with invalid layout"),
-                                         APPENDER_INVALID_DATABASE_LAYOUT_ERROR);
+                                         AppenderInvalidDatabaseLayoutError);
         e << name();
         logger()->error(e);
     }
@@ -139,7 +139,7 @@ bool DatabaseAppender::checkEntryConditions() const
     if (!QSqlDatabase::contains(connectionName) || tableName.isEmpty())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' with invalid database or empty table name"),
-                                         APPENDER_MISSING_DATABASE_OR_TABLE_ERROR);
+                                         AppenderMissingDatabaseOrTableError);
         e << name();
         logger()->error(e);
         return false;

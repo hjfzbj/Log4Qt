@@ -107,15 +107,15 @@ class BasicPatternConverter : public PatternConverter
 public:
     enum Type
     {
-        MESSAGE_CONVERTER,
-        NDC_CONVERTER,
-        LEVEL_CONVERTER,
-        THREAD_CONVERTER,
-        FILENAME_CONVERTER,
-        FUNCTIONNAME_CONVERTER,
-        LINENUMBER_CONVERTER,
-        LOCATION_CONVERTER,
-        CATEGORYNAME_CONVERTER
+        MessageConverter,
+        NdcConverter,
+        LevelConverter,
+        ThreadConverter,
+        FilenameConverter,
+        FunctionNameConverter,
+        LineNumberConverter,
+        LocationConverter,
+        CategoryNameConverter
     };
 
 public:
@@ -337,11 +337,11 @@ void PatternFormatter::createConverter(QChar character,
     }
     case 'm':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::MESSAGE_CONVERTER));
+                                                        BasicPatternConverter::MessageConverter));
         break;
     case 'p':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::LEVEL_CONVERTER));
+                                                        BasicPatternConverter::LevelConverter));
         break;
     case 'r':
         mPatternConverters.push_back(std::make_unique<DatePatternConverter>(formattingInfo,
@@ -349,11 +349,11 @@ void PatternFormatter::createConverter(QChar character,
         break;
     case 't':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::THREAD_CONVERTER));
+                                                        BasicPatternConverter::ThreadConverter));
         break;
     case 'x':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::NDC_CONVERTER));
+                                                        BasicPatternConverter::NdcConverter));
         break;
     case 'X':
         mPatternConverters.push_back(std::make_unique<MDCPatternConverter>(formattingInfo,
@@ -361,19 +361,19 @@ void PatternFormatter::createConverter(QChar character,
         break;
     case 'F':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::FILENAME_CONVERTER));
+                                                        BasicPatternConverter::FilenameConverter));
         break;
     case 'M':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::FUNCTIONNAME_CONVERTER));
+                                                        BasicPatternConverter::FunctionNameConverter));
         break;
     case 'L':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::LINENUMBER_CONVERTER));
+                                                        BasicPatternConverter::LineNumberConverter));
         break;
     case 'l':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
-                                                        BasicPatternConverter::LOCATION_CONVERTER));
+                                                        BasicPatternConverter::LocationConverter));
         break;
     default:
         Q_ASSERT_X(false, "PatternFormatter::createConverter", "Unknown pattern character");
@@ -393,20 +393,20 @@ void PatternFormatter::parse()
 {
     enum State
     {
-        LITERAL_STATE,
-        ESCAPE_STATE,
-        MIN_STATE,
-        DOT_STATE,
-        MAX_STATE,
-        CHARACTER_STATE,
-        POSSIBLEOPTION_STATE,
-        OPTION_STATE
+        LiteralState,
+        EscapeState,
+        MinState,
+        DotState,
+        MaxState,
+        CharacterState,
+        PossibleOptionState,
+        OptionState
     };
 
     int i = 0;
     QChar c;
     char ch;
-    State state = LITERAL_STATE;
+    State state = LiteralState;
     FormattingInfo formatting_info;
     QString literal;
     int converter_start = 0;
@@ -423,26 +423,26 @@ void PatternFormatter::parse()
         ch = c.toLatin1();
         switch (state)
         {
-        case LITERAL_STATE:
+        case LiteralState:
             if (ch == '%')
             {
                 formatting_info.clear();
                 converter_start = i;
-                state = ESCAPE_STATE;
+                state = EscapeState;
             }
             else
                 literal += c;
             break;
-        case ESCAPE_STATE:
+        case EscapeState:
             if (ch == '%')
             {
                 literal += c;
-                state = LITERAL_STATE;
+                state = LiteralState;
             }
             else if (ch == 'n')
             {
                 literal += Layout::endOfLine();
-                state = LITERAL_STATE;
+                state = LiteralState;
             }
             else
             {
@@ -456,103 +456,103 @@ void PatternFormatter::parse()
                 else if (c.isDigit())
                 {
                     formatting_info.mMinLength = c.digitValue();
-                    state = MIN_STATE;
+                    state = MinState;
                 }
                 else if (ch == '.')
-                    state = DOT_STATE;
+                    state = DotState;
                 else
                 {
-                    state = CHARACTER_STATE;
+                    state = CharacterState;
                     continue;
                 }
             }
             break;
-        case MIN_STATE:
+        case MinState:
             if (!addDigit(c, formatting_info.mMinLength))
             {
                 if (ch == '.')
-                    state = DOT_STATE;
+                    state = DotState;
                 else
                 {
-                    state = CHARACTER_STATE;
+                    state = CharacterState;
                     continue;
                 }
             }
             break;
-        case DOT_STATE:
+        case DotState:
             if (c.isDigit())
             {
                 formatting_info.mMaxLength = c.digitValue();
-                state = MAX_STATE;
+                state = MaxState;
             }
             else
             {
                 LogError e = LOG4QT_ERROR(QT_TR_NOOP("Found character '%1' where digit was expected."),
-                                          LAYOUT_EXPECTED_DIGIT_ERROR,
+                                          LayoutExpectedDigitError,
                                           "Log4Qt::PatternFormatter");
                 e << QString(c);
                 logger()->error(e);
             }
             break;
-        case MAX_STATE:
+        case MaxState:
             if (!addDigit(c, formatting_info.mMaxLength))
             {
-                state = CHARACTER_STATE;
+                state = CharacterState;
                 continue;
             }
             break;
-        case CHARACTER_STATE:
+        case CharacterState:
             if (mIgnoreCharacters.indexOf(c) >= 0)
-                state = LITERAL_STATE;
+                state = LiteralState;
             else if (mOptionCharacters.indexOf(c) >= 0)
-                state = POSSIBLEOPTION_STATE;
+                state = PossibleOptionState;
             else if (mConversionCharacters.indexOf(c) >= 0)
             {
                 createConverter(c, formatting_info);
-                state = LITERAL_STATE;
+                state = LiteralState;
             }
             else
             {
                 logger()->warn(u"Invalid conversion character '%1' at %2 in pattern '%3'"_s,
                                c, i, mPattern);
                 createLiteralConverter(mPattern.mid(converter_start, i - converter_start + 1));
-                state = LITERAL_STATE;
+                state = LiteralState;
             }
             break;
-        case POSSIBLEOPTION_STATE:
+        case PossibleOptionState:
             if (ch == '{')
             {
                 option_start = i;
-                state = OPTION_STATE;
+                state = OptionState;
             }
             else
             {
                 createConverter(mPattern.at(i - 1),
                                 formatting_info);
-                state = LITERAL_STATE;
+                state = LiteralState;
                 continue;
             }
             break;
-        case OPTION_STATE:
+        case OptionState:
             if (ch == '}')
             {
                 createConverter(mPattern.at(option_start - 1),
                                 formatting_info,
                                 mPattern.mid(option_start + 1, i - option_start - 1));
-                state = LITERAL_STATE;
+                state = LiteralState;
             }
             break;
         default:
             Q_ASSERT_X(false, "PatternFormatter::parse()", "Unknown parsing state constant");
-            state = LITERAL_STATE;
+            state = LiteralState;
         }
         i++;
     }
 
-    if (state != LITERAL_STATE)
+    if (state != LiteralState)
     {
         logger()->warn(u"Unexptected end of pattern '%1'"_s, mPattern);
-        if (state == ESCAPE_STATE)
+        if (state == EscapeState)
             literal += c;
         else
             literal += mPattern.mid(converter_start);
@@ -573,7 +573,7 @@ int PatternFormatter::parseIntegeoption(QStringView option)
     if (!ok)
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Option '%1' cannot be converted into an integer"),
-                                  LAYOUT_OPTION_IS_NOT_INTEGER_ERROR,
+                                  LayoutOptionIsNotIntegerError,
                                   "Log4Qt::Patteformatter");
         e << option.toString();
         logger()->error(e);
@@ -581,7 +581,7 @@ int PatternFormatter::parseIntegeoption(QStringView option)
     if (result < 0)
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Option %1 isn't a positive integer"),
-                                  LAYOUT_INTEGER_IS_NOT_POSITIVE_ERROR,
+                                  LayoutIntegerIsNotPositiveError,
                                   "Log4Qt::Patteformatter");
         e << result;
         logger()->error(e);
@@ -634,30 +634,30 @@ void BasicPatternConverter::convert(QString &format, const LoggingEvent &logging
 {
     switch (mType)
     {
-    case MESSAGE_CONVERTER:
+    case MessageConverter:
         format.append(loggingEvent.message());
         break;
-    case NDC_CONVERTER:
+    case NdcConverter:
         format.append(loggingEvent.ndc());
         break;
-    case LEVEL_CONVERTER:
+    case LevelConverter:
         format.append(loggingEvent.level().toString());
         break;
-    case THREAD_CONVERTER:
+    case ThreadConverter:
         format.append(loggingEvent.threadName());
         break;
-    case FILENAME_CONVERTER:
+    case FilenameConverter:
         if (loggingEvent.context().file)
             format.append(loggingEvent.context().file);
         break;
-    case LINENUMBER_CONVERTER:
+    case LineNumberConverter:
         format.append(QString::number(loggingEvent.context().line));
         break;
-    case FUNCTIONNAME_CONVERTER:
+    case FunctionNameConverter:
         if (loggingEvent.context().function)
             format.append(loggingEvent.context().function);
         break;
-    case LOCATION_CONVERTER:
+    case LocationConverter:
     {
         const auto &ctx = loggingEvent.context();
         format.append(u"%1:%2 - %3"_s.arg(
@@ -666,7 +666,7 @@ void BasicPatternConverter::convert(QString &format, const LoggingEvent &logging
             ctx.function ? QString::fromUtf8(ctx.function) : QString()));
         break;
     }
-    case CATEGORYNAME_CONVERTER:
+    case CategoryNameConverter:
         format.append(loggingEvent.categoryName());
         break;
     default:

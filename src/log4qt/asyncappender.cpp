@@ -103,7 +103,7 @@ bool AsyncAppender::checkEntryConditions() const
     {
         LogError e =
             LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without a running dispatcher thread"),
-                                APPENDER_ASNC_DISPATCHER_NOT_RUNNING);
+                                AppenderAsncDispatcherNotRunning);
         e << name();
         logger()->error(e);
         return false;

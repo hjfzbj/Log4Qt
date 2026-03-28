@@ -121,7 +121,7 @@ void WriterAppender::activateOptions()
     if (writer() == nullptr)
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Activation of Appender '%1' that requires writer and has no writer set"),
-                                         APPENDER_ACTIVATE_MISSING_WRITER_ERROR);
+                                         AppenderActivateMissingWriterError);
         e << name();
         logger()->error(e);
         return;
@@ -174,7 +174,7 @@ bool WriterAppender::checkEntryConditions() const
     if (writer() == nullptr)
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without a writer set"),
-                                         APPENDER_USE_MISSING_WRITER_ERROR);
+                                         AppenderUseMissingWriterError);
         e << name();
         logger()->error(e);
         return false;

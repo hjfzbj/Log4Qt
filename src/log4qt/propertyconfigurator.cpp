@@ -111,7 +111,7 @@ void PropertyConfigurator::configureFromFile(const QString &configFileName,
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to open property file '%1'"),
-                                  CONFIGURATOR_OPENING_FILE_ERROR,
+                                  ConfiguratorOpeningFileError,
                                   "Log4Qt::PropertyConfigurator");
         e << configFileName;
         e.addCausingError(LogError(file.errorString(), file.error()));
@@ -123,7 +123,7 @@ void PropertyConfigurator::configureFromFile(const QString &configFileName,
     if (file.error())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read property file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::PropertyConfigurator");
         e << configFileName;
         e.addCausingError(LogError(file.errorString(), file.error()));
@@ -245,7 +245,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
         if (typeName.isNull())
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing appender type for appender alias '%1'"),
-                                      CONFIGURATOR_MISSING_APPENDER_ERROR,
+                                      ConfiguratorMissingAppenderError,
                                       "Log4Qt::PropertyConfigurator");
             e << alias;
             staticLogger()->error(e);
@@ -264,7 +264,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
         if (!appender)
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create appender of class '%1' named '%2'"),
-                                      CONFIGURATOR_UNKNOWN_APPENDER_CLASS_ERROR,
+                                      ConfiguratorUnknownAppenderClassError,
                                       "Log4Qt::PropertyConfigurator");
             e << typeName << appenderName;
             staticLogger()->error(e);
@@ -280,7 +280,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
             if (!layout)
             {
                 LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create layout of class '%1' requested by appender '%2'"),
-                                          CONFIGURATOR_UNKNOWN_LAYOUT_CLASS_ERROR,
+                                          ConfiguratorUnknownLayoutClassError,
                                           "Log4Qt::PropertyConfigurator");
                 e << layoutType << appenderName;
                 staticLogger()->error(e);
@@ -298,7 +298,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
         else if (appender->requiresLayout())
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing layout definition for appender '%1'"),
-                                      CONFIGURATOR_MISSING_LAYOUT_ERROR,
+                                      ConfiguratorMissingLayoutError,
                                       "Log4Qt::PropertyConfigurator");
             e << appenderName;
             staticLogger()->error(e);
