@@ -21,7 +21,6 @@
 #include "spi/timebasedtriggeringpolicy.h"
 
 #include "log4qtdefs.h"
-#include "helpers/datetime.h"
 
 #include <QRandomGenerator>
 
@@ -68,21 +67,70 @@ bool TimeBasedTriggeringPolicy::isTriggeringEvent(const QString &fileName,
 
 void TimeBasedTriggeringPolicy::computeFrequency()
 {
-    const DateTime startTime(QDate(1999, 1, 1), QTime(0, 0));
-    const QString startString = startTime.toString(mDatePattern);
     mActiveDatePattern.clear();
 
-    if (startString != static_cast<DateTime>(startTime.addSecs(60)).toString(mDatePattern))
+    bool foundMinutes = false;
+    bool foundHours = false;
+    bool foundAmPm = false;
+    bool foundDay = false;
+    bool foundWeek = false;
+    bool foundMonth = false;
+
+    bool inQuote = false;
+    const int len = mDatePattern.size();
+    int i = 0;
+
+    while (i < len)
+    {
+        const QChar ch = mDatePattern.at(i);
+
+        if (ch == u'\'')
+        {
+            if (i + 1 < len && mDatePattern.at(i + 1) == u'\'')
+            {
+                i += 2;
+                continue;
+            }
+            inQuote = !inQuote;
+            ++i;
+            continue;
+        }
+
+        if (inQuote)
+        {
+            ++i;
+            continue;
+        }
+
+        // Skip consecutive identical characters (greedy tokenization)
+        while (i < len && mDatePattern.at(i) == ch)
+            ++i;
+
+        if (ch == u'm')
+            foundMinutes = true;
+        else if (ch == u'h' || ch == u'H')
+            foundHours = true;
+        else if (ch == u'a' || ch == u'A')
+            foundAmPm = true;
+        else if (ch == u'd')
+            foundDay = true;
+        else if (ch == u'w')
+            foundWeek = true;
+        else if (ch == u'M')
+            foundMonth = true;
+    }
+
+    if (foundMinutes)
         mFrequency = Minutely;
-    else if (startString != static_cast<DateTime>(startTime.addSecs(60 * 60)).toString(mDatePattern))
+    else if (foundHours)
         mFrequency = Hourly;
-    else if (startString != static_cast<DateTime>(startTime.addSecs(60 * 60 * 12)).toString(mDatePattern))
+    else if (foundAmPm)
         mFrequency = HalfDaily;
-    else if (startString != static_cast<DateTime>(startTime.addDays(1)).toString(mDatePattern))
+    else if (foundDay)
         mFrequency = Daily;
-    else if (startString != static_cast<DateTime>(startTime.addDays(7)).toString(mDatePattern))
+    else if (foundWeek)
         mFrequency = Weekly;
-    else if (startString != static_cast<DateTime>(startTime.addMonths(1)).toString(mDatePattern))
+    else if (foundMonth)
         mFrequency = Monthly;
     else
         return;

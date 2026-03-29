@@ -316,6 +316,11 @@ void PolicyTest::TimeBasedTriggeringPolicy_frequency_data()
     QTest::newRow("halfdaily-a")  << "'.'a"          << static_cast<int>(TimeBasedTriggeringPolicy::HalfDaily);
     QTest::newRow("daily-dd")     << "'.'yyyy-MM-dd" << static_cast<int>(TimeBasedTriggeringPolicy::Daily);
     QTest::newRow("monthly-MM")   << "'.'yyyy-MM"    << static_cast<int>(TimeBasedTriggeringPolicy::Monthly);
+    QTest::newRow("weekly-ww")    << "'.'yyyy-ww"    << static_cast<int>(TimeBasedTriggeringPolicy::Weekly);
+    QTest::newRow("hourly-h")     << "'.'h"           << static_cast<int>(TimeBasedTriggeringPolicy::Hourly);
+    QTest::newRow("halfdaily-AP") << "'.'AP"          << static_cast<int>(TimeBasedTriggeringPolicy::HalfDaily);
+    QTest::newRow("quoted-mm")    << "'mm'.yyyy-MM"   << static_cast<int>(TimeBasedTriggeringPolicy::Monthly);
+    QTest::newRow("dayname-ddd")  << "'.'ddd"         << static_cast<int>(TimeBasedTriggeringPolicy::Daily);
 }
 
 void PolicyTest::TimeBasedTriggeringPolicy_frequency()
@@ -333,7 +338,7 @@ void PolicyTest::TimeBasedTriggeringPolicy_frequency()
 void PolicyTest::TimeBasedTriggeringPolicy_invalidPattern()
 {
     Log4Qt::TimeBasedTriggeringPolicy policy;
-    policy.setDatePattern("'.'constant-no-change");
+    policy.setDatePattern("'constant-no-change'");
     policy.activateOptions();
 
     // Pattern that doesn't change at any frequency -> always returns false
