@@ -1361,17 +1361,25 @@ void Log4QtTest::RollingFileAppender_dateSuffix()
     QTest::qSleep((60 - now.time().second()) * 1000);
     appender.activateOptions();
 
-    qDebug() << "   1 / 7";
+    // Write 7 messages at 21s intervals spanning ~3 minutes, then one final
+    // message without delay.  RollingFileAppender writes BEFORE checking the
+    // trigger, so the message that crosses a minute boundary lands in the
+    // backup (the period it triggered), not in the new file.
+    qDebug() << "   1 / 8";
     appender.doAppend(LoggingEvent(test_logger(), Level::DEBUG_INT,
                                    QStringLiteral("Message 0")));
     int i;
     for (i = 1; i < 7; i++)
     {
         QTest::qSleep(21 * 1000);
-        qDebug() << "  " << i + 1 << "/" << 7;
+        qDebug() << "  " << i + 1 << "/" << 8;
         appender.doAppend(LoggingEvent(test_logger(), Level::DEBUG_INT,
                                        QStringLiteral("Message %1").arg(i)));
     }
+    // Final message goes into the active file (same minute as Message 6's rollover)
+    qDebug() << "   8 / 8";
+    appender.doAppend(LoggingEvent(test_logger(), Level::DEBUG_INT,
+                                   QStringLiteral("Message 7")));
 
     QCOMPARE(loggingEvents()->list().count(), 0);
 
@@ -1384,21 +1392,22 @@ void Log4QtTest::RollingFileAppender_dateSuffix()
     if (!validateDirContents(dir, expected, result))
         QFAIL(qPrintable(result));
 
-    // Validate files
+    // Validate files — write-before-rollover means the boundary message
+    // is included in the backup, not the new active file.
     expected.clear();
-    expected << QStringLiteral("DEBUG - Message 6");
+    expected << QStringLiteral("DEBUG - Message 7");
     if (!validateFileContents(dir + file, expected, result))
         QFAIL(qPrintable(result));
     expected.clear();
     expected << QStringLiteral("DEBUG - Message 0") << QStringLiteral("DEBUG - Message 1")
-             << QStringLiteral("DEBUG - Message 2");
+             << QStringLiteral("DEBUG - Message 2") << QStringLiteral("DEBUG - Message 3");
     if (!validateFileContents(dir + file
                               + dateSuffix(now.addSecs(60)),
                               expected, result))
         QFAIL(qPrintable(result));
     expected.clear();
-    expected << QStringLiteral("DEBUG - Message 3") << QStringLiteral("DEBUG - Message 4")
-             << QStringLiteral("DEBUG - Message 5");
+    expected << QStringLiteral("DEBUG - Message 4") << QStringLiteral("DEBUG - Message 5")
+             << QStringLiteral("DEBUG - Message 6");
     if (!validateFileContents(dir + file
                               + dateSuffix(now.addSecs(120)),
                               expected, result))

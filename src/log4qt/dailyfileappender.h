@@ -21,7 +21,7 @@
 #ifndef LOG4QT_DAILYFILEAPPENDER_H
 #define LOG4QT_DAILYFILEAPPENDER_H
 
-#include "fileappender.h"
+#include "rollingfileappender.h"
 
 #include <QDate>
 #include <QFutureSynchronizer>
@@ -52,7 +52,7 @@ public:
  * \brief The class DailyFileAppender extends FileAppender so that the
  * a log file is created for each day
  */
-class LOG4QT_EXPORT DailyFileAppender : public FileAppender
+class LOG4QT_EXPORT DailyFileAppender : public RollingFileAppender
 {
     Q_OBJECT
 
@@ -78,16 +78,13 @@ public:
 
     void activateOptions() override;
 
-    void append(const LoggingEvent &event) override;
-
     void setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever);
+
+protected:
+    void append(const LoggingEvent &event) override;
 
 private:
     Q_DISABLE_COPY_MOVE(DailyFileAppender)
-
-    void setLogFileForCurrentDay();
-    void rollOver();
-    QString appendDateToFilename() const;
 
     std::shared_ptr<const IDateRetriever> mDateRetriever;
 

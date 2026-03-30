@@ -119,7 +119,7 @@ void DailyFileAppenderTest::testAppend()
     // nothing written yet
     QCOMPARE(logFile.size(), 0);
 
-    mAppender->append(Log4Qt::LoggingEvent());
+    mAppender->doAppend(Log4Qt::LoggingEvent());
 
     QVERIFY(logFile.size() > 0);
 }
@@ -129,7 +129,7 @@ void DailyFileAppenderTest::testRollOver()
     mAppender->setFile(mLogDirectory->path() + QLatin1Char('/') + QStringLiteral("app.log"));
     mAppender->activateOptions();
 
-    mAppender->append(Log4Qt::LoggingEvent());
+    mAppender->doAppend(Log4Qt::LoggingEvent());
 
     const auto fileNameDay1 = mAppender->file();
     QVERIFY(QFileInfo::exists(fileNameDay1));
@@ -138,7 +138,7 @@ void DailyFileAppenderTest::testRollOver()
     mDateRetriever->setCurrentDate(mDateRetriever->currentDate().addDays(1));
 
     // ... and when we try to append ...
-    mAppender->append(Log4Qt::LoggingEvent());
+    mAppender->doAppend(Log4Qt::LoggingEvent());
 
     // ... we get a new log file
     const auto fileNameDay2 = mAppender->file();
@@ -190,7 +190,7 @@ void DailyFileAppenderTest::testObsoleteLogFileDeletion()
     QVERIFY(QFileInfo::exists(alwaysKeptFileName));
 
     // appending later today ...
-    mAppender->append(Log4Qt::LoggingEvent());
+    mAppender->doAppend(Log4Qt::LoggingEvent());
 
     // ... does not delete anything
     QVERIFY(QFileInfo::exists(deleteAfterOneDayFileName));
@@ -200,7 +200,7 @@ void DailyFileAppenderTest::testObsoleteLogFileDeletion()
     mDateRetriever->setCurrentDate(mDateRetriever->currentDate().addDays(1));
 
     // ... and we append additional messages ...
-    mAppender->append(Log4Qt::LoggingEvent());
+    mAppender->doAppend(Log4Qt::LoggingEvent());
 
     // ... one file becomes obsolete and is deleted automatically
     // Since deletion takes place in a separate thread, we would need to sleep here. To avoid that,

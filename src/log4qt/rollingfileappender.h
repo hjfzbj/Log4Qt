@@ -78,9 +78,7 @@ public:
 
 protected:
     void append(const LoggingEvent &event) override;
-
-private:
-    void rollOver();
+    virtual void rollOver();
 
 private:
     TriggeringPolicySharedPtr mTriggeringPolicy;

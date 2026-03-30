@@ -75,7 +75,8 @@ DateRolloverStrategy::DateRolloverStrategy(QObject *parent) :
     RolloverStrategy(parent),
     mDatePattern(u"'.'yyyy-MM-dd"_s),
     mMode(Suffix),
-    mMaxBackups(0)
+    mMaxBackups(0),
+    mDateTimeProvider([]() { return QDateTime::currentDateTime(); })
 {
 }
 
@@ -92,23 +93,33 @@ void DateRolloverStrategy::setModeString(const QString &mode)
         mMode = Suffix;
 }
 
+void DateRolloverStrategy::setDateTimeProvider(DateTimeProvider provider)
+{
+    mDateTimeProvider = std::move(provider);
+}
+
 void DateRolloverStrategy::activateOptions()
 {
     RolloverStrategy::activateOptions();
-    mActiveSuffix = QDateTime::currentDateTime().toString(mDatePattern);
+    mActiveSuffix = currentDateTime().toString(mDatePattern);
+}
+
+QDateTime DateRolloverStrategy::currentDateTime() const
+{
+    return mDateTimeProvider ? mDateTimeProvider() : QDateTime::currentDateTime();
 }
 
 QString DateRolloverStrategy::rollover(const QString &fileName)
 {
-    const QDateTime now = QDateTime::currentDateTime();
+    const auto dateTime = currentDateTime();
 
     if (mMode == Suffix)
     {
         // Use the active suffix to name the backup after the period it belongs to.
         // mActiveSuffix is set during activateOptions() and updated after each rollover.
         const QString backupName = fileName
-            + (mActiveSuffix.isEmpty() ? now.toString(mDatePattern) : mActiveSuffix);
-        mActiveSuffix = now.toString(mDatePattern);
+            + (mActiveSuffix.isEmpty() ? dateTime.toString(mDatePattern) : mActiveSuffix);
+        mActiveSuffix = dateTime.toString(mDatePattern);
 
         if (QFile::exists(backupName))
             removeFile(backupName);
@@ -121,8 +132,8 @@ QString DateRolloverStrategy::rollover(const QString &fileName)
     }
 
     // Embedded mode: return the new dated filename for the current period
-    mActiveSuffix = now.toString(mDatePattern);
-    const QString backupName = buildBackupName(fileName, now);
+    mActiveSuffix = dateTime.toString(mDatePattern);
+    const QString backupName = buildBackupName(fileName, dateTime);
     if (mMaxBackups > 0)
         mCleanupExecutors.addFuture(
             QtConcurrent::run(deleteObsoleteFiles, mMode, mMaxBackups, fileName));

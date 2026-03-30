@@ -23,8 +23,11 @@
 
 #include "rolloverstrategy.h"
 
+#include <QDateTime>
 #include <QFutureSynchronizer>
 #include <QString>
+
+#include <functional>
 
 namespace Log4Qt
 {
@@ -74,6 +77,8 @@ class LOG4QT_EXPORT DateRolloverStrategy : public RolloverStrategy
     Q_PROPERTY(int maxBackups READ maxBackups WRITE setMaxBackups)
 
 public:
+    using DateTimeProvider = std::function<QDateTime()>;
+
     enum NamingMode
     {
         Suffix = 0,
@@ -95,17 +100,21 @@ public:
     int maxBackups() const;
     void setMaxBackups(int maxBackups);
 
+    void setDateTimeProvider(DateTimeProvider provider);
+
     void activateOptions() override;
     QString rollover(const QString &fileName) override;
 
 private:
     Q_DISABLE_COPY_MOVE(DateRolloverStrategy)
 
+    QDateTime currentDateTime() const;
     QString buildBackupName(const QString &fileName, const QDateTime &dateTime) const;
 
     QString mDatePattern;
     NamingMode mMode;
     int mMaxBackups;
+    DateTimeProvider mDateTimeProvider;
     QString mActiveSuffix;
     QFutureSynchronizer<void> mCleanupExecutors;
 };
