@@ -33,6 +33,7 @@
 #include "log4qt/simplelayout.h"
 #include "log4qt/spi/compositetriggeringpolicy.h"
 #include "log4qt/spi/crontriggeringpolicy.h"
+#include "log4qt/spi/daterolloverstrategy.h"
 #include "log4qt/spi/defaultrolloverstrategy.h"
 #include "log4qt/spi/onstartuptriggeringpolicy.h"
 #include "log4qt/spi/sizebasedtriggeringpolicy.h"
@@ -86,6 +87,14 @@ private Q_SLOTS:
     void CompositeTriggeringPolicy_empty();
     void CompositeTriggeringPolicy_orCombination();
     void CompositeTriggeringPolicy_startupTrigger();
+
+    // DateRolloverStrategy
+    void DateRolloverStrategy_defaults();
+    void DateRolloverStrategy_suffixMode();
+    void DateRolloverStrategy_embeddedMode();
+    void DateRolloverStrategy_maxBackups();
+    void DateRolloverStrategy_suffixPropertyConfigurator();
+    void DateRolloverStrategy_embeddedPropertyConfigurator();
 
     // DefaultRolloverStrategy
     void DefaultRolloverStrategy_defaults();
@@ -607,6 +616,209 @@ void PolicyTest::CompositeTriggeringPolicy_startupTrigger()
 }
 
 // ---------------------------------------------------------------------------
+// DateRolloverStrategy
+// ---------------------------------------------------------------------------
+
+void PolicyTest::DateRolloverStrategy_defaults()
+{
+    Log4Qt::DateRolloverStrategy strategy;
+    QCOMPARE(strategy.datePattern(), QString("'.'yyyy-MM-dd"));
+    QCOMPARE(strategy.mode(), Log4Qt::DateRolloverStrategy::Suffix);
+    QCOMPARE(strategy.modeString(), QString("Suffix"));
+    QCOMPARE(strategy.maxBackups(), 0);
+}
+
+void PolicyTest::DateRolloverStrategy_suffixMode()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString basePath = tempDir.path() + "/app.log";
+
+    // Create the base file
+    {
+        QFile f(basePath);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("log content");
+        f.close();
+    }
+
+    Log4Qt::DateRolloverStrategy strategy;
+    strategy.setDatePattern("'.'yyyy-MM-dd");
+    strategy.setMode(Log4Qt::DateRolloverStrategy::Suffix);
+
+    QString result = strategy.rollover(basePath);
+
+    // Should return the same filename (appender reopens it)
+    QCOMPARE(result, basePath);
+
+    // Base file should have been renamed to basePath + date suffix
+    QVERIFY(!QFile::exists(basePath));
+
+    // A backup file with today's date suffix should exist
+    QString expectedBackup = basePath + QDateTime::currentDateTime().toString("'.'yyyy-MM-dd");
+    QVERIFY(QFile::exists(expectedBackup));
+}
+
+void PolicyTest::DateRolloverStrategy_embeddedMode()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString basePath = tempDir.path() + "/app.log";
+
+    Log4Qt::DateRolloverStrategy strategy;
+    strategy.setDatePattern("_yyyy-MM-dd");
+    strategy.setModeString("Embedded");
+
+    QCOMPARE(strategy.mode(), Log4Qt::DateRolloverStrategy::Embedded);
+
+    QString result = strategy.rollover(basePath);
+
+    // Should return a new filename with date embedded
+    QString expectedName = tempDir.path() + "/app_"
+        + QDateTime::currentDateTime().toString("yyyy-MM-dd") + ".log";
+    QCOMPARE(result, expectedName);
+
+    // No rename happened — base file was not touched
+    QVERIFY(!QFile::exists(basePath));
+    QVERIFY(!QFile::exists(result)); // file doesn't exist yet (appender creates it)
+}
+
+void PolicyTest::DateRolloverStrategy_maxBackups()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString basePath = tempDir.path() + "/app.log";
+
+    auto writeFile = [](const QString &path)
+    {
+        QFile f(path);
+        f.open(QIODevice::WriteOnly);
+        f.write("data");
+        f.close();
+    };
+
+    // Create 5 backup files with date suffixes
+    writeFile(basePath + ".2026-03-24");
+    writeFile(basePath + ".2026-03-25");
+    writeFile(basePath + ".2026-03-26");
+    writeFile(basePath + ".2026-03-27");
+    writeFile(basePath + ".2026-03-28");
+
+    // Create the active file
+    writeFile(basePath);
+
+    {
+        Log4Qt::DateRolloverStrategy strategy;
+        strategy.setDatePattern("'.'yyyy-MM-dd");
+        strategy.setMaxBackups(3);
+
+        strategy.rollover(basePath);
+    } // destructor waits for async cleanup to complete
+
+    // Count remaining backup files (excluding the new one just created)
+    QDir dir(tempDir.path());
+    QFileInfoList entries = dir.entryInfoList({"app.log*"}, QDir::Files);
+
+    // Should have at most maxBackups + 1 (the newly created backup)
+    // The 2 oldest should have been deleted
+    QVERIFY(entries.size() <= 4); // 3 kept + 1 new backup
+}
+
+void PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator()
+{
+    // Replaces DailyRollingFileAppender: RollingFile + TimeBased + Date(Suffix)
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString file = tempDir.path() + "/app.log";
+
+    Properties props;
+    props.setProperty("appender.R.type", "RollingFile");
+    props.setProperty("appender.R.file", file);
+    props.setProperty("appender.R.layout.type", "SimpleLayout");
+    props.setProperty("appender.R.policy.TIME.type", "TimeBasedTriggeringPolicy");
+    props.setProperty("appender.R.policy.TIME.datePattern", "'.'yyyy-MM-dd");
+    props.setProperty("appender.R.strategy.type", "Date");
+    props.setProperty("appender.R.strategy.datePattern", "'.'yyyy-MM-dd");
+    props.setProperty("appender.R.strategy.maxBackups", "30");
+    props.setProperty("rootLogger.level", "DEBUG");
+    props.setProperty("rootLogger.appenderRef.0.ref", "R");
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->appenders().count(), 1);
+
+    auto *appender = qobject_cast<RollingFileAppender *>(root->appenders().first().data());
+    QVERIFY(appender != nullptr);
+
+    // Verify triggering policy
+    auto *timePolicy = qobject_cast<TimeBasedTriggeringPolicy *>(appender->triggeringPolicy().data());
+    QVERIFY(timePolicy != nullptr);
+    QCOMPARE(timePolicy->datePattern(), QString("'.'yyyy-MM-dd"));
+
+    // Verify rollover strategy
+    auto *dateStrategy = qobject_cast<DateRolloverStrategy *>(appender->rolloverStrategy().data());
+    QVERIFY(dateStrategy != nullptr);
+    QCOMPARE(dateStrategy->datePattern(), QString("'.'yyyy-MM-dd"));
+    QCOMPARE(dateStrategy->mode(), DateRolloverStrategy::Suffix);
+    QCOMPARE(dateStrategy->maxBackups(), 30);
+}
+
+void PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator()
+{
+    // Replaces DailyFileAppender: RollingFile + TimeBased + OnStartup + Date(Embedded)
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    QString file = tempDir.path() + "/app.log";
+
+    // Create a non-empty file so OnStartupTriggeringPolicy fires
+    {
+        QFile f(file);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("previous session\n");
+        f.close();
+    }
+
+    Properties props;
+    props.setProperty("appender.R.type", "RollingFile");
+    props.setProperty("appender.R.file", file);
+    props.setProperty("appender.R.layout.type", "SimpleLayout");
+    props.setProperty("appender.R.policy.TIME.type", "TimeBasedTriggeringPolicy");
+    props.setProperty("appender.R.policy.TIME.datePattern", "_yyyy_MM_dd");
+    props.setProperty("appender.R.policy.STARTUP.type", "OnStartupTriggeringPolicy");
+    props.setProperty("appender.R.strategy.type", "Date");
+    props.setProperty("appender.R.strategy.datePattern", "_yyyy_MM_dd");
+    props.setProperty("appender.R.strategy.mode", "Embedded");
+    props.setProperty("appender.R.strategy.maxBackups", "90");
+    props.setProperty("rootLogger.level", "DEBUG");
+    props.setProperty("rootLogger.appenderRef.0.ref", "R");
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->appenders().count(), 1);
+
+    auto *appender = qobject_cast<RollingFileAppender *>(root->appenders().first().data());
+    QVERIFY(appender != nullptr);
+
+    // Verify rollover strategy
+    auto *dateStrategy = qobject_cast<DateRolloverStrategy *>(appender->rolloverStrategy().data());
+    QVERIFY(dateStrategy != nullptr);
+    QCOMPARE(dateStrategy->datePattern(), QString("_yyyy_MM_dd"));
+    QCOMPARE(dateStrategy->mode(), DateRolloverStrategy::Embedded);
+    QCOMPARE(dateStrategy->maxBackups(), 90);
+
+    // After activation with OnStartup, the file should have the date embedded
+    QString expectedSuffix = QDateTime::currentDateTime().toString("_yyyy_MM_dd");
+    QVERIFY(appender->file().contains(expectedSuffix));
+}
+
+// ---------------------------------------------------------------------------
 // DefaultRolloverStrategy
 // ---------------------------------------------------------------------------
 
@@ -771,6 +983,10 @@ void PolicyTest::Factory_createRolloverStrategy_data()
     QTest::newRow("DefaultRolloverStrategy")        << "DefaultRolloverStrategy";
     QTest::newRow("Default")                        << "Default";
     QTest::newRow("Log4Qt::DefaultRolloverStrategy") << "Log4Qt::DefaultRolloverStrategy";
+
+    QTest::newRow("DateRolloverStrategy")           << "DateRolloverStrategy";
+    QTest::newRow("Date")                           << "Date";
+    QTest::newRow("Log4Qt::DateRolloverStrategy")   << "Log4Qt::DateRolloverStrategy";
 }
 
 void PolicyTest::Factory_createRolloverStrategy()

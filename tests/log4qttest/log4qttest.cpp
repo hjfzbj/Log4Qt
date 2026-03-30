@@ -27,7 +27,8 @@
 
 #include "log4qt/basicconfigurator.h"
 #include "log4qt/consoleappender.h"
-#include "log4qt/dailyrollingfileappender.h"
+#include "log4qt/spi/daterolloverstrategy.h"
+#include "log4qt/spi/timebasedtriggeringpolicy.h"
 #include "log4qt/fileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
 #include "log4qt/helpers/datetime.h"
@@ -993,10 +994,10 @@ void Log4QtTest::LevelMatchFilter_data()
     QTest::addColumn<QString>("event_level");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("No match, No accept") << "WARN" << false << "TRACE" << "NEUTRAL";
-    QTest::newRow("No match, Accept") << "WARN" << true << "TRACE" << "NEUTRAL";
-    QTest::newRow("Match, No accept") << "WARN" << false << "WARN" << "DENY";
-    QTest::newRow("Match, Accept") << "WARN" << true << "WARN" << "ACCEPT";
+    QTest::newRow("No match, No accept") << "WARN" << false << "TRACE" << "Neutral";
+    QTest::newRow("No match, Accept") << "WARN" << true << "TRACE" << "Neutral";
+    QTest::newRow("Match, No accept") << "WARN" << false << "WARN" << "Deny";
+    QTest::newRow("Match, Accept") << "WARN" << true << "WARN" << "Accept";
 }
 
 
@@ -1028,20 +1029,20 @@ void Log4QtTest::LevelRangeFilter_data()
     QTest::addColumn<QString>("event_level");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("Too low, No accept") << "DEBUG" << "ERROR" << false << "TRACE" << "DENY";
-    QTest::newRow("Too high, No accept") << "DEBUG" << "ERROR" << false << "FATAL" << "DENY";
-    QTest::newRow("Min, No accept") << "DEBUG" << "ERROR" << false << "DEBUG" << "NEUTRAL";
-    QTest::newRow("Inside, No accept") << "DEBUG" << "ERROR" << false << "WARN" << "NEUTRAL";
-    QTest::newRow("Max, No accept") << "DEBUG" << "ERROR" << false << "ERROR" << "NEUTRAL";
-    QTest::newRow("Min not initialised, No accept") << "" << "ERROR" << false << "TRACE" << "NEUTRAL";
-    QTest::newRow("Max not initialised, No accept") << "DEBUG" << "" << false << "FATAL" << "NEUTRAL";
-    QTest::newRow("Too low, Accept") << "DEBUG" << "ERROR" << true << "TRACE" << "DENY";
-    QTest::newRow("Too high, Accept") << "DEBUG" << "ERROR" << true << "FATAL" << "DENY";
-    QTest::newRow("Min, Accept") << "DEBUG" << "ERROR" << true << "DEBUG" << "ACCEPT";
-    QTest::newRow("Inside, Accept") << "DEBUG" << "ERROR" << true << "WARN" << "ACCEPT";
-    QTest::newRow("Max, Accept") << "DEBUG" << "ERROR" << true << "ERROR" << "ACCEPT";
-    QTest::newRow("Min not initialised, Accept") << "" << "ERROR" << true << "TRACE" << "ACCEPT";
-    QTest::newRow("Max not initialised, Accept") << "DEBUG" << "" << true << "FATAL" << "ACCEPT";
+    QTest::newRow("Too low, No accept") << "DEBUG" << "ERROR" << false << "TRACE" << "Deny";
+    QTest::newRow("Too high, No accept") << "DEBUG" << "ERROR" << false << "FATAL" << "Deny";
+    QTest::newRow("Min, No accept") << "DEBUG" << "ERROR" << false << "DEBUG" << "Neutral";
+    QTest::newRow("Inside, No accept") << "DEBUG" << "ERROR" << false << "WARN" << "Neutral";
+    QTest::newRow("Max, No accept") << "DEBUG" << "ERROR" << false << "ERROR" << "Neutral";
+    QTest::newRow("Min not initialised, No accept") << "" << "ERROR" << false << "TRACE" << "Neutral";
+    QTest::newRow("Max not initialised, No accept") << "DEBUG" << "" << false << "FATAL" << "Neutral";
+    QTest::newRow("Too low, Accept") << "DEBUG" << "ERROR" << true << "TRACE" << "Deny";
+    QTest::newRow("Too high, Accept") << "DEBUG" << "ERROR" << true << "FATAL" << "Deny";
+    QTest::newRow("Min, Accept") << "DEBUG" << "ERROR" << true << "DEBUG" << "Accept";
+    QTest::newRow("Inside, Accept") << "DEBUG" << "ERROR" << true << "WARN" << "Accept";
+    QTest::newRow("Max, Accept") << "DEBUG" << "ERROR" << true << "ERROR" << "Accept";
+    QTest::newRow("Min not initialised, Accept") << "" << "ERROR" << true << "TRACE" << "Accept";
+    QTest::newRow("Max not initialised, Accept") << "DEBUG" << "" << true << "FATAL" << "Accept";
 }
 
 
@@ -1075,14 +1076,14 @@ void Log4QtTest::StringMatchFilter_data()
     QTest::addColumn<QString>("event_string");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("No match, No accept") << "MESSAGE" << false << "This is a message" << "NEUTRAL";
-    QTest::newRow("Match, No accept") << "This" << false << "This is a message" << "DENY";
-    QTest::newRow("No match, Accept") << "MESSAGE" << true << "This is a message" << "NEUTRAL";
-    QTest::newRow("Match, Accept") << "This" << true << "This is a message" << "ACCEPT";
-    QTest::newRow("Empty message, No accept") << "This" << false << "" << "NEUTRAL";
-    QTest::newRow("Empty message, Accept") << "This" << true << "" << "NEUTRAL";
-    QTest::newRow("Empty filter, No accept") << "" << false << "This is a message" << "NEUTRAL";
-    QTest::newRow("Empty filter, Accept") << "" << true << "This is a message" << "NEUTRAL";
+    QTest::newRow("No match, No accept") << "MESSAGE" << false << "This is a message" << "Neutral";
+    QTest::newRow("Match, No accept") << "This" << false << "This is a message" << "Deny";
+    QTest::newRow("No match, Accept") << "MESSAGE" << true << "This is a message" << "Neutral";
+    QTest::newRow("Match, Accept") << "This" << true << "This is a message" << "Accept";
+    QTest::newRow("Empty message, No accept") << "This" << false << "" << "Neutral";
+    QTest::newRow("Empty message, Accept") << "This" << true << "" << "Neutral";
+    QTest::newRow("Empty filter, No accept") << "" << false << "This is a message" << "Neutral";
+    QTest::newRow("Empty filter, Accept") << "" << true << "This is a message" << "Neutral";
 }
 
 void Log4QtTest::StringMatchFilter()
@@ -1110,14 +1111,14 @@ void Log4QtTest::StringMatchFilterCaseInsensitive_data()
     QTest::addColumn<QString>("event_string");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("No match, CaseInsensitive, No accept") << "MESSAGES" << Qt::CaseInsensitive << false << "This is a message" << "NEUTRAL";
-    QTest::newRow("Match, CaseInsensitive, No accept") << "MESSAGE" << Qt::CaseInsensitive << false << "This is a message" << "DENY";
-    QTest::newRow("No Match, CaseInsensitive, Accept") << "MESSAGES" << Qt::CaseInsensitive << true << "This is a message" << "NEUTRAL";
-    QTest::newRow("Match, CaseInsensitive, Accept") << "this" << Qt::CaseInsensitive << true << "This is a message" << "ACCEPT";
-    QTest::newRow("Empty message, CaseInsensitive, No accept") << "This" << Qt::CaseInsensitive << false << "" << "NEUTRAL";
-    QTest::newRow("Empty message, CaseInsensitive, Accept") << "This" << Qt::CaseInsensitive << true << "" << "NEUTRAL";
-    QTest::newRow("Empty filter, CaseInsensitive, No accept") << "" << Qt::CaseInsensitive << false << "This is a message" << "NEUTRAL";
-    QTest::newRow("Empty filter, CaseInsensitive, Accept") << "" << Qt::CaseInsensitive << true << "This is a message" << "NEUTRAL";
+    QTest::newRow("No match, CaseInsensitive, No accept") << "MESSAGES" << Qt::CaseInsensitive << false << "This is a message" << "Neutral";
+    QTest::newRow("Match, CaseInsensitive, No accept") << "MESSAGE" << Qt::CaseInsensitive << false << "This is a message" << "Deny";
+    QTest::newRow("No Match, CaseInsensitive, Accept") << "MESSAGES" << Qt::CaseInsensitive << true << "This is a message" << "Neutral";
+    QTest::newRow("Match, CaseInsensitive, Accept") << "this" << Qt::CaseInsensitive << true << "This is a message" << "Accept";
+    QTest::newRow("Empty message, CaseInsensitive, No accept") << "This" << Qt::CaseInsensitive << false << "" << "Neutral";
+    QTest::newRow("Empty message, CaseInsensitive, Accept") << "This" << Qt::CaseInsensitive << true << "" << "Neutral";
+    QTest::newRow("Empty filter, CaseInsensitive, No accept") << "" << Qt::CaseInsensitive << false << "This is a message" << "Neutral";
+    QTest::newRow("Empty filter, CaseInsensitive, Accept") << "" << Qt::CaseInsensitive << true << "This is a message" << "Neutral";
 }
 
 
@@ -1175,32 +1176,32 @@ void Log4QtTest::AppenderSkeleton_filter_data()
     QTest::addColumn<QString>("event_level");
     QTest::addColumn<int>("event_count");
 
-    QTest::newRow("Single filter, NEUTRAL")
+    QTest::newRow("Single filter, Neutral")
             << "WARN" << true << "" << true << "TRACE" << 1;
-    QTest::newRow("Single filter, ACCEPT")
+    QTest::newRow("Single filter, Accept")
             << "WARN" << true << "" << true << "WARN" << 1;
-    QTest::newRow("Single filter, DENY")
+    QTest::newRow("Single filter, Deny")
             << "WARN" << false << "" << true << "WARN" << 0;
 
-    QTest::newRow("Double filter, NEUTRAL NEUTRAL")
+    QTest::newRow("Double filter, Neutral Neutral")
             << "WARN" << true << "WARN" << true << "TRACE" << 1;
-    QTest::newRow("Double filter, NEUTRAL ACCEPT")
+    QTest::newRow("Double filter, Neutral Accept")
             << "WARN" << true << "TRACE" << true << "TRACE" << 1;
-    QTest::newRow("Double filter, NEUTRAL DENY")
+    QTest::newRow("Double filter, Neutral Deny")
             << "WARN" << true << "TRACE" << false << "TRACE" << 0;
 
-    QTest::newRow("Double filter, ACCEPT NEUTRAL")
+    QTest::newRow("Double filter, Accept Neutral")
             << "WARN" << true << "TRACE" << true << "WARN" << 1;
-    QTest::newRow("Double filter, ACCEPT ACCEPT")
+    QTest::newRow("Double filter, Accept Accept")
             << "WARN" << true << "WARN" << true << "WARN" << 1;
-    QTest::newRow("Double filter, ACCEPT DENY")
+    QTest::newRow("Double filter, Accept Deny")
             << "WARN" << true << "WARN" << false << "WARN" << 1;
 
-    QTest::newRow("Double filter, DENY NEUTRAL")
+    QTest::newRow("Double filter, Deny Neutral")
             << "WARN" << false << "TRACE" << true << "WARN" << 0;
-    QTest::newRow("Double filter, DENY ACCEPT")
+    QTest::newRow("Double filter, Deny Accept")
             << "WARN" << false << "WARN" << true << "WARN" << 0;
-    QTest::newRow("Double filter, DENY DENY")
+    QTest::newRow("Double filter, Deny Deny")
             << "WARN" << false << "WARN" << false << "WARN" << 0;
 }
 
@@ -1331,7 +1332,7 @@ void Log4QtTest::FileAppender()
 }
 
 
-void Log4QtTest::DailyRollingFileAppender()
+void Log4QtTest::RollingFileAppender_dateSuffix()
 {
     resetLogging();
 
@@ -1339,15 +1340,25 @@ void Log4QtTest::DailyRollingFileAppender()
         QSKIP("Skipping long running test", SkipSingle);
     qDebug() << "The test is time based and takes approximately 3 minutes ...";
 
-    QString dir(mTemporaryDirectory.path() + "/DailyRollingFileAppender");
+    QString dir(mTemporaryDirectory.path() + "/RollingFileAppender_dateSuffix");
     QString file(QStringLiteral("/log"));
 
-    // Using a RollingFileAppender with 2 files history and 3 messages per file
-    Log4Qt::DailyRollingFileAppender appender;
-    appender.setName(QStringLiteral("DailyRollingFileAppender"));
+    // RollingFileAppender with TimeBasedTriggeringPolicy (minutely)
+    // and DateRolloverStrategy (suffix mode) — replaces DailyRollingFileAppender
+    const QString datePattern(u"'.'yyyy-MM-dd-hh-mm"_s);
+
+    Log4Qt::RollingFileAppender appender;
+    appender.setName(QStringLiteral("RollingFileAppender_dateSuffix"));
     appender.setFile(dir + file);
     appender.setLayout(LayoutSharedPtr(new SimpleLayout()));
-    appender.setDatePattern(DailyRollingFileAppender::Minutely);
+
+    auto *timePolicy = new Log4Qt::TimeBasedTriggeringPolicy;
+    timePolicy->setDatePattern(datePattern);
+    appender.setTriggeringPolicy(TriggeringPolicySharedPtr(timePolicy));
+
+    auto *dateStrategy = new Log4Qt::DateRolloverStrategy;
+    dateStrategy->setDatePattern(datePattern);
+    appender.setRolloverStrategy(RolloverStrategySharedPtr(dateStrategy));
 
     // Start on a full minute
     QDateTime now = QDateTime::currentDateTime();
@@ -1372,8 +1383,8 @@ void Log4QtTest::DailyRollingFileAppender()
     QStringList expected;
     QString result;
     expected << QStringLiteral("log") << "log"
-             + dailyRollingFileAppenderSuffix(now.addSecs(60)) << "log"
-             + dailyRollingFileAppenderSuffix(now.addSecs(120));
+             + dateSuffix(now.addSecs(60)) << "log"
+             + dateSuffix(now.addSecs(120));
     if (!validateDirContents(dir, expected, result))
         QFAIL(qPrintable(result));
 
@@ -1386,14 +1397,14 @@ void Log4QtTest::DailyRollingFileAppender()
     expected << QStringLiteral("DEBUG - Message 0") << QStringLiteral("DEBUG - Message 1")
              << QStringLiteral("DEBUG - Message 2");
     if (!validateFileContents(dir + file
-                              + dailyRollingFileAppenderSuffix(now.addSecs(60)),
+                              + dateSuffix(now.addSecs(60)),
                               expected, result))
         QFAIL(qPrintable(result));
     expected.clear();
     expected << QStringLiteral("DEBUG - Message 3") << QStringLiteral("DEBUG - Message 4")
              << QStringLiteral("DEBUG - Message 5");
     if (!validateFileContents(dir + file
-                              + dailyRollingFileAppenderSuffix(now.addSecs(120)),
+                              + dateSuffix(now.addSecs(120)),
                               expected, result))
         QFAIL(qPrintable(result));
 }
@@ -1951,19 +1962,9 @@ void Log4QtTest::RollingFileAppender()
 }
 
 
-QString Log4QtTest::dailyRollingFileAppenderSuffix(QDateTime dateTime)
+QString Log4QtTest::dateSuffix(const QDateTime &dateTime)
 {
-    QString result(QStringLiteral("."));
-    result += QString::number(dateTime.date().year()).rightJustified(4, '0');
-    result += '-';
-    result += QString::number(dateTime.date().month()).rightJustified(2, '0');
-    result += '-';
-    result += QString::number(dateTime.date().day()).rightJustified(2, '0');
-    result += '-';
-    result += QString::number(dateTime.time().hour()).rightJustified(2, '0');
-    result += '-';
-    result += QString::number(dateTime.time().minute()).rightJustified(2, '0');
-    return result;
+    return dateTime.toString(u"'.'yyyy-MM-dd-hh-mm"_s);
 }
 
 

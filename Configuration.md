@@ -146,6 +146,7 @@ If no strategy is specified, `DefaultRolloverStrategy` is used automatically.
 | Short Name | Class | Properties | Description |
 |------------|-------|------------|-------------|
 | `Default` | DefaultRolloverStrategy | `minIndex` (int, default 1), `maxIndex` (int, default 7) | Fixed-window numbered rotation: deletes the oldest backup at `maxIndex`, shifts existing backups up by one, and renames the active file to `.minIndex`. |
+| `Date` | DateRolloverStrategy | `datePattern` (QString, default `'.'yyyy-MM-dd`), `mode` (QString: `Suffix` or `Embedded`, default `Suffix`), `maxBackups` (int, default 0) | Date-based rotation. In `Suffix` mode, renames the active file by appending a date suffix (e.g. `app.log.2026-03-28`). In `Embedded` mode, opens a new file with the date in the filename (e.g. `app_2026-03-28.log`). `maxBackups` limits retained backups (0 = unlimited). |
 
 ### RollingFileAppender Examples
 
@@ -180,6 +181,28 @@ appender.time4h.policy.TIME.maxRandomDelay=30
 appender.time4h.strategy.type=DefaultRolloverStrategy
 appender.time4h.strategy.maxIndex=30
 appender.time4h.layout.type=SimpleLayout
+
+# Time-based rolling with date-suffix naming (replaces DailyRollingFileAppender)
+appender.daily.type=RollingFile
+appender.daily.file=logs/app.log
+appender.daily.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.daily.policy.TIME.datePattern='.'yyyy-MM-dd
+appender.daily.strategy.type=Date
+appender.daily.strategy.datePattern='.'yyyy-MM-dd
+appender.daily.strategy.maxBackups=30
+appender.daily.layout.type=SimpleLayout
+
+# Time-based rolling with date-in-filename naming (replaces DailyFileAppender)
+appender.embed.type=RollingFile
+appender.embed.file=logs/app.log
+appender.embed.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.embed.policy.TIME.datePattern=_yyyy_MM_dd
+appender.embed.policy.STARTUP.type=OnStartupTriggeringPolicy
+appender.embed.strategy.type=Date
+appender.embed.strategy.datePattern=_yyyy_MM_dd
+appender.embed.strategy.mode=Embedded
+appender.embed.strategy.maxBackups=90
+appender.embed.layout.type=SimpleLayout
 
 # Multiple policies (size + startup, OR-combined automatically)
 appender.multi.type=RollingFile

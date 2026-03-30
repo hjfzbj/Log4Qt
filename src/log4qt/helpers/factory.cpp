@@ -56,6 +56,7 @@
 #include "spi/timebasedtriggeringpolicy.h"
 #include "spi/crontriggeringpolicy.h"
 #include "spi/onstartuptriggeringpolicy.h"
+#include "spi/daterolloverstrategy.h"
 #include "spi/defaultrolloverstrategy.h"
 #include "varia/debugappender.h"
 #include "varia/denyallfilter.h"
@@ -244,6 +245,11 @@ TriggeringPolicy *create_on_startup_triggering_policy()
 RolloverStrategy *create_default_rollover_strategy()
 {
     return new DefaultRolloverStrategy;
+}
+
+RolloverStrategy *create_date_rollover_strategy()
+{
+    return new DateRolloverStrategy;
 }
 
 Factory::Factory()
@@ -654,6 +660,10 @@ void Factory::registerDefaultRolloverStrategies()
     mRolloverStrategyRegistry.insert(u"Log4Qt::DefaultRolloverStrategy"_s, create_default_rollover_strategy);
     mRolloverStrategyRegistry.insert(u"DefaultRolloverStrategy"_s, create_default_rollover_strategy);
     mRolloverStrategyRegistry.insert(u"Default"_s, create_default_rollover_strategy);
+
+    mRolloverStrategyRegistry.insert(u"Log4Qt::DateRolloverStrategy"_s, create_date_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"DateRolloverStrategy"_s, create_date_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"Date"_s, create_date_rollover_strategy);
 }
 
 

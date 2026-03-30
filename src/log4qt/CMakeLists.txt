@@ -42,6 +42,7 @@ set(log4qt_SOURCES
     simpletimelayout.cpp                                                                                                                                                                                                                       
     spi/compositetriggeringpolicy.cpp
     spi/crontriggeringpolicy.cpp
+    spi/daterolloverstrategy.cpp
     spi/defaultrolloverstrategy.cpp
     spi/filter.cpp
     spi/onstartuptriggeringpolicy.cpp
@@ -117,6 +118,7 @@ set(log4qt_HEADERS_helpers
 set(log4qt_HEADERS_spi
     spi/compositetriggeringpolicy.h
     spi/crontriggeringpolicy.h
+    spi/daterolloverstrategy.h
     spi/defaultrolloverstrategy.h
     spi/filter.h
     spi/onstartuptriggeringpolicy.h

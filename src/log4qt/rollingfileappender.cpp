@@ -95,19 +95,21 @@ void RollingFileAppender::activateOptions()
         mTriggeringPolicy->activateOptions();
     mRolloverStrategy->activateOptions();
 
-    FileAppender::activateOptions();
-
-    // Check startup trigger after file is open
+    // Check startup trigger BEFORE opening the file — openFile() may truncate
+    bool startupRollover = false;
     if (mTriggeringPolicy)
     {
         qint64 fileSize = 0;
         QFileInfo fi(file());
         if (fi.exists())
             fileSize = fi.size();
-
-        if (mTriggeringPolicy->isStartupTrigger(file(), fileSize))
-            rollOver();
+        startupRollover = mTriggeringPolicy->isStartupTrigger(file(), fileSize);
     }
+
+    FileAppender::activateOptions();
+
+    if (startupRollover)
+        rollOver();
 }
 
 void RollingFileAppender::append(const LoggingEvent &event)
@@ -127,7 +129,9 @@ void RollingFileAppender::rollOver()
                     QLatin1String(mRolloverStrategy->metaObject()->className()));
 
     closeFile();
-    mRolloverStrategy->rollover(file());
+    QString nextFile = mRolloverStrategy->rollover(file());
+    if (nextFile != file())
+        setFile(nextFile);
     FileAppender::openFile();
 }
 
