@@ -18,7 +18,7 @@
  *
  ******************************************************************************/
 
-#include "dailyfileappender.h"
+#include "dailyrollingfileappender.h"
 
 #include "loggingevent.h"
 #include "spi/daterolloverstrategy.h"
@@ -44,7 +44,7 @@ QDate DefaultDateRetriever::currentDate() const
 
 constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
 
-DailyFileAppender::DailyFileAppender(QObject *parent)
+DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
     : RollingFileAppender(parent)
     , mDateRetriever(std::make_shared<DefaultDateRetriever>())
     , mDatePattern(defaultDatePattern)
@@ -52,7 +52,7 @@ DailyFileAppender::DailyFileAppender(QObject *parent)
 {
 }
 
-DailyFileAppender::DailyFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
+DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
     : RollingFileAppender(layout, fileName, parent)
     , mDateRetriever(std::make_shared<DefaultDateRetriever>())
     , mDatePattern(datePattern.isEmpty() ? defaultDatePattern : datePattern)
@@ -60,25 +60,25 @@ DailyFileAppender::DailyFileAppender(const LayoutSharedPtr &layout, const QStrin
 {
 }
 
-QString DailyFileAppender::datePattern() const
+QString DailyRollingFileAppender::datePattern() const
 {
     QMutexLocker locker(&mObjectGuard);
     return mDatePattern;
 }
 
-void DailyFileAppender::setDatePattern(const QString &datePattern)
+void DailyRollingFileAppender::setDatePattern(const QString &datePattern)
 {
     QMutexLocker locker(&mObjectGuard);
     mDatePattern = datePattern;
 }
 
-int DailyFileAppender::keepDays() const
+int DailyRollingFileAppender::keepDays() const
 {
     QMutexLocker locker(&mObjectGuard);
     return mKeepDays;
 }
 
-void DailyFileAppender::setKeepDays(const int keepDays)
+void DailyRollingFileAppender::setKeepDays(const int keepDays)
 {
     QMutexLocker locker(&mObjectGuard);
     mKeepDays = keepDays;
@@ -128,17 +128,17 @@ void deleteObsoleteFiles(
 
 }
 
-void DailyFileAppender::activateOptions()
+void DailyRollingFileAppender::activateOptions()
 {
     QMutexLocker locker(&mObjectGuard);
 
-    Q_ASSERT_X(mDateRetriever, "DailyFileAppender::activateOptions()", "No date retriever set");
+    Q_ASSERT_X(mDateRetriever, "DailyRollingFileAppender::activateOptions()", "No date retriever set");
 
     if (mOriginalFilename.isEmpty())
         mOriginalFilename = file();
 
     // Set up DateRolloverStrategy in Embedded mode for filename construction.
-    // maxBackups=0 because DailyFileAppender manages its own date-based cleanup via keepDays.
+    // maxBackups=0 because DailyRollingFileAppender manages its own date-based cleanup via keepDays.
     auto *strategy = new DateRolloverStrategy;
     strategy->setMode(DateRolloverStrategy::Embedded);
     strategy->setDatePattern(mDatePattern);
@@ -159,9 +159,9 @@ void DailyFileAppender::activateOptions()
     FileAppender::activateOptions();
 }
 
-void DailyFileAppender::append(const LoggingEvent &event)
+void DailyRollingFileAppender::append(const LoggingEvent &event)
 {
-    Q_ASSERT_X(mDateRetriever, "DailyFileAppender::append()", "No date retriever set");
+    Q_ASSERT_X(mDateRetriever, "DailyRollingFileAppender::append()", "No date retriever set");
 
     const auto currentDate(mDateRetriever->currentDate());
 
@@ -186,7 +186,7 @@ void DailyFileAppender::append(const LoggingEvent &event)
     FileAppender::append(event);
 }
 
-void DailyFileAppender::setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever)
+void DailyRollingFileAppender::setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever)
 {
     QMutexLocker locker(&mObjectGuard);
 
@@ -195,4 +195,4 @@ void DailyFileAppender::setDateRetriever(const std::shared_ptr<const IDateRetrie
 
 }
 
-#include "moc_dailyfileappender.cpp"
+#include "moc_dailyrollingfileappender.cpp"

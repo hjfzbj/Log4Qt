@@ -25,7 +25,7 @@
 #include <QtTest>
 
 #include "log4qt/consoleappender.h"
-#include "log4qt/dailyfileappender.h"
+#include "log4qt/dailyrollingfileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
 #include "log4qt/helpers/properties.h"
 #include "log4qt/xmlconfigurator.h"
@@ -350,13 +350,13 @@ void XmlConfiguratorTest::testRealWorldConfig()
     // Verify both appenders exist
     auto appenders = root->appenders();
     ConsoleAppender *consoleApp = nullptr;
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : appenders)
     {
         if (a->name() == u"console"_s)
             consoleApp = qobject_cast<ConsoleAppender *>(a.data());
         else if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
 
     // Console appender

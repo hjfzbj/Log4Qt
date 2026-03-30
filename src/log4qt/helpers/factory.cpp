@@ -45,7 +45,7 @@
 #include "asyncappender.h"
 #include "mainthreadappender.h"
 #include "systemlogappender.h"
-#include "dailyfileappender.h"
+#include "dailyrollingfileappender.h"
 #ifdef Q_OS_WIN
 #include "colorconsoleappender.h"
 #include "wdcappender.h"
@@ -141,7 +141,7 @@ Appender *create_systemlog_appender()
 
 Appender *create_dailyrollingfile_appender()
 {
-    return new DailyFileAppender;
+    return new DailyRollingFileAppender;
 }
 
 #ifdef Q_OS_WIN
@@ -570,8 +570,8 @@ void Factory::registerDefaultAppenders()
     mAppenderRegistry.insert(u"Log4Qt::SystemLogAppender"_s, create_systemlog_appender);
     mAppenderRegistry.insert(u"SystemLog"_s, create_systemlog_appender);
 
-    mAppenderRegistry.insert(u"org.apache.log4j.DailyFileAppender"_s, create_dailyrollingfile_appender);
-    mAppenderRegistry.insert(u"Log4Qt::DailyFileAppender"_s, create_dailyrollingfile_appender);
+    mAppenderRegistry.insert(u"org.apache.log4j.DailyRollingFileAppender"_s, create_dailyrollingfile_appender);
+    mAppenderRegistry.insert(u"Log4Qt::DailyRollingFileAppender"_s, create_dailyrollingfile_appender);
     mAppenderRegistry.insert(u"DailyFile"_s, create_dailyrollingfile_appender);
 #ifdef Q_OS_WIN
     mAppenderRegistry.insert(u"org.apache.log4j.WDCAppender"_s, create_wdc_appender);

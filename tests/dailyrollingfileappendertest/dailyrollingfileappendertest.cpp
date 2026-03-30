@@ -1,4 +1,4 @@
-#include "log4qt/dailyfileappender.h"
+#include "log4qt/dailyrollingfileappender.h"
 
 #include "log4qt/loggingevent.h"
 #include "log4qt/simplelayout.h"
@@ -8,7 +8,7 @@
 #include <QTemporaryDir>
 #include <QtTest/QTest>
 
-using Log4Qt::DailyFileAppender;
+using Log4Qt::DailyRollingFileAppender;
 
 namespace
 {
@@ -32,11 +32,11 @@ private:
 
 }
 
-class DailyFileAppenderTest : public QObject
+class DailyRollingFileAppenderTest : public QObject
 {
     Q_OBJECT
 public:
-    explicit DailyFileAppenderTest(QObject * parent = nullptr) :
+    explicit DailyRollingFileAppenderTest(QObject * parent = nullptr) :
                                 QObject(parent),
                                 mLogDirectory(nullptr),
                                 mAppender(nullptr) {}
@@ -53,28 +53,28 @@ private Q_SLOTS:
 private:
     QTemporaryDir *mLogDirectory;
     std::shared_ptr<DateRetrieverMock> mDateRetriever;
-    DailyFileAppender *mAppender;
+    DailyRollingFileAppender *mAppender;
 };
 
-void DailyFileAppenderTest::init()
+void DailyRollingFileAppenderTest::init()
 {
     mLogDirectory = new QTemporaryDir;
 
     mDateRetriever = std::make_shared<DateRetrieverMock>();
 
-    mAppender = new DailyFileAppender;
+    mAppender = new DailyRollingFileAppender;
     mAppender->setLayout(Log4Qt::LayoutSharedPtr(new Log4Qt::SimpleLayout));
 
     mAppender->setDateRetriever(mDateRetriever);
 }
 
-void DailyFileAppenderTest::cleanup()
+void DailyRollingFileAppenderTest::cleanup()
 {
     delete mAppender;
     delete mLogDirectory;  // destructor will remove temporary directory
 }
 
-void DailyFileAppenderTest::testFileCreation_data()
+void DailyRollingFileAppenderTest::testFileCreation_data()
 {
     QTest::addColumn<QString>("appName");
     QTest::addColumn<QString>("datePattern");
@@ -85,7 +85,7 @@ void DailyFileAppenderTest::testFileCreation_data()
     QTest::newRow("service") << "srv" << "_yyyy_MM_dd" << "srv_2019_07_09.log";
 }
 
-void DailyFileAppenderTest::testFileCreation()
+void DailyRollingFileAppenderTest::testFileCreation()
 {
     mDateRetriever->setCurrentDate(QDate(2019, 7, 9));
 
@@ -105,7 +105,7 @@ void DailyFileAppenderTest::testFileCreation()
     QCOMPARE(fileInfo.fileName(), fileName);
 }
 
-void DailyFileAppenderTest::testAppend()
+void DailyRollingFileAppenderTest::testAppend()
 {
     mAppender->setFile(mLogDirectory->path() + QLatin1Char('/') + QStringLiteral("app.log"));
     mAppender->activateOptions();
@@ -124,7 +124,7 @@ void DailyFileAppenderTest::testAppend()
     QVERIFY(logFile.size() > 0);
 }
 
-void DailyFileAppenderTest::testRollOver()
+void DailyRollingFileAppenderTest::testRollOver()
 {
     mAppender->setFile(mLogDirectory->path() + QLatin1Char('/') + QStringLiteral("app.log"));
     mAppender->activateOptions();
@@ -160,7 +160,7 @@ void createFile(const QString& fileName)
 
 }
 
-void DailyFileAppenderTest::testObsoleteLogFileDeletion()
+void DailyRollingFileAppenderTest::testObsoleteLogFileDeletion()
 {
     const QString deleteOnActivateFileName = mLogDirectory->path() + QLatin1Char('/') + QStringLiteral("app_2019_01_05.log");
 
@@ -211,6 +211,6 @@ void DailyFileAppenderTest::testObsoleteLogFileDeletion()
     QVERIFY(QFileInfo::exists(alwaysKeptFileName));
 }
 
-QTEST_GUILESS_MAIN(DailyFileAppenderTest)
+QTEST_GUILESS_MAIN(DailyRollingFileAppenderTest)
 
-#include "dailyfileappendertest.moc"
+#include "dailyrollingfileappendertest.moc"

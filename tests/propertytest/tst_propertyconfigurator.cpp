@@ -24,7 +24,7 @@
 #include <QtTest>
 
 #include "log4qt/consoleappender.h"
-#include "log4qt/dailyfileappender.h"
+#include "log4qt/dailyrollingfileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
 #include "log4qt/helpers/properties.h"
 #include "log4qt/logger.h"
@@ -288,7 +288,7 @@ void PropertyConfiguratorTest::testVariableSubstitution()
     QVERIFY(PropertyConfigurator::configure(props));
 
     Logger *root = LogManager::rootLogger();
-    auto *dailyApp = qobject_cast<DailyFileAppender *>(root->appenders().first().data());
+    auto *dailyApp = qobject_cast<DailyRollingFileAppender *>(root->appenders().first().data());
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"myapp"_s));
     QCOMPARE(dailyApp->appendFile(), true);
@@ -457,13 +457,13 @@ void PropertyConfiguratorTest::testRealWorldConfig()
     // Verify both appenders exist
     auto appenders = root->appenders();
     ConsoleAppender *consoleApp = nullptr;
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : appenders)
     {
         if (a->name() == u"console"_s)
             consoleApp = qobject_cast<ConsoleAppender *>(a.data());
         else if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
 
     // Console appender
@@ -612,7 +612,7 @@ void PropertyConfiguratorTest::testLegacyRealWorldConfig()
         "log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz\n"
         "log4j.appender.console.layout.contextPrinting=true\n"
         "\n"
-        "log4j.appender.daily=Log4Qt::DailyFileAppender\n"
+        "log4j.appender.daily=Log4Qt::DailyRollingFileAppender\n"
         "log4j.appender.daily.file=${logpath}/myapp.log\n"
         "log4j.appender.daily.appendFile=true\n"
         "log4j.appender.daily.datePattern=_yyyy_MM_dd\n"
@@ -636,13 +636,13 @@ void PropertyConfiguratorTest::testLegacyRealWorldConfig()
     // Verify both appenders exist
     auto appenders = root->appenders();
     ConsoleAppender *consoleApp = nullptr;
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : appenders)
     {
         if (a->name() == u"console"_s)
             consoleApp = qobject_cast<ConsoleAppender *>(a.data());
         else if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
 
     // Console appender
@@ -674,7 +674,7 @@ void PropertyConfiguratorTest::testLegacyVariableSubstitution()
     // Variable defined without log4j. prefix, used in log4j. keys
     Properties props;
     props.setProperty(u"logpath"_s, logDir);
-    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyRollingFileAppender"_s);
     props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
     props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
     props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
@@ -684,7 +684,7 @@ void PropertyConfiguratorTest::testLegacyVariableSubstitution()
     QVERIFY(PropertyConfigurator::configure(props));
 
     Logger *root = LogManager::rootLogger();
-    auto *dailyApp = qobject_cast<DailyFileAppender *>(root->appenders().first().data());
+    auto *dailyApp = qobject_cast<DailyRollingFileAppender *>(root->appenders().first().data());
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"app"_s));
     QVERIFY(dailyApp->file().contains(logDir));
@@ -704,7 +704,7 @@ void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
     props.setProperty(u"log4j.appender.console"_s, u"org.apache.log4j.ConsoleAppender"_s);
     props.setProperty(u"log4j.appender.console.layout"_s, u"org.apache.log4j.TTCCLayout"_s);
     props.setProperty(u"log4j.appender.console.layout.dateFormat"_s, u"ISO8601"_s);
-    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyRollingFileAppender"_s);
     props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
     props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
     props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
@@ -717,11 +717,11 @@ void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
     Logger *root = LogManager::rootLogger();
     QCOMPARE(root->appenders().count(), 2);
 
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : root->appenders())
     {
         if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
     QVERIFY(dailyApp);
     auto *ttcc = qobject_cast<TTCCLayout *>(dailyApp->layout().data());

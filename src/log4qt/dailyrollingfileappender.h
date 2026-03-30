@@ -18,8 +18,8 @@
  *
  ******************************************************************************/
 
-#ifndef LOG4QT_DAILYFILEAPPENDER_H
-#define LOG4QT_DAILYFILEAPPENDER_H
+#ifndef LOG4QT_DAILYROLLINGFILEAPPENDER_H
+#define LOG4QT_DAILYROLLINGFILEAPPENDER_H
 
 #include "rollingfileappender.h"
 
@@ -49,10 +49,10 @@ public:
 };
 
 /*!
- * \brief The class DailyFileAppender extends FileAppender so that the
+ * \brief The class DailyRollingFileAppender extends FileAppender so that the
  * a log file is created for each day
  */
-class LOG4QT_EXPORT DailyFileAppender : public RollingFileAppender
+class LOG4QT_EXPORT DailyRollingFileAppender : public RollingFileAppender
 {
     Q_OBJECT
 
@@ -67,8 +67,8 @@ class LOG4QT_EXPORT DailyFileAppender : public RollingFileAppender
     Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
 
 public:
-    explicit DailyFileAppender(QObject *parent = nullptr);
-    DailyFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern = QString(), int keepDays = 0, QObject *parent = nullptr);
+    explicit DailyRollingFileAppender(QObject *parent = nullptr);
+    DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern = QString(), int keepDays = 0, QObject *parent = nullptr);
 
     QString datePattern() const;
     void setDatePattern(const QString &datePattern);
@@ -84,7 +84,7 @@ protected:
     void append(const LoggingEvent &event) override;
 
 private:
-    Q_DISABLE_COPY_MOVE(DailyFileAppender)
+    Q_DISABLE_COPY_MOVE(DailyRollingFileAppender)
 
     std::shared_ptr<const IDateRetriever> mDateRetriever;
 
@@ -98,4 +98,4 @@ private:
 
 }
 
-#endif // LOG4QT_DAILYFILEAPPENDER_H
+#endif // LOG4QT_DAILYROLLINGFILEAPPENDER_H

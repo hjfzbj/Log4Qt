@@ -770,7 +770,7 @@ void PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator()
 
 void PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator()
 {
-    // Replaces DailyFileAppender: RollingFile + TimeBased + OnStartup + Date(Embedded)
+    // Replaces DailyRollingFileAppender: RollingFile + TimeBased + OnStartup + Date(Embedded)
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());
 
