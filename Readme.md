@@ -36,7 +36,7 @@ Additional features
 * LogStream (qDebug()-style log messages appending)
 * MainThreadAppender (Proxy appender for sending log messages through event loop)
 * XMLLayout to support apache chainsaw
-* DailyFileAppender which generates a logfile for each day (add current date formatted to the filename)
+* DailyRollingFileAppender which generates a logfile for each day (add current date formatted to the filename)
 * Binary logger
 * Windows Debug Console Appender
 

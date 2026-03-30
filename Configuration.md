@@ -83,7 +83,7 @@ arbitrary identifier used to reference the appender from loggers.
 | `Console` | ConsoleAppender | Writes to stdout/stderr. |
 | `File` | FileAppender | Writes to a single file. |
 | `RollingFile` | RollingFileAppender | File with policy/strategy-based rotation. |
-| `DailyFile` | DailyFileAppender | Daily file with configurable retention. |
+| `DailyFile` | DailyRollingFileAppender | Daily file with configurable retention. |
 | `Async` | AsyncAppender | Asynchronous wrapper appender. |
 | `MainThread` | MainThreadAppender | Dispatches to the main thread. |
 | `Signal` | SignalAppender | Emits a Qt signal per log event. |
@@ -191,7 +191,7 @@ appender.daily.strategy.datePattern='.'yyyy-MM-dd
 appender.daily.strategy.maxBackups=30
 appender.daily.layout.type=SimpleLayout
 
-# Time-based rolling with date-in-filename naming (replaces DailyFileAppender)
+# Time-based rolling with date-in-filename naming (replaces DailyRollingFileAppender)
 appender.embed.type=RollingFile
 appender.embed.file=logs/app.log
 appender.embed.policy.TIME.type=TimeBasedTriggeringPolicy
@@ -567,7 +567,7 @@ log4j.appender.console.target=STDOUT_TARGET
 log4j.appender.console.layout=org.apache.log4j.TTCCLayout
 log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz
 
-log4j.appender.daily=Log4Qt::DailyFileAppender
+log4j.appender.daily=Log4Qt::DailyRollingFileAppender
 log4j.appender.daily.file=${logpath}/app.log
 log4j.appender.daily.appendFile=true
 log4j.appender.daily.datePattern=_yyyy_MM_dd

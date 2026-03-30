@@ -29,15 +29,21 @@ All notable changes to this project will be documented in this file.
     automatically when multiple policies are added to an appender.
   - `DefaultRolloverStrategy` -- fixed-window numbered backup rotation
     (configurable min/max index).
+  - `DateRolloverStrategy` -- date-based rotation with two naming modes:
+    `Suffix` (e.g. `app.log.2026-03-28`) and `Embedded` (e.g.
+    `app_2026-03-28.log`). Supports a configurable `maxBackups` limit and
+    a `DateTimeProvider` callback for test mockability. Backup files are
+    named after the period they belong to, and obsolete files are cleaned
+    up asynchronously.
   - New `CronExpression` helper class for parsing and evaluating Quartz-style
     cron expressions.
   - Policies and strategies are configured via
     `appender.X.policy.<alias>.type` and `appender.X.strategy.type` keys.
   - Factory registration with short aliases (`SizeBased`, `TimeBased`,
-    `Cron`, `OnStartup`, `Default`).
+    `Cron`, `OnStartup`, `Default`, `Date`).
 - Dedicated PropertyConfigurator unit test suite (`tests/propertytest`).
-- Dedicated policy/strategy unit test suite (`tests/policytest`) with 72
-  test cases covering all triggering policies, rollover strategy, cron
+- Dedicated policy/strategy unit test suite (`tests/policytest`) with 91
+  test cases covering all triggering policies, rollover strategies, cron
   expression parsing, factory registration, and configurator integration.
 
 ### Changed
@@ -71,6 +77,16 @@ All notable changes to this project will be documented in this file.
 - Performance optimizations
 - Modernize codebase to C++20 standard
 
+### Changed (continued)
+- **Breaking:** `DailyFileAppender` renamed to `DailyRollingFileAppender` and
+  refactored to inherit from `RollingFileAppender`. It now delegates rollover
+  to `DateRolloverStrategy(Embedded)` instead of implementing its own file
+  naming logic. The `IDateRetriever` testability interface is preserved via
+  `DateTimeProvider`. The factory short alias `DailyFile` is unchanged.
+- **Breaking:** Removed the old `DailyRollingFileAppender` class (suffix-based
+  daily rotation). Use `RollingFileAppender` with `TimeBasedTriggeringPolicy`
+  and `DateRolloverStrategy(Suffix)` instead.
+
 ### Deprecated / Removed
 - Removed qmake support
 - Removed binary logger
@@ -95,7 +111,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v1.5.1] - 14.02.2020
 ### Improvements
-- Automatically delete files written by DailyFileAppender after a configurable period of time.
+- Automatically delete files written by DailyRollingFileAppender (formerly DailyFileAppender) after a configurable period of time.
 
 ## [v1.5.0] - 25.06.2018
 ### Improvements
