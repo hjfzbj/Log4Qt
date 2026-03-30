@@ -83,7 +83,6 @@ arbitrary identifier used to reference the appender from loggers.
 | `Console` | ConsoleAppender | Writes to stdout/stderr. |
 | `File` | FileAppender | Writes to a single file. |
 | `RollingFile` | RollingFileAppender | File with policy/strategy-based rotation. |
-| `DailyRollingFile` | DailyRollingFileAppender | File with date-based rotation. |
 | `DailyFile` | DailyFileAppender | Daily file with configurable retention. |
 | `Async` | AsyncAppender | Asynchronous wrapper appender. |
 | `MainThread` | MainThreadAppender | Dispatches to the main thread. |

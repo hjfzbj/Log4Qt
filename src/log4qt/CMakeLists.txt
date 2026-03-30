@@ -7,7 +7,6 @@ set(log4qt_SOURCES
     basicconfigurator.cpp
     consoleappender.cpp
     dailyfileappender.cpp
-    dailyrollingfileappender.cpp
     fileappender.cpp
     helpers/appenderattachable.cpp
     helpers/classlogger.cpp
@@ -70,7 +69,6 @@ set(log4qt_HEADERS
     basicconfigurator.h
     consoleappender.h
     dailyfileappender.h
-    dailyrollingfileappender.h
     fileappender.h
     hierarchy.h
     jsonconfigurator.h

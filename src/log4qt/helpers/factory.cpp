@@ -21,7 +21,6 @@
 #include "helpers/factory.h"
 
 #include "consoleappender.h"
-#include "dailyrollingfileappender.h"
 #include "fileappender.h"
 #include "helpers/logerror.h"
 #include "helpers/initialisationhelper.h"
@@ -79,11 +78,6 @@ LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::Factory)
 Appender *console_file_appender()
 {
     return new ConsoleAppender;
-}
-
-Appender *create_daily_rolling_file_appender()
-{
-    return new DailyRollingFileAppender;
 }
 
 Appender *create_debug_appender()
@@ -528,9 +522,6 @@ void Factory::registerDefaultAppenders()
     mAppenderRegistry.insert(u"org.apache.log4j.ConsoleAppender"_s, console_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::ConsoleAppender"_s, console_file_appender);
     mAppenderRegistry.insert(u"Console"_s, console_file_appender);
-    mAppenderRegistry.insert(u"org.apache.log4j.DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
-    mAppenderRegistry.insert(u"Log4Qt::DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
-    mAppenderRegistry.insert(u"DailyRollingFile"_s, create_daily_rolling_file_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.varia.DebugAppender"_s, create_debug_appender);
     mAppenderRegistry.insert(u"Log4Qt::DebugAppender"_s, create_debug_appender);
     mAppenderRegistry.insert(u"Debug"_s, create_debug_appender);

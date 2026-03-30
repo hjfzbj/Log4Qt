@@ -768,10 +768,6 @@ void Log4QtTest::Factory_createAppender_data()
             << "org.apache.log4j.ConsoleAppender" << "Log4Qt::ConsoleAppender" << 0;
     QTest::newRow("ConsoleAppender cpp")
             << "Log4Qt::ConsoleAppender" << "Log4Qt::ConsoleAppender" << 0;
-    QTest::newRow("DailyRollingFileAppender java")
-            << "org.apache.log4j.DailyRollingFileAppender" << "Log4Qt::DailyRollingFileAppender" << 0;
-    QTest::newRow("DailyRollingFileAppender cpp")
-            << "Log4Qt::DailyRollingFileAppender" << "Log4Qt::DailyRollingFileAppender" << 0;
     QTest::newRow("DebugAppender java")
             << "org.apache.log4j.varia.DebugAppender" << "Log4Qt::DebugAppender" << 0;
     QTest::newRow("DebugAppender cpp")
