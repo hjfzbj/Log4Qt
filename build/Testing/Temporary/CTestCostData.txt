@@ -1,0 +1,11 @@
+dailyfileappendertest 6 0.0412316
+jsontest 8 0.0150144
+log4qttest 3 49.8223
+filewatchertest 1 0
+performancetest 4 3363.29
+qstring_benchmark 4 0.765049
+propertytest 8 0.0204841
+xmltest 8 0.0147949
+policytest 7 0.192034
+dailyrollingfileappendertest 2 0.0814013
+---

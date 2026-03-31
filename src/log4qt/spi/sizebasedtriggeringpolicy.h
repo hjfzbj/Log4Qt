@@ -49,12 +49,14 @@ class LOG4QT_EXPORT SizeBasedTriggeringPolicy : public TriggeringPolicy
     Q_PROPERTY(QString maxFileSize READ maxFileSize WRITE setMaxFileSize)
 
 public:
+    static constexpr qint64 defaultMaximumFileSize = 10LL * 1024 * 1024;
+
     explicit SizeBasedTriggeringPolicy(QObject *parent = nullptr);
 
-    qint64 maximumFileSize() const;
+    [[nodiscard]] qint64 maximumFileSize() const;
     void setMaximumFileSize(qint64 maximumFileSize);
 
-    QString maxFileSize() const;
+    [[nodiscard]] QString maxFileSize() const;
     void setMaxFileSize(const QString &maxFileSize);
 
     bool isTriggeringEvent(QIODevice *activeDevice,

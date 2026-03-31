@@ -81,11 +81,11 @@ private:
 
 private:
     Properties *mpDefaultProperties;
-    static const char msEscapeChar;
-    static const char *msValueEscapeCodes;
-    static const char *msValueEscapeChars;
-    static const char *msKeyEscapeCodes;
-    static const char *msKeyEscapeChars;
+    static constexpr char msEscapeChar = '\\';
+    static constexpr char msValueEscapeCodes[] = R"(tnr\"' )";
+    static constexpr char msValueEscapeChars[] = "\t\n\r\\\"\' ";
+    static constexpr char msKeyEscapeCodes[] = " :=";
+    static constexpr char msKeyEscapeChars[] = " :=";
 };
 
 inline Properties::Properties(Properties *pDefaultProperties) :

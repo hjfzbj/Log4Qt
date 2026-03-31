@@ -1,0 +1,486 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4C6A56DA-7F20-3671-A328-DD22DC4EF429}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>log4qttest</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Workspace\log4qt\build\bin\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">log4qttest.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">log4qttest</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Workspace\log4qt\build\bin\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">log4qttest.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">log4qttest</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Workspace\log4qt\build\bin\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">log4qttest.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">log4qttest</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Workspace\log4qt\build\bin\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">log4qttest.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">log4qttest</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/tests/log4qttest/log4qttest_autogen/include_Debug" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtTest" -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;QT_CORE_LIB;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR="C:/Workspace/log4qt/build/tests/log4qttest";QT_TESTCASE_SOURCEDIR="C:/Workspace/log4qt/tests/log4qttest";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;QT_CORE_LIB;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR=\"C:/Workspace/log4qt/build/tests/log4qttest\";QT_TESTCASE_SOURCEDIR=\"C:/Workspace/log4qt/tests/log4qttest\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_Debug;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_Debug;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qttest</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\tests\log4qttest
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/log4qttest_autogen.dir/AutogenInfo.json Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\src\log4qt\Debug\log4qt_d.lib;C:\Workspace\qt6base-build\lib\Qt6Testd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/tests/log4qttest/Debug/log4qttest.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/Debug/log4qttest.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/tests/log4qttest/log4qttest_autogen/include_Release" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtTest" -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR="C:/Workspace/log4qt/build/tests/log4qttest";QT_TESTCASE_SOURCEDIR="C:/Workspace/log4qt/tests/log4qttest";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR=\"C:/Workspace/log4qt/build/tests/log4qttest\";QT_TESTCASE_SOURCEDIR=\"C:/Workspace/log4qt/tests/log4qttest\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_Release;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_Release;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qttest</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\tests\log4qttest
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/log4qttest_autogen.dir/AutogenInfo.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\src\log4qt\Release\log4qt.lib;C:\Workspace\qt6base-build\lib\Qt6Testd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/tests/log4qttest/Release/log4qttest.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/Release/log4qttest.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/tests/log4qttest/log4qttest_autogen/include_MinSizeRel" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtTest" -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR="C:/Workspace/log4qt/build/tests/log4qttest";QT_TESTCASE_SOURCEDIR="C:/Workspace/log4qt/tests/log4qttest";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR=\"C:/Workspace/log4qt/build/tests/log4qttest\";QT_TESTCASE_SOURCEDIR=\"C:/Workspace/log4qt/tests/log4qttest\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_MinSizeRel;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_MinSizeRel;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qttest</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\tests\log4qttest
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/log4qttest_autogen.dir/AutogenInfo.json MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\src\log4qt\MinSizeRel\log4qt.lib;C:\Workspace\qt6base-build\lib\Qt6Testd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/tests/log4qttest/MinSizeRel/log4qttest.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/MinSizeRel/log4qttest.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/tests/log4qttest/log4qttest_autogen/include_RelWithDebInfo" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtTest" -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR="C:/Workspace/log4qt/build/tests/log4qttest";QT_TESTCASE_SOURCEDIR="C:/Workspace/log4qt/tests/log4qttest";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;UNICODE;_UNICODE;QT_TESTLIB_LIB;QT_TESTCASE_BUILDDIR=\"C:/Workspace/log4qt/build/tests/log4qttest\";QT_TESTCASE_SOURCEDIR=\"C:/Workspace/log4qt/tests/log4qttest\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_RelWithDebInfo;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\tests\log4qttest;C:\Workspace\log4qt\tests\log4qttest;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\include_RelWithDebInfo;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtTest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qttest</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\tests\log4qttest
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/log4qttest_autogen.dir/AutogenInfo.json RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\src\log4qt\RelWithDebInfo\log4qt.lib;C:\Workspace\qt6base-build\lib\Qt6Testd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/tests/log4qttest/RelWithDebInfo/log4qttest.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/RelWithDebInfo/log4qttest.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Workspace\log4qt\tests\log4qttest\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Workspace/log4qt/tests/log4qttest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeFindDependencyMacro.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXCompilerFlag.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Config.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigExtras.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Dependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Targets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6VersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeature.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeatureCommon.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtInstallPaths.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicAppleHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeVersionHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicDependencyHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicExternalProjectHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFinalizerHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFindPackageHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicGitHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicPluginHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomGenerationHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTargetHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTestHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicToolHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicWalkLibsHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestAdditionalTargetInfo.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfig.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestDependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestVersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\QtTestProperties.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Workspace\log4qt\build\tests\log4qttest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Workspace/log4qt/tests/log4qttest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeFindDependencyMacro.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXCompilerFlag.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Config.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigExtras.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Dependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Targets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6VersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeature.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeatureCommon.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtInstallPaths.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicAppleHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeVersionHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicDependencyHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicExternalProjectHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFinalizerHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFindPackageHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicGitHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicPluginHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomGenerationHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTargetHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTestHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicToolHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicWalkLibsHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestAdditionalTargetInfo.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfig.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestDependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestVersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\QtTestProperties.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Workspace\log4qt\build\tests\log4qttest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Workspace/log4qt/tests/log4qttest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeFindDependencyMacro.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXCompilerFlag.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Config.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigExtras.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Dependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Targets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6VersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeature.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeatureCommon.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtInstallPaths.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicAppleHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeVersionHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicDependencyHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicExternalProjectHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFinalizerHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFindPackageHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicGitHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicPluginHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomGenerationHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTargetHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTestHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicToolHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicWalkLibsHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestAdditionalTargetInfo.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfig.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestDependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestVersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\QtTestProperties.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Workspace\log4qt\build\tests\log4qttest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Workspace/log4qt/tests/log4qttest/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/tests/log4qttest/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-4.3\Modules\CMakeFindDependencyMacro.cmake;C:\Program Files\CMake\share\cmake-4.3\Modules\CheckCXXCompilerFlag.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Config.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigExtras.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6ConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Dependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6Targets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\Qt6VersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeature.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtFeatureCommon.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtInstallPaths.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicAppleHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicCMakeVersionHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicDependencyHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicExternalProjectHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFinalizerHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicFindPackageHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicGitHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicPluginHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomGenerationHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicSbomHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTargetHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicTestHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicToolHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6\QtPublicWalkLibsHelpers.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestAdditionalTargetInfo.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfig.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersion.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestConfigVersionImpl.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestDependencies.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\Qt6TestVersionlessAliasTargets.cmake;C:\Workspace\qt6base-build\lib\cmake\Qt6Test\QtTestProperties.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Workspace\log4qt\build\tests\log4qttest\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\mocs_compilation_Debug.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\tests\log4qttest\log4qttest.cpp" />
+    <ClInclude Include="C:\Workspace\log4qt\tests\log4qttest\log4qttest.h" />
+    <ClCompile Include="C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\mocs_compilation_Release.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\mocs_compilation_MinSizeRel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\build\tests\log4qttest\log4qttest_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Workspace\log4qt\build\ZERO_CHECK.vcxproj">
+      <Project>{5BE077E3-A9E1-37FA-B608-0975B40498AB}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Workspace\log4qt\build\src\log4qt\log4qt.vcxproj">
+      <Project>{6A7315BA-3A83-31F5-96D2-EE1DFD7C9B57}</Project>
+      <Name>log4qt</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

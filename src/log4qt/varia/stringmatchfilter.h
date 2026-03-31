@@ -56,8 +56,8 @@ class LOG4QT_EXPORT StringMatchFilter : public Filter
 public:
     StringMatchFilter(QObject *parent = nullptr);
 
-    bool acceptOnMatch() const;
-    QString stringToMatch() const;
+    [[nodiscard]] bool acceptOnMatch() const;
+    [[nodiscard]] QString stringToMatch() const;
     void setAcceptOnMatch(bool accept);
     void setStringToMatch(const QString &string, Qt::CaseSensitivity cs = Qt::CaseSensitive);
 

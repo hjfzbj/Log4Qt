@@ -88,16 +88,16 @@ public:
 
     explicit DateRolloverStrategy(QObject *parent = nullptr);
 
-    QString datePattern() const;
+    [[nodiscard]] QString datePattern() const;
     void setDatePattern(const QString &datePattern);
 
-    NamingMode mode() const;
+    [[nodiscard]] NamingMode mode() const;
     void setMode(NamingMode mode);
 
-    QString modeString() const;
+    [[nodiscard]] QString modeString() const;
     void setModeString(const QString &mode);
 
-    int maxBackups() const;
+    [[nodiscard]] int maxBackups() const;
     void setMaxBackups(int maxBackups);
 
     void setDateTimeProvider(DateTimeProvider provider);

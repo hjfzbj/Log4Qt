@@ -1,0 +1,78 @@
+Start testing: Mar 30 21:57 W. Europe Daylight Time
+----------------------------------------------------------
+1/9 Testing: dailyrollingfileappendertest
+1/9 Test: dailyrollingfileappendertest
+Command: "C:/Workspace/log4qt/build/bin/Debug/dailyrollingfileappendertest.exe"
+Directory: C:/Workspace/log4qt/build/tests/dailyrollingfileappendertest
+"dailyrollingfileappendertest" start time: Mar 30 21:57 W. Europe Daylight Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"dailyrollingfileappendertest" end time: Mar 30 21:57 W. Europe Daylight Time
+"dailyrollingfileappendertest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/9 Testing: jsontest
+2/9 Test: jsontest
+Command: "C:/Workspace/log4qt/build/bin/Debug/jsontest.exe"
+Directory: C:/Workspace/log4qt/build/tests/jsontest
+"jsontest" start time: Mar 30 21:57 W. Europe Daylight Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"jsontest" end time: Mar 30 21:57 W. Europe Daylight Time
+"jsontest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/9 Testing: policytest
+7/9 Test: policytest
+Command: "C:/Workspace/log4qt/build/bin/Debug/policytest.exe"
+Directory: C:/Workspace/log4qt/build/tests/policytest
+"policytest" start time: Mar 30 21:57 W. Europe Daylight Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.34 sec
+----------------------------------------------------------
+Test Passed.
+"policytest" end time: Mar 30 21:57 W. Europe Daylight Time
+"policytest" time elapsed: 00:00:01
+----------------------------------------------------------
+
+8/9 Testing: propertytest
+8/9 Test: propertytest
+Command: "C:/Workspace/log4qt/build/bin/Debug/propertytest.exe"
+Directory: C:/Workspace/log4qt/build/tests/propertytest
+"propertytest" start time: Mar 30 21:57 W. Europe Daylight Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"propertytest" end time: Mar 30 21:57 W. Europe Daylight Time
+"propertytest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/9 Testing: xmltest
+9/9 Test: xmltest
+Command: "C:/Workspace/log4qt/build/bin/Debug/xmltest.exe"
+Directory: C:/Workspace/log4qt/build/tests/xmltest
+"xmltest" start time: Mar 30 21:57 W. Europe Daylight Time
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"xmltest" end time: Mar 30 21:57 W. Europe Daylight Time
+"xmltest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 30 21:57 W. Europe Daylight Time

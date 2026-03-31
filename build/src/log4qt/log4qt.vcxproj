@@ -1,0 +1,625 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6A7315BA-3A83-31F5-96D2-EE1DFD7C9B57}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>log4qt</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Workspace\log4qt\build\bin\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">log4qt.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">log4qt_d</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Workspace\log4qt\build\bin\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">log4qt.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">log4qt</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Workspace\log4qt\build\bin\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">log4qt.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">log4qt</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Workspace\log4qt\build\bin\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">log4qt.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">log4qt</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_Debug" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtConcurrent" /w34265 -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4127;4512;4267;4913</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4265</TreatSpecificWarningsAsErrors>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR="2.0.0";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR="Debug";log4qt_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR=\"2.0.0\";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR=\"Debug\";log4qt_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_Debug;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_Debug;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qt</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\src\log4qt
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenInfo.json Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\Workspace\qt6base-build\lib\Qt6Concurrentd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/src/log4qt/Debug/log4qt_d.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/Debug/log4qt_d.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>2.0</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_Release" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtConcurrent" /w34265 -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4127;4512;4267;4913</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4265</TreatSpecificWarningsAsErrors>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR="2.0.0";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR="Release";log4qt_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR=\"2.0.0\";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR=\"Release\";log4qt_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_Release;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_Release;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qt</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\src\log4qt
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenInfo.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\Workspace\qt6base-build\lib\Qt6Concurrentd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/src/log4qt/Release/log4qt.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/Release/log4qt.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>2.0</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_MinSizeRel" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtConcurrent" /w34265 -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4127;4512;4267;4913</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4265</TreatSpecificWarningsAsErrors>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR="2.0.0";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR="MinSizeRel";log4qt_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR=\"2.0.0\";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR=\"MinSizeRel\";log4qt_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_MinSizeRel;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_MinSizeRel;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qt</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\src\log4qt
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenInfo.json MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\Workspace\qt6base-build\lib\Qt6Concurrentd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/src/log4qt/MinSizeRel/log4qt.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/MinSizeRel/log4qt.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>2.0</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_RelWithDebInfo" /external:I "C:/Workspace/qt6base-build/include" /external:I "C:/Workspace/qt6base-build/include/QtCore" /external:I "C:/Workspace/qt6base-build/mkspecs/win32-msvc" /external:I "C:/Workspace/qt6base-build/include/QtConcurrent" /w34265 -Zc:__cplusplus -utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck></BufferSecurityCheck>
+      <CallingConvention></CallingConvention>
+      <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4127;4512;4267;4913</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <FloatingPointModel></FloatingPointModel>
+      <ForceConformanceInForLoopScope></ForceConformanceInForLoopScope>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RemoveUnreferencedCodeData></RemoveUnreferencedCodeData>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <SupportJustMyCode></SupportJustMyCode>
+      <TreatSpecificWarningsAsErrors>4265</TreatSpecificWarningsAsErrors>
+      <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR="2.0.0";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR="RelWithDebInfo";log4qt_EXPORTS</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;QT_USE_QSTRINGBUILDER;QT_NO_CAST_TO_ASCII;QT_NO_URL_CAST_FROM_STRING;QT_DEPRECATED_WARNINGS;QT_DISABLE_DEPRECATED_BEFORE=0x060400;UNICODE;_UNICODE;LOG4QT_VERSION_STR=\"2.0.0\";LOG4QT_VERSION_MAJOR=2;LOG4QT_VERSION_MINOR=0;LOG4QT_VERSION_PATCH=0;NOMINMAX;LOG4QT_LIBRARY;QT_CORE_LIB;QT_NO_DEBUG;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;_WIN64;QT_CONCURRENT_LIB;CMAKE_INTDIR=\"RelWithDebInfo\";log4qt_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_RelWithDebInfo;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Workspace\log4qt\build\src\log4qt;C:\Workspace\log4qt\src\log4qt;C:\Workspace\log4qt\src;C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\include_RelWithDebInfo;C:\Workspace\qt6base-build\include;C:\Workspace\qt6base-build\include\QtCore;C:\Workspace\qt6base-build\mkspecs\win32-msvc;C:\Workspace\qt6base-build\include\QtConcurrent;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target log4qt</Message>
+      <Command>setlocal
+cd C:\Workspace\log4qt\build\src\log4qt
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenInfo.json RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Link>
+      <AdditionalDependencies>C:\Workspace\qt6base-build\lib\Qt6Concurrentd.lib;C:\Workspace\qt6base-build\lib\Qt6Cored.lib;mpr.lib;userenv.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <DataExecutionPrevention></DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
+      <ImportLibrary>C:/Workspace/log4qt/build/src/log4qt/RelWithDebInfo/log4qt.lib</ImportLibrary>
+      <LinkErrorReporting></LinkErrorReporting>
+      <ProgramDataBaseFile>C:/Workspace/log4qt/build/bin/RelWithDebInfo/log4qt.pdb</ProgramDataBaseFile>
+      <RandomizedBaseAddress></RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <Version>2.0</Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Workspace\log4qt\src\log4qt\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Workspace/log4qt/src/log4qt/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Workspace\log4qt\build\src\log4qt\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Workspace/log4qt/src/log4qt/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Workspace\log4qt\build\src\log4qt\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Workspace/log4qt/src/log4qt/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Workspace\log4qt\build\src\log4qt\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Workspace/log4qt/src/log4qt/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-file C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Workspace\log4qt\build\src\log4qt\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\mocs_compilation_Debug.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\appender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\appenderskeleton.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\asyncappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\basicconfigurator.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\consoleappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\dailyrollingfileappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\fileappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\appenderattachable.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\classlogger.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\configuratorhelper.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\cronexpression.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\datetime.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\dispatcher.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\factory.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\initialisationhelper.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\logerror.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\optionconverter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\patternformatter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\properties.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\helpers\timestampprovider.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\hierarchy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\jsonconfigurator.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\layout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\level.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\logger.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\loggerrepository.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\loggingevent.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\logmanager.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\logstream.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\mainthreadappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\mdc.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\ndc.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\patternlayout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\propertyconfigurator.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\rollingfileappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\signalappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\simplelayout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\simpletimelayout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\compositetriggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\crontriggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\daterolloverstrategy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\defaultrolloverstrategy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\filter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\onstartuptriggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\rolloverstrategy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\sizebasedtriggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\timebasedtriggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\spi\triggeringpolicy.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\systemlogappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\ttcclayout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\debugappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\denyallfilter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\levelmatchfilter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\levelrangefilter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\listappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\nullappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\varia\stringmatchfilter.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\writerappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\xmlconfigurator.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\xmllayout.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\wdcappender.cpp" />
+    <ClCompile Include="C:\Workspace\log4qt\src\log4qt\colorconsoleappender.cpp" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\appender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\appenderskeleton.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\asyncappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\basicconfigurator.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\consoleappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\dailyrollingfileappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\fileappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\hierarchy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\jsonconfigurator.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\layout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\level.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\log4qtdefs.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\log4qt.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\log4qtshared.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\log4qtsharedptr.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\logger.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\loggerrepository.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\loggingevent.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\logmanager.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\logstream.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\mainthreadappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\mdc.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\ndc.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\patternlayout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\propertyconfigurator.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\rollingfileappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\signalappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\simplelayout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\simpletimelayout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\systemlogappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\ttcclayout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\writerappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\xmlconfigurator.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\xmllayout.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\wdcappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\colorconsoleappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\appenderattachable.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\classlogger.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\configuratorhelper.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\cronexpression.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\datetime.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\dispatcher.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\factory.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\initialisationhelper.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\logerror.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\optionconverter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\patternformatter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\properties.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\helpers\timestampprovider.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\compositetriggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\crontriggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\daterolloverstrategy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\defaultrolloverstrategy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\filter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\onstartuptriggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\rolloverstrategy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\sizebasedtriggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\timebasedtriggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\spi\triggeringpolicy.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\debugappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\denyallfilter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\levelmatchfilter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\levelrangefilter.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\listappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\nullappender.h" />
+    <ClInclude Include="C:\Workspace\log4qt\src\log4qt\varia\stringmatchfilter.h" />
+    <ClCompile Include="C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\mocs_compilation_Release.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\mocs_compilation_MinSizeRel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Workspace\log4qt\build\src\log4qt\log4qt_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Workspace\log4qt\build\ZERO_CHECK.vcxproj">
+      <Project>{5BE077E3-A9E1-37FA-B608-0975B40498AB}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

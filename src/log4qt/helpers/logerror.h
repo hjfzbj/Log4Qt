@@ -190,21 +190,21 @@ public:
      *
      * \sa setContext()
      */
-    inline QString context() const;
+    [[nodiscard]] inline const QString &context() const;
 
     /*!
      * Returns the error message.
      *
      * \sa setMessage()
      */
-    inline QString message() const;
+    [[nodiscard]] inline const QString &message() const;
 
     /*!
      * Returns the symbol for the error code.
      *
      * \sa setSymbol()
      */
-    inline QString symbol() const;
+    [[nodiscard]] inline const QString &symbol() const;
 
     /*!
      * Returns the translated error message.
@@ -300,14 +300,14 @@ public:
      *
      * \sa addArg(), operator<<(), clearArgs()
      */
-    inline QList<QVariant> args() const;
+    [[nodiscard]] inline const QList<QVariant> &args() const;
 
     /*!
      * Returns the list of causing errors that have been added to this error.
      *
      * \sa addArg(), operator<<(), clearArgs()
      */
-    inline QList<LogError> causingErrors() const;
+    [[nodiscard]] inline const QList<LogError> &causingErrors() const;
 
     /*!
      * Clears the list of arguments that have been added to this error.
@@ -430,17 +430,17 @@ inline int LogError::code() const
     return mCode;
 }
 
-inline QString LogError::context() const
+inline const QString &LogError::context() const
 {
     return mContext;
 }
 
-inline QString LogError::message() const
+inline const QString &LogError::message() const
 {
     return mMessage;
 }
 
-inline QString LogError::symbol() const
+inline const QString &LogError::symbol() const
 {
     return mSymbol;
 }
@@ -489,7 +489,7 @@ inline LogError &LogError::addCausingError(const LogError &logError)
     return *this;
 }
 
-inline QList<QVariant> LogError::args() const
+inline const QList<QVariant> &LogError::args() const
 {
     return mArgs;
 }
@@ -504,7 +504,7 @@ inline void LogError::clearCausingErrors()
     mCausingErrors.clear();
 }
 
-inline QList<LogError> LogError::causingErrors() const
+inline const QList<LogError> &LogError::causingErrors() const
 {
     return mCausingErrors;
 }

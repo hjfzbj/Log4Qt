@@ -27,8 +27,8 @@ namespace Log4Qt
 
 DefaultRolloverStrategy::DefaultRolloverStrategy(QObject *parent) :
     RolloverStrategy(parent),
-    mMinIndex(1),
-    mMaxIndex(7)
+    mMinIndex(defaultMinIndex),
+    mMaxIndex(defaultMaxIndex)
 {
 }
 

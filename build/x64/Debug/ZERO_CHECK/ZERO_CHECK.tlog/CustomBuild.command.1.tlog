@@ -1,0 +1,10 @@
+^C:\WORKSPACE\LOG4QT\BUILD\CMAKEFILES\8C18B3D05CDFDC229314F2C49D436CAD\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Workspace/log4qt -BC:/Workspace/log4qt/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Workspace/log4qt/build/Log4Qt.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

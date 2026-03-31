@@ -1,0 +1,15 @@
+********* Start testing of XmlConfiguratorTest *********
+Config: Using QtTest library 6.9.0, Qt 6.9.0 (x86_64-little_endian-llp64 shared (dynamic) debug build; by MSVC 2022), windows 11
+PASS   : XmlConfiguratorTest::initTestCase()
+PASS   : XmlConfiguratorTest::testFlattenSimpleKeys()
+PASS   : XmlConfiguratorTest::testFlattenNestedElements()
+PASS   : XmlConfiguratorTest::testFlattenAttributes()
+PASS   : XmlConfiguratorTest::testFlattenBooleanStrings()
+PASS   : XmlConfiguratorTest::testFlattenFullConfig()
+PASS   : XmlConfiguratorTest::testConfigureFromFile()
+PASS   : XmlConfiguratorTest::testRealWorldConfig()
+PASS   : XmlConfiguratorTest::testConfigureMissingFile()
+PASS   : XmlConfiguratorTest::testConfigureMalformedXml()
+PASS   : XmlConfiguratorTest::cleanupTestCase()
+Totals: 11 passed, 0 failed, 0 skipped, 0 blacklisted, 86ms
+********* Finished testing of XmlConfiguratorTest *********

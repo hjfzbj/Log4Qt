@@ -29,7 +29,7 @@ namespace Log4Qt
 
 SizeBasedTriggeringPolicy::SizeBasedTriggeringPolicy(QObject *parent) :
     TriggeringPolicy(parent),
-    mMaximumFileSize(10 * 1024 * 1024)
+    mMaximumFileSize(defaultMaximumFileSize)
 {
 }
 

@@ -68,9 +68,9 @@ class LOG4QT_EXPORT LevelRangeFilter : public Filter
 public:
     LevelRangeFilter(QObject *parent = nullptr);
 
-    bool acceptOnMatch() const;
-    Level levelMax() const;
-    Level levelMin() const;
+    [[nodiscard]] bool acceptOnMatch() const;
+    [[nodiscard]] Level levelMax() const;
+    [[nodiscard]] Level levelMin() const;
     void setAcceptOnMatch(bool accept);
     void setLevelMax(Level level);
     void setLevelMin(Level level);

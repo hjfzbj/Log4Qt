@@ -54,12 +54,15 @@ class LOG4QT_EXPORT DefaultRolloverStrategy : public RolloverStrategy
     Q_PROPERTY(int maxIndex READ maxIndex WRITE setMaxIndex)
 
 public:
+    static constexpr int defaultMinIndex = 1;
+    static constexpr int defaultMaxIndex = 7;
+
     explicit DefaultRolloverStrategy(QObject *parent = nullptr);
 
-    int minIndex() const;
+    [[nodiscard]] int minIndex() const;
     void setMinIndex(int minIndex);
 
-    int maxIndex() const;
+    [[nodiscard]] int maxIndex() const;
     void setMaxIndex(int maxIndex);
 
     QString rollover(const QString &fileName) override;

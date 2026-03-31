@@ -49,7 +49,7 @@ public:
     void setThreshold(Level level) override;
     void setThreshold(const QString &threshold) override;
 
-    bool isDisabled(Level level) override;
+    bool isDisabled(Level level) const override;
     void resetConfiguration() override;
     void shutdown() override;
 
@@ -79,7 +79,7 @@ inline void Hierarchy::setThreshold(Level level)
     mThreshold = level;
 }
 
-inline bool Hierarchy::isDisabled(Level level)
+inline bool Hierarchy::isDisabled(Level level) const
 {
     return level < mThreshold;
 }

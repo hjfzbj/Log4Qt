@@ -59,8 +59,8 @@ class LOG4QT_EXPORT LevelMatchFilter : public Filter
 public:
     LevelMatchFilter(QObject *parent = nullptr);
 
-    bool acceptOnMatch() const;
-    Level levelToMatch() const;
+    [[nodiscard]] bool acceptOnMatch() const;
+    [[nodiscard]] Level levelToMatch() const;
     void setAcceptOnMatch(bool accept);
     void setLevelToMatch(Level level);
 

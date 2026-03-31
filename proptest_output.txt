@@ -1,0 +1,39 @@
+********* Start testing of PropertyConfiguratorTest *********
+Config: Using QtTest library 6.9.0, Qt 6.9.0 (x86_64-little_endian-llp64 shared (dynamic) debug build; by MSVC 2022), windows 11
+PASS   : PropertyConfiguratorTest::initTestCase()
+PASS   : PropertyConfiguratorTest::testRootLoggerLevel()
+PASS   : PropertyConfiguratorTest::testSingleAppender()
+PASS   : PropertyConfiguratorTest::testAppenderWithLayout()
+PASS   : PropertyConfiguratorTest::testAppenderWithPatternLayout()
+PASS   : PropertyConfiguratorTest::testAppenderWithFilter()
+PASS   : PropertyConfiguratorTest::testMultipleAppenders()
+PASS   : PropertyConfiguratorTest::testNamedLogger()
+PASS   : PropertyConfiguratorTest::testLoggerAdditivity()
+PASS   : PropertyConfiguratorTest::testMultipleLoggers()
+QWARN  : PropertyConfiguratorTest::testVariableSubstitution() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\propertytest-PVtNww" most likely due to the presence of read-only files.
+PASS   : PropertyConfiguratorTest::testVariableSubstitution()
+PASS   : PropertyConfiguratorTest::testGlobalReset()
+PASS   : PropertyConfiguratorTest::testGlobalStatus()
+PASS   : PropertyConfiguratorTest::testGlobalThreshold()
+PASS   : PropertyConfiguratorTest::testGlobalHandleQtMessages()
+PASS   : PropertyConfiguratorTest::testMissingAppenderType()
+PASS   : PropertyConfiguratorTest::testUnknownAppenderClass()
+PASS   : PropertyConfiguratorTest::testMissingLayout()
+PASS   : PropertyConfiguratorTest::testUnknownLayoutClass()
+PASS   : PropertyConfiguratorTest::testConfigureFromFile()
+PASS   : PropertyConfiguratorTest::testConfigureMissingFile()
+PASS   : PropertyConfiguratorTest::testRealWorldConfig()
+PASS   : PropertyConfiguratorTest::testLegacyRootLogger()
+PASS   : PropertyConfiguratorTest::testLegacyAppenderWithLayout()
+PASS   : PropertyConfiguratorTest::testLegacyNamedLogger()
+PASS   : PropertyConfiguratorTest::testLegacyCategoryAlias()
+PASS   : PropertyConfiguratorTest::testLegacyGlobalSettings()
+PASS   : PropertyConfiguratorTest::testLegacyMultipleAppenders()
+PASS   : PropertyConfiguratorTest::testLegacyRealWorldConfig()
+QWARN  : PropertyConfiguratorTest::testLegacyVariableSubstitution() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\propertytest-AZvNmz" most likely due to the presence of read-only files.
+PASS   : PropertyConfiguratorTest::testLegacyVariableSubstitution()
+QWARN  : PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\propertytest-SvrjXG" most likely due to the presence of read-only files.
+PASS   : PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
+PASS   : PropertyConfiguratorTest::cleanupTestCase()
+Totals: 32 passed, 0 failed, 0 skipped, 0 blacklisted, 65ms
+********* Finished testing of PropertyConfiguratorTest *********

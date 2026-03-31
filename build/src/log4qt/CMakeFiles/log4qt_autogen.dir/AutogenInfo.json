@@ -1,0 +1,741 @@
+{
+	"AUTOGEN_COMMAND_LINE_LENGTH_MAX" : 32000,
+	"BUILD_DIR" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen",
+	"CMAKE_BINARY_DIR" : "C:/Workspace/log4qt/build",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/Workspace/log4qt/build/src/log4qt",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/Workspace/log4qt/src/log4qt",
+	"CMAKE_EXECUTABLE" : "C:/Program Files/CMake/bin/cmake.exe",
+	"CMAKE_LIST_FILES" : [ "C:/Workspace/log4qt/src/log4qt/CMakeLists.txt" ],
+	"CMAKE_SOURCE_DIR" : "C:/Workspace/log4qt",
+	"CROSS_CONFIG" : false,
+	"DEP_FILE" : "",
+	"DEP_FILE_RULE_NAME" : "",
+	"HEADERS" : 
+	[
+		[
+			"C:/Workspace/log4qt/src/log4qt/appender.h",
+			"Mu",
+			"EWIEGA46WW/moc_appender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/appenderskeleton.h",
+			"Mu",
+			"EWIEGA46WW/moc_appenderskeleton.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/asyncappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_asyncappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/basicconfigurator.h",
+			"Mu",
+			"EWIEGA46WW/moc_basicconfigurator.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/colorconsoleappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_colorconsoleappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/consoleappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_consoleappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/dailyrollingfileappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_dailyrollingfileappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/fileappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_fileappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/appenderattachable.h",
+			"Mu",
+			"P2JUI5LXV7/moc_appenderattachable.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/classlogger.h",
+			"Mu",
+			"P2JUI5LXV7/moc_classlogger.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/configuratorhelper.h",
+			"Mu",
+			"P2JUI5LXV7/moc_configuratorhelper.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/cronexpression.h",
+			"Mu",
+			"P2JUI5LXV7/moc_cronexpression.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/datetime.h",
+			"Mu",
+			"P2JUI5LXV7/moc_datetime.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/dispatcher.h",
+			"Mu",
+			"P2JUI5LXV7/moc_dispatcher.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/factory.h",
+			"Mu",
+			"P2JUI5LXV7/moc_factory.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/initialisationhelper.h",
+			"Mu",
+			"P2JUI5LXV7/moc_initialisationhelper.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/logerror.h",
+			"Mu",
+			"P2JUI5LXV7/moc_logerror.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/optionconverter.h",
+			"Mu",
+			"P2JUI5LXV7/moc_optionconverter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/patternformatter.h",
+			"Mu",
+			"P2JUI5LXV7/moc_patternformatter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/properties.h",
+			"Mu",
+			"P2JUI5LXV7/moc_properties.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/timestampprovider.h",
+			"Mu",
+			"P2JUI5LXV7/moc_timestampprovider.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/hierarchy.h",
+			"Mu",
+			"EWIEGA46WW/moc_hierarchy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/jsonconfigurator.h",
+			"Mu",
+			"EWIEGA46WW/moc_jsonconfigurator.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/layout.h",
+			"Mu",
+			"EWIEGA46WW/moc_layout.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/level.h",
+			"Mu",
+			"EWIEGA46WW/moc_level.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/log4qt.h",
+			"Mu",
+			"EWIEGA46WW/moc_log4qt.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/log4qtdefs.h",
+			"Mu",
+			"EWIEGA46WW/moc_log4qtdefs.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/log4qtshared.h",
+			"Mu",
+			"EWIEGA46WW/moc_log4qtshared.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/log4qtsharedptr.h",
+			"Mu",
+			"EWIEGA46WW/moc_log4qtsharedptr.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/logger.h",
+			"Mu",
+			"EWIEGA46WW/moc_logger.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/loggerrepository.h",
+			"Mu",
+			"EWIEGA46WW/moc_loggerrepository.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/loggingevent.h",
+			"Mu",
+			"EWIEGA46WW/moc_loggingevent.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/logmanager.h",
+			"Mu",
+			"EWIEGA46WW/moc_logmanager.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/logstream.h",
+			"Mu",
+			"EWIEGA46WW/moc_logstream.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/mainthreadappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_mainthreadappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/mdc.h",
+			"Mu",
+			"EWIEGA46WW/moc_mdc.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/ndc.h",
+			"Mu",
+			"EWIEGA46WW/moc_ndc.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/patternlayout.h",
+			"Mu",
+			"EWIEGA46WW/moc_patternlayout.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/propertyconfigurator.h",
+			"Mu",
+			"EWIEGA46WW/moc_propertyconfigurator.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/rollingfileappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_rollingfileappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/signalappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_signalappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/simplelayout.h",
+			"Mu",
+			"EWIEGA46WW/moc_simplelayout.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/simpletimelayout.h",
+			"Mu",
+			"EWIEGA46WW/moc_simpletimelayout.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/compositetriggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_compositetriggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/crontriggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_crontriggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/daterolloverstrategy.h",
+			"Mu",
+			"2O54PKCAQV/moc_daterolloverstrategy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/defaultrolloverstrategy.h",
+			"Mu",
+			"2O54PKCAQV/moc_defaultrolloverstrategy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/filter.h",
+			"Mu",
+			"2O54PKCAQV/moc_filter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/onstartuptriggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_onstartuptriggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/rolloverstrategy.h",
+			"Mu",
+			"2O54PKCAQV/moc_rolloverstrategy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/sizebasedtriggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_sizebasedtriggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/timebasedtriggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_timebasedtriggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/triggeringpolicy.h",
+			"Mu",
+			"2O54PKCAQV/moc_triggeringpolicy.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/systemlogappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_systemlogappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/ttcclayout.h",
+			"Mu",
+			"EWIEGA46WW/moc_ttcclayout.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/debugappender.h",
+			"Mu",
+			"YT5B3C6VYA/moc_debugappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/denyallfilter.h",
+			"Mu",
+			"YT5B3C6VYA/moc_denyallfilter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/levelmatchfilter.h",
+			"Mu",
+			"YT5B3C6VYA/moc_levelmatchfilter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/levelrangefilter.h",
+			"Mu",
+			"YT5B3C6VYA/moc_levelrangefilter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/listappender.h",
+			"Mu",
+			"YT5B3C6VYA/moc_listappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/nullappender.h",
+			"Mu",
+			"YT5B3C6VYA/moc_nullappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/stringmatchfilter.h",
+			"Mu",
+			"YT5B3C6VYA/moc_stringmatchfilter.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/wdcappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_wdcappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/writerappender.h",
+			"Mu",
+			"EWIEGA46WW/moc_writerappender.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/xmlconfigurator.h",
+			"Mu",
+			"EWIEGA46WW/moc_xmlconfigurator.cpp",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/xmllayout.h",
+			"Mu",
+			"EWIEGA46WW/moc_xmllayout.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include",
+	"INCLUDE_DIR_Debug" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_Debug",
+	"INCLUDE_DIR_MinSizeRel" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_MinSizeRel",
+	"INCLUDE_DIR_RelWithDebInfo" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_RelWithDebInfo",
+	"INCLUDE_DIR_Release" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/include_Release",
+	"MOC_COMPILATION_FILE" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/mocs_compilation.cpp",
+	"MOC_COMPILATION_FILE_Debug" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/mocs_compilation_Debug.cpp",
+	"MOC_COMPILATION_FILE_MinSizeRel" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/mocs_compilation_MinSizeRel.cpp",
+	"MOC_COMPILATION_FILE_RelWithDebInfo" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/mocs_compilation_RelWithDebInfo.cpp",
+	"MOC_COMPILATION_FILE_Release" : "C:/Workspace/log4qt/build/src/log4qt/log4qt_autogen/mocs_compilation_Release.cpp",
+	"MOC_DEFINITIONS" : [],
+	"MOC_DEFINITIONS_Debug" : 
+	[
+		"LOG4QT_LIBRARY",
+		"LOG4QT_VERSION_MAJOR=2",
+		"LOG4QT_VERSION_MINOR=0",
+		"LOG4QT_VERSION_PATCH=0",
+		"LOG4QT_VERSION_STR=\"2.0.0\"",
+		"NOMINMAX",
+		"QT_CONCURRENT_LIB",
+		"QT_CORE_LIB",
+		"QT_DEPRECATED_WARNINGS",
+		"QT_DISABLE_DEPRECATED_BEFORE=0x060400",
+		"QT_NO_CAST_TO_ASCII",
+		"QT_NO_URL_CAST_FROM_STRING",
+		"QT_USE_QSTRINGBUILDER",
+		"UNICODE",
+		"WIN32",
+		"WIN64",
+		"_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"_UNICODE",
+		"_WIN64",
+		"log4qt_EXPORTS"
+	],
+	"MOC_DEFINITIONS_MinSizeRel" : 
+	[
+		"LOG4QT_LIBRARY",
+		"LOG4QT_VERSION_MAJOR=2",
+		"LOG4QT_VERSION_MINOR=0",
+		"LOG4QT_VERSION_PATCH=0",
+		"LOG4QT_VERSION_STR=\"2.0.0\"",
+		"NOMINMAX",
+		"QT_CONCURRENT_LIB",
+		"QT_CORE_LIB",
+		"QT_DEPRECATED_WARNINGS",
+		"QT_DISABLE_DEPRECATED_BEFORE=0x060400",
+		"QT_NO_CAST_TO_ASCII",
+		"QT_NO_DEBUG",
+		"QT_NO_URL_CAST_FROM_STRING",
+		"QT_USE_QSTRINGBUILDER",
+		"UNICODE",
+		"WIN32",
+		"WIN64",
+		"_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"_UNICODE",
+		"_WIN64",
+		"log4qt_EXPORTS"
+	],
+	"MOC_DEFINITIONS_RelWithDebInfo" : 
+	[
+		"LOG4QT_LIBRARY",
+		"LOG4QT_VERSION_MAJOR=2",
+		"LOG4QT_VERSION_MINOR=0",
+		"LOG4QT_VERSION_PATCH=0",
+		"LOG4QT_VERSION_STR=\"2.0.0\"",
+		"NOMINMAX",
+		"QT_CONCURRENT_LIB",
+		"QT_CORE_LIB",
+		"QT_DEPRECATED_WARNINGS",
+		"QT_DISABLE_DEPRECATED_BEFORE=0x060400",
+		"QT_NO_CAST_TO_ASCII",
+		"QT_NO_DEBUG",
+		"QT_NO_URL_CAST_FROM_STRING",
+		"QT_USE_QSTRINGBUILDER",
+		"UNICODE",
+		"WIN32",
+		"WIN64",
+		"_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"_UNICODE",
+		"_WIN64",
+		"log4qt_EXPORTS"
+	],
+	"MOC_DEFINITIONS_Release" : 
+	[
+		"LOG4QT_LIBRARY",
+		"LOG4QT_VERSION_MAJOR=2",
+		"LOG4QT_VERSION_MINOR=0",
+		"LOG4QT_VERSION_PATCH=0",
+		"LOG4QT_VERSION_STR=\"2.0.0\"",
+		"NOMINMAX",
+		"QT_CONCURRENT_LIB",
+		"QT_CORE_LIB",
+		"QT_DEPRECATED_WARNINGS",
+		"QT_DISABLE_DEPRECATED_BEFORE=0x060400",
+		"QT_NO_CAST_TO_ASCII",
+		"QT_NO_DEBUG",
+		"QT_NO_URL_CAST_FROM_STRING",
+		"QT_USE_QSTRINGBUILDER",
+		"UNICODE",
+		"WIN32",
+		"WIN64",
+		"_ENABLE_EXTENDED_ALIGNED_STORAGE",
+		"_UNICODE",
+		"_WIN64",
+		"log4qt_EXPORTS"
+	],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : [],
+	"MOC_INCLUDES_Debug" : 
+	[
+		"C:/Workspace/log4qt/build/src/log4qt",
+		"C:/Workspace/log4qt/src/log4qt",
+		"C:/Workspace/log4qt/src",
+		"C:/Workspace/qt6base-build/include",
+		"C:/Workspace/qt6base-build/include/QtCore",
+		"C:/Workspace/qt6base-build/mkspecs/win32-msvc",
+		"C:/Workspace/qt6base-build/include/QtConcurrent"
+	],
+	"MOC_INCLUDES_MinSizeRel" : 
+	[
+		"C:/Workspace/log4qt/build/src/log4qt",
+		"C:/Workspace/log4qt/src/log4qt",
+		"C:/Workspace/log4qt/src",
+		"C:/Workspace/qt6base-build/include",
+		"C:/Workspace/qt6base-build/include/QtCore",
+		"C:/Workspace/qt6base-build/mkspecs/win32-msvc",
+		"C:/Workspace/qt6base-build/include/QtConcurrent"
+	],
+	"MOC_INCLUDES_RelWithDebInfo" : 
+	[
+		"C:/Workspace/log4qt/build/src/log4qt",
+		"C:/Workspace/log4qt/src/log4qt",
+		"C:/Workspace/log4qt/src",
+		"C:/Workspace/qt6base-build/include",
+		"C:/Workspace/qt6base-build/include/QtCore",
+		"C:/Workspace/qt6base-build/mkspecs/win32-msvc",
+		"C:/Workspace/qt6base-build/include/QtConcurrent"
+	],
+	"MOC_INCLUDES_Release" : 
+	[
+		"C:/Workspace/log4qt/build/src/log4qt",
+		"C:/Workspace/log4qt/src/log4qt",
+		"C:/Workspace/log4qt/src",
+		"C:/Workspace/qt6base-build/include",
+		"C:/Workspace/qt6base-build/include/QtCore",
+		"C:/Workspace/qt6base-build/mkspecs/win32-msvc",
+		"C:/Workspace/qt6base-build/include/QtConcurrent"
+	],
+	"MOC_MACRO_NAMES" : 
+	[
+		"Q_OBJECT",
+		"Q_GADGET",
+		"Q_NAMESPACE",
+		"Q_NAMESPACE_EXPORT",
+		"Q_GADGET_EXPORT",
+		"Q_ENUM_NS"
+	],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : [],
+	"MOC_PREDEFS_FILE" : "",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : true,
+	"PARALLEL" : 8,
+	"PARSE_CACHE_FILE" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/ParseCache.txt",
+	"PARSE_CACHE_FILE_Debug" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/ParseCache_Debug.txt",
+	"PARSE_CACHE_FILE_MinSizeRel" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/ParseCache_MinSizeRel.txt",
+	"PARSE_CACHE_FILE_RelWithDebInfo" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/ParseCache_RelWithDebInfo.txt",
+	"PARSE_CACHE_FILE_Release" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/ParseCache_Release.txt",
+	"QT_MOC_EXECUTABLE" : "",
+	"QT_MOC_EXECUTABLE_Debug" : "C:/Workspace/qt6base-build/bin/moc.exe",
+	"QT_MOC_EXECUTABLE_MinSizeRel" : "C:/Workspace/qt6base-build/bin/moc.exe",
+	"QT_MOC_EXECUTABLE_RelWithDebInfo" : "C:/Workspace/qt6base-build/bin/moc.exe",
+	"QT_MOC_EXECUTABLE_Release" : "C:/Workspace/qt6base-build/bin/moc.exe",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 6,
+	"QT_VERSION_MINOR" : 9,
+	"SETTINGS_FILE" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenUsed.txt",
+	"SETTINGS_FILE_Debug" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenUsed_Debug.txt",
+	"SETTINGS_FILE_MinSizeRel" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenUsed_MinSizeRel.txt",
+	"SETTINGS_FILE_RelWithDebInfo" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenUsed_RelWithDebInfo.txt",
+	"SETTINGS_FILE_Release" : "C:/Workspace/log4qt/build/src/log4qt/CMakeFiles/log4qt_autogen.dir/AutogenUsed_Release.txt",
+	"SOURCES" : 
+	[
+		[ "C:/Workspace/log4qt/src/log4qt/appender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/appenderskeleton.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/asyncappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/basicconfigurator.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/colorconsoleappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/consoleappender.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/dailyrollingfileappender.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/fileappender.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/appenderattachable.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/classlogger.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/configuratorhelper.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/cronexpression.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/datetime.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/dispatcher.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/factory.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/initialisationhelper.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/logerror.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/optionconverter.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/patternformatter.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/helpers/properties.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/helpers/timestampprovider.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/hierarchy.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/jsonconfigurator.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/layout.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/level.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/logger.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/loggerrepository.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/loggingevent.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/logmanager.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/logstream.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/mainthreadappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/mdc.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/ndc.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/patternlayout.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/propertyconfigurator.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/rollingfileappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/signalappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/simplelayout.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/simpletimelayout.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/compositetriggeringpolicy.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/crontriggeringpolicy.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/daterolloverstrategy.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/defaultrolloverstrategy.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/spi/filter.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/onstartuptriggeringpolicy.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/spi/rolloverstrategy.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/sizebasedtriggeringpolicy.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/spi/timebasedtriggeringpolicy.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/spi/triggeringpolicy.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/systemlogappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/ttcclayout.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/varia/debugappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/varia/denyallfilter.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/levelmatchfilter.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/levelrangefilter.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/varia/listappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/varia/nullappender.cpp", "Mu", null ],
+		[
+			"C:/Workspace/log4qt/src/log4qt/varia/stringmatchfilter.cpp",
+			"Mu",
+			null
+		],
+		[ "C:/Workspace/log4qt/src/log4qt/wdcappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/writerappender.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/xmlconfigurator.cpp", "Mu", null ],
+		[ "C:/Workspace/log4qt/src/log4qt/xmllayout.cpp", "Mu", null ]
+	],
+	"USE_BETTER_GRAPH" : true,
+	"VERBOSITY" : 0
+}

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(export PATH=\"/c/Workspace/qt6base-build/bin:$PATH:/c/Workspace/log4qt/build/bin/Debug\")",
+      "Bash(timeout 30 bin/Debug/log4qttest.exe LevelMatchFilter LevelRangeFilter StringMatchFilter DenyAllFilter -v2)",
+      "Bash(timeout 30 bin/Debug/log4qttest.exe DenyAllFilter -v2)",
+      "Bash(timeout 30 bin/Debug/log4qttest.exe -v2 PatternFormatter)",
+      "Bash(timeout 60 bin/Debug/log4qttest.exe)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(grep -E \"\\\\.\\(h|cpp\\)$\")",
+      "Bash(xargs grep:*)",
+      "Bash(ls -la /c/Workspace/log4qt/src/log4qt/spi/*.h)",
+      "Bash(cmake --build . --config Debug)",
+      "Bash(grep -r \"Frequency\\\\|frequency\" /c/Workspace/log4qt --include=*.md --include=*.txt --include=*.dox)",
+      "Bash(git rm:*)",
+      "Bash(PATH=\"/c/Workspace/qt6base-build/bin:$PATH\" ./bin/Debug/dailyfileappendertest.exe -v2 -o out_daily.txt)",
+      "Bash(echo \"daily: $?\")",
+      "Bash(PATH=\"/c/Workspace/qt6base-build/bin:$PATH\" ./bin/Debug/dailyfileappendertest.exe)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(git mv:*)",
+      "Bash(find /c/Workspace/log4qt -name *triggeringpolicy* -o -name *TriggeringPolicy*)"
+    ]
+  }
+}

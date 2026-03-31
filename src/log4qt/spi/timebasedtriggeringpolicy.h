@@ -83,19 +83,19 @@ public:
 
     explicit TimeBasedTriggeringPolicy(QObject *parent = nullptr);
 
-    QString datePattern() const;
+    [[nodiscard]] QString datePattern() const;
     void setDatePattern(const QString &datePattern);
 
-    int interval() const;
+    [[nodiscard]] int interval() const;
     void setInterval(int interval);
 
-    bool modulate() const;
+    [[nodiscard]] bool modulate() const;
     void setModulate(bool modulate);
 
-    int maxRandomDelay() const;
+    [[nodiscard]] int maxRandomDelay() const;
     void setMaxRandomDelay(int maxRandomDelay);
 
-    Frequency frequency() const;
+    [[nodiscard]] Frequency frequency() const;
 
     void activateOptions() override;
 

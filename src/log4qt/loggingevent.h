@@ -42,9 +42,9 @@ class Logger;
 class MessageContext
 {
 public:
-    explicit MessageContext()
+    constexpr explicit MessageContext() noexcept
         : file(nullptr), line(-1), function(nullptr) {}
-    explicit MessageContext(const char *fileName, int lineNumber, const char *functionName)
+    constexpr explicit MessageContext(const char *fileName, int lineNumber, const char *functionName) noexcept
         : file(fileName), line(lineNumber), function(functionName) {}
 #ifdef __cpp_lib_source_location
     explicit MessageContext(const std::source_location &loc)

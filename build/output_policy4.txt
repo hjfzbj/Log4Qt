@@ -1,0 +1,557 @@
+********* Start testing of PolicyTest *********
+Config: Using QtTest library 6.9.0, Qt 6.9.0 (x86_64-little_endian-llp64 shared (dynamic) debug build; by MSVC 2022), windows 11
+INFO   : PolicyTest::initTestCase() entering
+PASS   : PolicyTest::initTestCase()
+INFO   : PolicyTest::CronExpression_parse() entering
+INFO   : PolicyTest::CronExpression_parse(valid-midnight-daily) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-midnight-daily)
+INFO   : PolicyTest::CronExpression_parse(valid-every-minute) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-every-minute)
+INFO   : PolicyTest::CronExpression_parse(valid-every-second) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-every-second)
+INFO   : PolicyTest::CronExpression_parse(valid-range) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-range)
+INFO   : PolicyTest::CronExpression_parse(valid-list) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-list)
+INFO   : PolicyTest::CronExpression_parse(valid-step) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-step)
+INFO   : PolicyTest::CronExpression_parse(valid-month-name) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-month-name)
+INFO   : PolicyTest::CronExpression_parse(valid-dow-name) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+PASS   : PolicyTest::CronExpression_parse(valid-dow-name)
+INFO   : PolicyTest::CronExpression_parse(invalid-empty) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-empty) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-empty)
+INFO   : PolicyTest::CronExpression_parse(invalid-5-fields) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-5-fields) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-5-fields)
+INFO   : PolicyTest::CronExpression_parse(invalid-7-fields) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-7-fields) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-7-fields)
+INFO   : PolicyTest::CronExpression_parse(invalid-seconds-60) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-seconds-60) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-seconds-60)
+INFO   : PolicyTest::CronExpression_parse(invalid-hours-24) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-hours-24) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-hours-24)
+INFO   : PolicyTest::CronExpression_parse(invalid-dom-32) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-dom-32) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-dom-32)
+INFO   : PolicyTest::CronExpression_parse(invalid-month-13) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-month-13) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-month-13)
+INFO   : PolicyTest::CronExpression_parse(invalid-dow-8) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-dow-8) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-dow-8)
+INFO   : PolicyTest::CronExpression_parse(invalid-step-zero) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-step-zero) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-step-zero)
+INFO   : PolicyTest::CronExpression_parse(invalid-inverted-range) QCOMPARE(cron.isValid(), valid)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(156) : message location
+INFO   : PolicyTest::CronExpression_parse(invalid-inverted-range) QVERIFY(!cron.errorString().isEmpty())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(158) : message location
+PASS   : PolicyTest::CronExpression_parse(invalid-inverted-range)
+INFO   : PolicyTest::CronExpression_nextFireTime() entering
+INFO   : PolicyTest::CronExpression_nextFireTime(midnight-daily) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(midnight-daily) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(midnight-daily) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(midnight-daily)
+INFO   : PolicyTest::CronExpression_nextFireTime(half-past-hour) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(half-past-hour) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(half-past-hour) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(half-past-hour)
+INFO   : PolicyTest::CronExpression_nextFireTime(first-of-month) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(first-of-month) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(first-of-month) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(first-of-month)
+INFO   : PolicyTest::CronExpression_nextFireTime(every-15-seconds) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(every-15-seconds) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(every-15-seconds) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(every-15-seconds)
+INFO   : PolicyTest::CronExpression_nextFireTime(noon-and-midnight) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(noon-and-midnight) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(noon-and-midnight) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(noon-and-midnight)
+INFO   : PolicyTest::CronExpression_nextFireTime(january-only) QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(211) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(january-only) QVERIFY(result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(214) : message location
+INFO   : PolicyTest::CronExpression_nextFireTime(january-only) QCOMPARE(result, expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(215) : message location
+PASS   : PolicyTest::CronExpression_nextFireTime(january-only)
+INFO   : PolicyTest::CronExpression_dayOfWeek() entering
+INFO   : PolicyTest::CronExpression_dayOfWeek() QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(223) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QCOMPARE(result, QDateTime(QDate(2026, 3, 30), QTime(8, 0, 0)))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(227) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QCOMPARE(result.date().dayOfWeek(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(228) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QVERIFY(cronSun.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(232) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QCOMPARE(resultSun, QDateTime(QDate(2026, 3, 29), QTime(0, 0, 0)))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(234) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QCOMPARE(resultSun.date().dayOfWeek(), 7)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(235) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QVERIFY(cronSat.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(239) : message location
+INFO   : PolicyTest::CronExpression_dayOfWeek() QCOMPARE(resultSat, QDateTime(QDate(2026, 4, 4), QTime(8, 0, 0)))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(241) : message location
+PASS   : PolicyTest::CronExpression_dayOfWeek()
+INFO   : PolicyTest::CronExpression_noMatchWithin4Years() entering
+INFO   : PolicyTest::CronExpression_noMatchWithin4Years() QVERIFY(cron.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(248) : message location
+INFO   : PolicyTest::CronExpression_noMatchWithin4Years() QVERIFY(!result.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(252) : message location
+PASS   : PolicyTest::CronExpression_noMatchWithin4Years()
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_defaults() entering
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_defaults() QCOMPARE(policy.maximumFileSize(), static_cast<qint64>(10 * 1024 * 1024))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(262) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_defaults()
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger() entering
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger(below-limit) QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(288) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_trigger(below-limit)
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger(at-limit) QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(288) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_trigger(at-limit)
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger(one-over) QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(288) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_trigger(one-over)
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger(zero-size) QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(288) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_trigger(zero-size)
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_trigger(large-file) QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(288) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_trigger(large-file)
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string() entering
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string() QCOMPARE(policy.maximumFileSize(), static_cast<qint64>(5 * 1024 * 1024))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(296) : message location
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string() QCOMPARE(policy.maximumFileSize(), static_cast<qint64>(1024))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(299) : message location
+INFO   : PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string() QCOMPARE(policy.maximumFileSize(), before)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(304) : message location
+PASS   : PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_defaults() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_defaults() QCOMPARE(policy.datePattern(), QString("'.'yyyy-MM-dd"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(314) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_defaults() QCOMPARE(policy.frequency(), Log4Qt::TimeBasedTriggeringPolicy::Daily)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(315) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_defaults()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(minutely-mm) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(minutely-mm)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(hourly-HH) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(hourly-HH)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(halfdaily-a) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(halfdaily-a)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(daily-dd) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(daily-dd)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(monthly-MM) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(monthly-MM)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(weekly-ww) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(weekly-ww)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(hourly-h) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(hourly-h)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(halfdaily-AP) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(halfdaily-AP)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(quoted-mm) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(quoted-mm)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_frequency(dayname-ddd) QCOMPARE(static_cast<int>(policy.frequency()), expectedFrequency)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(344) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_frequency(dayname-ddd)
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_invalidPattern() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_invalidPattern() QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(355) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_invalidPattern()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults() QCOMPARE(policy.interval(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(361) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults() QCOMPARE(policy.modulate(), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(362) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults() QCOMPARE(policy.maxRandomDelay(), 0)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(363) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalClamping() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalClamping() QCOMPARE(policy.interval(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(373) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalClamping() QCOMPARE(policy.interval(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(378) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_intervalClamping() QCOMPARE(policy.interval(), 4)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(383) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_intervalClamping()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment() QCOMPARE(policy.frequency(), Log4Qt::TimeBasedTriggeringPolicy::Minutely)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(396) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment() QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(400) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative() QCOMPARE(policy.maxRandomDelay(), 0)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(410) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative() QCOMPARE(policy.maxRandomDelay(), 0)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(415) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative() QCOMPARE(policy.maxRandomDelay(), 60)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(420) : message location
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative()
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() entering
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(426) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QVERIFY(PropertyConfigurator::configure(props))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(443) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(root->appenders().count(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(446) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QVERIFY(appender != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(449) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QVERIFY(appender->triggeringPolicy() != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(450) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QVERIFY(timePolicy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(453) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(timePolicy->datePattern(), QString("'.'HH"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(454) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(timePolicy->interval(), 4)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(455) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(timePolicy->modulate(), true)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(456) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(timePolicy->maxRandomDelay(), 30)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(457) : message location
+INFO   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QCOMPARE(timePolicy->frequency(), Log4Qt::TimeBasedTriggeringPolicy::Hourly)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(458) : message location
+QWARN  : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\policytest-cUtLQy" most likely due to the presence of read-only files.
+PASS   : PolicyTest::TimeBasedTriggeringPolicy_propertyConfigurator()
+INFO   : PolicyTest::CronTriggeringPolicy_defaults() entering
+INFO   : PolicyTest::CronTriggeringPolicy_defaults() QCOMPARE(policy.schedule(), QString("0 0 0 * * ?"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(468) : message location
+PASS   : PolicyTest::CronTriggeringPolicy_defaults()
+INFO   : PolicyTest::CronTriggeringPolicy_invalidSchedule() entering
+INFO   : PolicyTest::CronTriggeringPolicy_invalidSchedule() QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(478) : message location
+PASS   : PolicyTest::CronTriggeringPolicy_invalidSchedule()
+INFO   : PolicyTest::CronTriggeringPolicy_activateAndTrigger() entering
+INFO   : PolicyTest::CronTriggeringPolicy_activateAndTrigger() QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), true)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(492) : message location
+PASS   : PolicyTest::CronTriggeringPolicy_activateAndTrigger()
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isTriggeringEvent() entering
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isTriggeringEvent() QCOMPARE(policy.isTriggeringEvent("anyfile.log", 999, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(508) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isTriggeringEvent() QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(509) : message location
+PASS   : PolicyTest::OnStartupTriggeringPolicy_isTriggeringEvent()
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger() entering
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(file-with-content) QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(530) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(file-with-content) QVERIFY(file.open(QIODevice::WriteOnly))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(537) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(file-with-content) QCOMPARE(policy.isStartupTrigger(filePath, 0), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(544) : message location
+PASS   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(file-with-content)
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(empty-file) QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(530) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(empty-file) QVERIFY(file.open(QIODevice::WriteOnly))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(537) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(empty-file) QCOMPARE(policy.isStartupTrigger(filePath, 0), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(544) : message location
+PASS   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(empty-file)
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(no-file) QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(530) : message location
+INFO   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(no-file) QCOMPARE(policy.isStartupTrigger(filePath, 0), expected)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(544) : message location
+PASS   : PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger(no-file)
+INFO   : PolicyTest::CompositeTriggeringPolicy_empty() entering
+INFO   : PolicyTest::CompositeTriggeringPolicy_empty() QCOMPARE(policy.isTriggeringEvent(QString(), 100, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(556) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_empty() QCOMPARE(policy.isStartupTrigger(QString(), 0), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(557) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_empty() QCOMPARE(policy.policies().count(), 0)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(558) : message location
+PASS   : PolicyTest::CompositeTriggeringPolicy_empty()
+INFO   : PolicyTest::CompositeTriggeringPolicy_orCombination() entering
+INFO   : PolicyTest::CompositeTriggeringPolicy_orCombination() QCOMPARE(composite.policies().count(), 2)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(576) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_orCombination() QCOMPARE(composite.isTriggeringEvent(QString(), 50, event), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(581) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_orCombination() QCOMPARE(composite.isTriggeringEvent(QString(), 200, event), true)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(584) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_orCombination() QCOMPARE(composite.isTriggeringEvent(QString(), 600, event), true)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(587) : message location
+PASS   : PolicyTest::CompositeTriggeringPolicy_orCombination()
+INFO   : PolicyTest::CompositeTriggeringPolicy_startupTrigger() entering
+INFO   : PolicyTest::CompositeTriggeringPolicy_startupTrigger() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(593) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_startupTrigger() QVERIFY(file.open(QIODevice::WriteOnly))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(598) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_startupTrigger() QCOMPARE(composite.isStartupTrigger(filePath, 0), true)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(609) : message location
+INFO   : PolicyTest::CompositeTriggeringPolicy_startupTrigger() QCOMPARE(composite2.isStartupTrigger(filePath, 0), false)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(615) : message location
+PASS   : PolicyTest::CompositeTriggeringPolicy_startupTrigger()
+INFO   : PolicyTest::DateRolloverStrategy_defaults() entering
+INFO   : PolicyTest::DateRolloverStrategy_defaults() QCOMPARE(strategy.datePattern(), QString("'.'yyyy-MM-dd"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(625) : message location
+INFO   : PolicyTest::DateRolloverStrategy_defaults() QCOMPARE(strategy.mode(), Log4Qt::DateRolloverStrategy::Suffix)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(626) : message location
+INFO   : PolicyTest::DateRolloverStrategy_defaults() QCOMPARE(strategy.modeString(), QString("Suffix"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(627) : message location
+INFO   : PolicyTest::DateRolloverStrategy_defaults() QCOMPARE(strategy.maxBackups(), 0)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(628) : message location
+PASS   : PolicyTest::DateRolloverStrategy_defaults()
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() entering
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(634) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() QVERIFY(f.open(QIODevice::WriteOnly))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(641) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() QCOMPARE(result, basePath)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(653) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() QVERIFY(!QFile::exists(basePath))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(656) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixMode() QVERIFY(QFile::exists(expectedBackup))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(660) : message location
+PASS   : PolicyTest::DateRolloverStrategy_suffixMode()
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() entering
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(666) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() QCOMPARE(strategy.mode(), Log4Qt::DateRolloverStrategy::Embedded)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(674) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() QCOMPARE(result, expectedName)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(681) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() QVERIFY(!QFile::exists(basePath))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(684) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedMode() QVERIFY(!QFile::exists(result))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(685) : message location
+PASS   : PolicyTest::DateRolloverStrategy_embeddedMode()
+INFO   : PolicyTest::DateRolloverStrategy_maxBackups() entering
+INFO   : PolicyTest::DateRolloverStrategy_maxBackups() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(691) : message location
+INFO   : PolicyTest::DateRolloverStrategy_maxBackups() QVERIFY(entries.size() <= 4)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(727) : message location
+PASS   : PolicyTest::DateRolloverStrategy_maxBackups()
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() entering
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(734) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QVERIFY(PropertyConfigurator::configure(props))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(750) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QCOMPARE(root->appenders().count(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(753) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QVERIFY(appender != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(756) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QVERIFY(timePolicy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(760) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QCOMPARE(timePolicy->datePattern(), QString("'.'yyyy-MM-dd"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(761) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QVERIFY(dateStrategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(765) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QCOMPARE(dateStrategy->datePattern(), QString("'.'yyyy-MM-dd"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(766) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QCOMPARE(dateStrategy->mode(), DateRolloverStrategy::Suffix)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(767) : message location
+INFO   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QCOMPARE(dateStrategy->maxBackups(), 30)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(768) : message location
+QWARN  : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\policytest-NUGatp" most likely due to the presence of read-only files.
+PASS   : PolicyTest::DateRolloverStrategy_suffixPropertyConfigurator()
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() entering
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(775) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(f.open(QIODevice::WriteOnly))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(782) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(PropertyConfigurator::configure(props))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(801) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QCOMPARE(root->appenders().count(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(804) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(appender != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(807) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(dateStrategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(811) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QCOMPARE(dateStrategy->datePattern(), QString("_yyyy_MM_dd"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(812) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QCOMPARE(dateStrategy->mode(), DateRolloverStrategy::Embedded)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(813) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QCOMPARE(dateStrategy->maxBackups(), 90)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(814) : message location
+INFO   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QVERIFY(appender->file().contains(expectedSuffix))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(818) : message location
+QWARN  : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\policytest-ayHjyA" most likely due to the presence of read-only files.
+PASS   : PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator()
+INFO   : PolicyTest::DefaultRolloverStrategy_defaults() entering
+INFO   : PolicyTest::DefaultRolloverStrategy_defaults() QCOMPARE(strategy.minIndex(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(828) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_defaults() QCOMPARE(strategy.maxIndex(), 7)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(829) : message location
+PASS   : PolicyTest::DefaultRolloverStrategy_defaults()
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() entering
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(835) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(result, basePath)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(863) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QVERIFY(QFile::exists(basePath + ".1"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(864) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".1"), "round1")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(865) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QVERIFY(!QFile::exists(basePath))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(866) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".1"), "round2")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(871) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".2"), "round1")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(872) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".1"), "round3")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(877) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".2"), "round2")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(878) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".3"), "round1")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(879) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".1"), "round4")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(884) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".2"), "round3")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(885) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QCOMPARE(readFile(basePath + ".3"), "round2")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(886) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_rollover() QVERIFY(!QFile::exists(basePath + ".4"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(888) : message location
+PASS   : PolicyTest::DefaultRolloverStrategy_rollover()
+INFO   : PolicyTest::DefaultRolloverStrategy_noExistingFile() entering
+INFO   : PolicyTest::DefaultRolloverStrategy_noExistingFile() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(894) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_noExistingFile() QCOMPARE(result, basePath)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(903) : message location
+PASS   : PolicyTest::DefaultRolloverStrategy_noExistingFile()
+INFO   : PolicyTest::DefaultRolloverStrategy_singleBackup() entering
+INFO   : PolicyTest::DefaultRolloverStrategy_singleBackup() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(909) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_singleBackup() QCOMPARE(readFile(basePath + ".1"), "first")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(936) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_singleBackup() QCOMPARE(readFile(basePath + ".1"), "second")
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(941) : message location
+INFO   : PolicyTest::DefaultRolloverStrategy_singleBackup() QVERIFY(!QFile::exists(basePath + ".2"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(942) : message location
+PASS   : PolicyTest::DefaultRolloverStrategy_singleBackup()
+INFO   : PolicyTest::Factory_createTriggeringPolicy() entering
+INFO   : PolicyTest::Factory_createTriggeringPolicy(SizeBasedTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(SizeBasedTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(SizeBased) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(SizeBased)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::SizeBasedTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::SizeBasedTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(TimeBasedTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(TimeBasedTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(TimeBased) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(TimeBased)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::TimeBasedTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::TimeBasedTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(CronTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(CronTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(Cron) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(Cron)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::CronTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::CronTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(OnStartupTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(OnStartupTriggeringPolicy)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(OnStartup) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(OnStartup)
+INFO   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::OnStartupTriggeringPolicy) QVERIFY(policy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(975) : message location
+PASS   : PolicyTest::Factory_createTriggeringPolicy(Log4Qt::OnStartupTriggeringPolicy)
+INFO   : PolicyTest::Factory_createRolloverStrategy() entering
+INFO   : PolicyTest::Factory_createRolloverStrategy(DefaultRolloverStrategy) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(DefaultRolloverStrategy)
+INFO   : PolicyTest::Factory_createRolloverStrategy(Default) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(Default)
+INFO   : PolicyTest::Factory_createRolloverStrategy(Log4Qt::DefaultRolloverStrategy) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(Log4Qt::DefaultRolloverStrategy)
+INFO   : PolicyTest::Factory_createRolloverStrategy(DateRolloverStrategy) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(DateRolloverStrategy)
+INFO   : PolicyTest::Factory_createRolloverStrategy(Date) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(Date)
+INFO   : PolicyTest::Factory_createRolloverStrategy(Log4Qt::DateRolloverStrategy) QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(997) : message location
+PASS   : PolicyTest::Factory_createRolloverStrategy(Log4Qt::DateRolloverStrategy)
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() entering
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(tempDir.isValid())
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1008) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(PropertyConfigurator::configure(props))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1023) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QCOMPARE(root->appenders().count(), 1)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1026) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(appender != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1029) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(appender->triggeringPolicy() != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1030) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(appender->rolloverStrategy() != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1031) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(cronPolicy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1035) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QCOMPARE(cronPolicy->schedule(), QString("0 0 0 * * ?"))
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1036) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QVERIFY(strategy != nullptr)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1039) : message location
+INFO   : PolicyTest::PropertyConfigurator_cronPolicy() QCOMPARE(strategy->maxIndex(), 5)
+C:\Workspace\log4qt\tests\policytest\tst_policytest.cpp(1040) : message location
+QWARN  : PolicyTest::PropertyConfigurator_cronPolicy() QTemporaryDir: Unable to remove "C:\\Users\\bacher\\AppData\\Local\\Temp\\policytest-hTkhEc" most likely due to the presence of read-only files.
+PASS   : PolicyTest::PropertyConfigurator_cronPolicy()
+INFO   : PolicyTest::cleanupTestCase() entering
+PASS   : PolicyTest::cleanupTestCase()
+Totals: 91 passed, 0 failed, 0 skipped, 0 blacklisted, 1298ms
+********* Finished testing of PolicyTest *********

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Solution>
+	<Configurations>
+		<BuildType Name="Debug"/>
+		<BuildType Name="Release"/>
+		<BuildType Name="MinSizeRel"/>
+		<BuildType Name="RelWithDebInfo"/>
+		<Platform Name="x64"/>
+	</Configurations>
+	<Project Path="examples/basic/basic.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="3916cd2b-70ae-3b5e-a635-e5fac1334b5f">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="tests/dailyrollingfileappendertest/dailyrollingfileappendertest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="eaec4144-e79e-324a-b657-99748b90f6d1">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="documentation.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="95023df7-af29-3dff-af27-c7a6c7e48e29">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<Build Solution="Debug|*" Project="false"/>
+		<Build Solution="Release|*" Project="false"/>
+		<Build Solution="MinSizeRel|*" Project="false"/>
+		<Build Solution="RelWithDebInfo|*" Project="false"/>
+	</Project>
+	<Project Path="tests/filewatcher/filewatchertest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="39d12f25-3d69-3d42-9697-fb6f7c2c055e">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="githubworkflows.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="6b193fdd-f643-32a9-87ac-a1ff9ddd9e6a">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<Build Solution="Debug|*" Project="false"/>
+		<Build Solution="Release|*" Project="false"/>
+		<Build Solution="MinSizeRel|*" Project="false"/>
+		<Build Solution="RelWithDebInfo|*" Project="false"/>
+	</Project>
+	<Project Path="tests/jsontest/jsontest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="b4842de4-df26-3dfa-8598-245845b1fa8b">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="src/log4qt/log4qt.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="6a7315ba-3a83-31f5-96d2-ee1dfd7c9b57">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="tests/log4qttest/log4qttest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="4c6a56da-7f20-3671-a328-dd22dc4ef429">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="tests/performancetest/performancetest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="ac8242f8-98d3-345f-b842-0a690b8652ac">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="tests/policytest/policytest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="10460a2d-de75-383f-8780-be398fa43b91">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="examples/propertyconfigurator/propertyconfigurator.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="291fd7d4-35ef-35f1-9736-0b18ea24409f">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="tests/propertytest/propertytest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="6776b36e-2783-38b0-88bb-36bdf42b54ef">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="tests/performancetest/qstring_benchmark.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="8019ae5f-703a-36a1-9034-9f20e19cdd91">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Project Path="uninstall.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="fa8fe84a-b86c-3c0a-ab06-23d0208f1a1b">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<Build Solution="Debug|*" Project="false"/>
+		<Build Solution="Release|*" Project="false"/>
+		<Build Solution="MinSizeRel|*" Project="false"/>
+		<Build Solution="RelWithDebInfo|*" Project="false"/>
+	</Project>
+	<Project Path="tests/xmltest/xmltest.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="fdf0f081-08ee-3a03-b033-f97b774e2da1">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+	</Project>
+	<Folder Name="/CMakePredefinedTargets/">
+		<Project Path="ALL_BUILD.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="416cab3f-b6b8-34e6-afa5-848005588954" DefaultStartup="true">
+			<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+			<BuildDependency Project="examples/basic/basic.vcxproj"/>
+			<BuildDependency Project="tests/dailyrollingfileappendertest/dailyrollingfileappendertest.vcxproj"/>
+			<BuildDependency Project="tests/filewatcher/filewatchertest.vcxproj"/>
+			<BuildDependency Project="tests/jsontest/jsontest.vcxproj"/>
+			<BuildDependency Project="src/log4qt/log4qt.vcxproj"/>
+			<BuildDependency Project="tests/log4qttest/log4qttest.vcxproj"/>
+			<BuildDependency Project="tests/performancetest/performancetest.vcxproj"/>
+			<BuildDependency Project="tests/policytest/policytest.vcxproj"/>
+			<BuildDependency Project="examples/propertyconfigurator/propertyconfigurator.vcxproj"/>
+			<BuildDependency Project="tests/propertytest/propertytest.vcxproj"/>
+			<BuildDependency Project="tests/performancetest/qstring_benchmark.vcxproj"/>
+			<BuildDependency Project="tests/xmltest/xmltest.vcxproj"/>
+		</Project>
+		<Project Path="INSTALL.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="fc7ed0b5-ef68-3441-84be-0b0c7ab7fe41">
+			<BuildDependency Project="ALL_BUILD.vcxproj"/>
+			<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+			<Build Solution="Debug|*" Project="false"/>
+			<Build Solution="Release|*" Project="false"/>
+			<Build Solution="MinSizeRel|*" Project="false"/>
+			<Build Solution="RelWithDebInfo|*" Project="false"/>
+		</Project>
+		<Project Path="PACKAGE.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="585d43fd-5a1f-3e20-9fb6-b729696debf2">
+			<BuildDependency Project="ALL_BUILD.vcxproj"/>
+			<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+			<Build Solution="Debug|*" Project="false"/>
+			<Build Solution="Release|*" Project="false"/>
+			<Build Solution="MinSizeRel|*" Project="false"/>
+			<Build Solution="RelWithDebInfo|*" Project="false"/>
+		</Project>
+		<Project Path="RUN_TESTS.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="7141bef3-0fb9-349b-8e05-3b8a71b24264">
+			<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+			<Build Solution="Debug|*" Project="false"/>
+			<Build Solution="Release|*" Project="false"/>
+			<Build Solution="MinSizeRel|*" Project="false"/>
+			<Build Solution="RelWithDebInfo|*" Project="false"/>
+		</Project>
+		<Project Path="ZERO_CHECK.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="5be077e3-a9e1-37fa-b608-0975b40498ab"/>
+	</Folder>
+</Solution>
