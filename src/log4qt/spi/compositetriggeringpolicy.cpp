@@ -44,13 +44,12 @@ void CompositeTriggeringPolicy::activateOptions()
         policy->activateOptions();
 }
 
-bool CompositeTriggeringPolicy::isTriggeringEvent(const QString &fileName,
-                                                    qint64 fileSize,
+bool CompositeTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
                                                     const LoggingEvent &event)
 {
     for (const auto &policy : mPolicies)
     {
-        if (policy->isTriggeringEvent(fileName, fileSize, event))
+        if (policy->isTriggeringEvent(activeFile, event))
             return true;
     }
     return false;

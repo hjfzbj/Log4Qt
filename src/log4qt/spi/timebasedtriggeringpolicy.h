@@ -99,8 +99,7 @@ public:
 
     void activateOptions() override;
 
-    bool isTriggeringEvent(const QString &fileName,
-                           qint64 fileSize,
+    bool isTriggeringEvent(QIODevice *activeFile,
                            const LoggingEvent &event) override;
 
 private:

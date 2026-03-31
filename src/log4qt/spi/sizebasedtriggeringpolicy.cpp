@@ -22,6 +22,8 @@
 
 #include "helpers/optionconverter.h"
 
+#include <QIODevice>
+
 namespace Log4Qt
 {
 
@@ -39,13 +41,11 @@ void SizeBasedTriggeringPolicy::setMaxFileSize(const QString &maxFileSize)
         setMaximumFileSize(size);
 }
 
-bool SizeBasedTriggeringPolicy::isTriggeringEvent(const QString &fileName,
-                                                   qint64 fileSize,
+bool SizeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
                                                    const LoggingEvent &event)
 {
-    Q_UNUSED(fileName)
     Q_UNUSED(event)
-    return fileSize > mMaximumFileSize;
+    return activeFile && activeFile->size() > mMaximumFileSize;
 }
 
 } // namespace Log4Qt

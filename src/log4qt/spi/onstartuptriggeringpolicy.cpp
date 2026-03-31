@@ -30,12 +30,10 @@ OnStartupTriggeringPolicy::OnStartupTriggeringPolicy(QObject *parent) :
 {
 }
 
-bool OnStartupTriggeringPolicy::isTriggeringEvent(const QString &fileName,
-                                                    qint64 fileSize,
+bool OnStartupTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
                                                     const LoggingEvent &event)
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(fileSize)
+    Q_UNUSED(activeFile)
     Q_UNUSED(event)
     return false;
 }

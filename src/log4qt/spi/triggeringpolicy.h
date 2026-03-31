@@ -26,6 +26,8 @@
 
 #include <QObject>
 
+class QIODevice;
+
 namespace Log4Qt
 {
 
@@ -56,12 +58,12 @@ public:
     /*!
      * Returns \c true if a rollover should be triggered.
      *
-     * \param fileName The current active log file path.
-     * \param fileSize The current file size in bytes.
-     * \param event The logging event about to be written.
+     * \param activeFile The underlying QIODevice of the active log file.
+     *        Policies that need the file size (e.g. SizeBasedTriggeringPolicy)
+     *        call \c activeFile->size(); all others may ignore this parameter.
+     * \param event The logging event that was just written.
      */
-    virtual bool isTriggeringEvent(const QString &fileName,
-                                   qint64 fileSize,
+    virtual bool isTriggeringEvent(QIODevice *activeFile,
                                    const LoggingEvent &event) = 0;
 
     /*!

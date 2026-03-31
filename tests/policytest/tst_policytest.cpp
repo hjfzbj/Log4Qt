@@ -18,6 +18,7 @@
  *
  ******************************************************************************/
 
+#include <QBuffer>
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
@@ -284,8 +285,12 @@ void PolicyTest::SizeBasedTriggeringPolicy_trigger()
     Log4Qt::SizeBasedTriggeringPolicy policy;
     policy.setMaximumFileSize(maxSize);
 
+    QBuffer buffer;
+    buffer.open(QIODevice::ReadWrite);
+    buffer.buffer().resize(fileSize);
+
     LoggingEvent event;
-    QCOMPARE(policy.isTriggeringEvent(QString(), fileSize, event), expected);
+    QCOMPARE(policy.isTriggeringEvent(&buffer, event), expected);
 }
 
 void PolicyTest::SizeBasedTriggeringPolicy_maxFileSize_string()
@@ -352,7 +357,7 @@ void PolicyTest::TimeBasedTriggeringPolicy_invalidPattern()
 
     // Pattern that doesn't change at any frequency -> always returns false
     LoggingEvent event;
-    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), false);
 }
 
 void PolicyTest::TimeBasedTriggeringPolicy_intervalDefaults()
@@ -397,7 +402,7 @@ void PolicyTest::TimeBasedTriggeringPolicy_modulateAlignment()
 
     // Should not trigger immediately since rollover time is in the future
     LoggingEvent event;
-    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), false);
 }
 
 void PolicyTest::TimeBasedTriggeringPolicy_maxRandomDelayNonNegative()
@@ -475,7 +480,7 @@ void PolicyTest::CronTriggeringPolicy_invalidSchedule()
     policy.activateOptions();
 
     LoggingEvent event;
-    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), false);
 }
 
 void PolicyTest::CronTriggeringPolicy_activateAndTrigger()
@@ -489,7 +494,7 @@ void PolicyTest::CronTriggeringPolicy_activateAndTrigger()
     QTest::qWait(1100);
 
     LoggingEvent event;
-    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), true);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), true);
 
     // After triggering, next fire time is recomputed; immediate re-check should be false
     // (unless another second boundary was crossed during the call)
@@ -505,8 +510,7 @@ void PolicyTest::OnStartupTriggeringPolicy_isTriggeringEvent()
     LoggingEvent event;
 
     // Always returns false regardless of parameters
-    QCOMPARE(policy.isTriggeringEvent("anyfile.log", 999, event), false);
-    QCOMPARE(policy.isTriggeringEvent(QString(), 0, event), false);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), false);
 }
 
 void PolicyTest::OnStartupTriggeringPolicy_isStartupTrigger_data()
@@ -553,7 +557,7 @@ void PolicyTest::CompositeTriggeringPolicy_empty()
     Log4Qt::CompositeTriggeringPolicy policy;
     LoggingEvent event;
 
-    QCOMPARE(policy.isTriggeringEvent(QString(), 100, event), false);
+    QCOMPARE(policy.isTriggeringEvent(nullptr, event), false);
     QCOMPARE(policy.isStartupTrigger(QString(), 0), false);
     QCOMPARE(policy.policies().count(), 0);
 }
@@ -577,14 +581,24 @@ void PolicyTest::CompositeTriggeringPolicy_orCombination()
 
     LoggingEvent event;
 
+    auto makeBuffer = [](qint64 size) {
+        auto buf = std::make_unique<QBuffer>();
+        buf->open(QIODevice::ReadWrite);
+        buf->buffer().resize(size);
+        return buf;
+    };
+
     // 50 bytes: neither triggers
-    QCOMPARE(composite.isTriggeringEvent(QString(), 50, event), false);
+    auto buf50 = makeBuffer(50);
+    QCOMPARE(composite.isTriggeringEvent(buf50.get(), event), false);
 
     // 200 bytes: policy1 triggers (> 100), policy2 doesn't
-    QCOMPARE(composite.isTriggeringEvent(QString(), 200, event), true);
+    auto buf200 = makeBuffer(200);
+    QCOMPARE(composite.isTriggeringEvent(buf200.get(), event), true);
 
     // 600 bytes: both trigger
-    QCOMPARE(composite.isTriggeringEvent(QString(), 600, event), true);
+    auto buf600 = makeBuffer(600);
+    QCOMPARE(composite.isTriggeringEvent(buf600.get(), event), true);
 }
 
 void PolicyTest::CompositeTriggeringPolicy_startupTrigger()

@@ -117,8 +117,7 @@ void RollingFileAppender::append(const LoggingEvent &event)
     FileAppender::append(event);
     if (mTriggeringPolicy)
     {
-        qint64 fileSize = writer()->device()->size();
-        if (mTriggeringPolicy->isTriggeringEvent(file(), fileSize, event))
+        if (mTriggeringPolicy->isTriggeringEvent(writer()->device(), event))
             rollOver();
     }
 }
