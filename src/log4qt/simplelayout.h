@@ -46,7 +46,7 @@ private:
     bool mShowLevel;
 
 public:
-    bool showLevel() const;
+    [[nodiscard]] bool showLevel() const;
     void setShowLevel(bool show);
 
     QString format(const LoggingEvent &event) override;

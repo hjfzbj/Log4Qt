@@ -284,7 +284,7 @@ QString PatternFormatter::format(const LoggingEvent &loggingEvent) const
 
 
 bool PatternFormatter::addDigit(QChar digit,
-                                int &value)
+                                int &value) const
 {
     if (!digit.isDigit())
         return false;
@@ -618,7 +618,7 @@ void PatternConverter::format(QString &format, const LoggingEvent &loggingEvent)
     s.reserve(64);
     convert(s, loggingEvent);
 
-    Q_DECL_CONSTEXPR const QLatin1Char space(' ');
+    constexpr QLatin1Char space(' ');
 
     // If the data item is longer than the maximum field, then the extra characters
     // are removed from the beginning of the data item and not from the end.

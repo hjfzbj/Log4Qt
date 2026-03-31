@@ -127,10 +127,10 @@ private:
     Q_DISABLE_COPY_MOVE(TTCCLayout)
 
 public:
-    bool categoryPrefixing() const;
-    bool contextPrinting() const;
-    QString dateFormat() const;
-    bool threadPrinting() const;
+    [[nodiscard]] bool categoryPrefixing() const;
+    [[nodiscard]] bool contextPrinting() const;
+    [[nodiscard]] QString dateFormat() const;
+    [[nodiscard]] bool threadPrinting() const;
     void setCategoryPrefixing(bool categoryPrefixing);
     void setContextPrinting(bool contextPrinting);
     void setDateFormat(const QString &dateFormat);

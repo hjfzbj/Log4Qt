@@ -88,7 +88,7 @@ private:
      * \a value is set to INT_MAX.
      */
     bool addDigit(QChar digit,
-                  int &value);
+                  int &value) const;
 
     /*!
      * Creates a PatternConverter based on the specified conversion

@@ -70,10 +70,10 @@ public:
     explicit DailyRollingFileAppender(QObject *parent = nullptr);
     DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern = QString(), int keepDays = 0, QObject *parent = nullptr);
 
-    QString datePattern() const;
+    [[nodiscard]] QString datePattern() const;
     void setDatePattern(const QString &datePattern);
 
-    int keepDays() const;
+    [[nodiscard]] int keepDays() const;
     void setKeepDays(int keepDays);
 
     void activateOptions() override;
