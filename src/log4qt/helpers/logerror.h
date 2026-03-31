@@ -511,7 +511,7 @@ inline QList<LogError> LogError::causingErrors() const
 
 inline bool LogError::isEmpty() const
 {
-    return mCode || !mMessage.isEmpty();
+    return (mCode == 0) && mMessage.isEmpty();
 }
 
 inline QString LogError::messageWithArgs() const
