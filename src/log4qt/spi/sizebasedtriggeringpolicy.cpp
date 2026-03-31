@@ -41,11 +41,11 @@ void SizeBasedTriggeringPolicy::setMaxFileSize(const QString &maxFileSize)
         setMaximumFileSize(size);
 }
 
-bool SizeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
+bool SizeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
                                                    const LoggingEvent &event)
 {
     Q_UNUSED(event)
-    return activeFile && activeFile->size() > mMaximumFileSize;
+    return activeDevice && activeDevice->pos() > mMaximumFileSize;
 }
 
 } // namespace Log4Qt

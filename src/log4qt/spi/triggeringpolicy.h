@@ -58,12 +58,13 @@ public:
     /*!
      * Returns \c true if a rollover should be triggered.
      *
-     * \param activeFile The underlying QIODevice of the active log file.
+     * \param activeDevice The underlying QIODevice of the active log file.
      *        Policies that need the file size (e.g. SizeBasedTriggeringPolicy)
-     *        call \c activeFile->size(); all others may ignore this parameter.
+     *        call \c activeDevice->pos() which reads a cached value (no syscall).
+     *        All other policies ignore this parameter.
      * \param event The logging event that was just written.
      */
-    virtual bool isTriggeringEvent(QIODevice *activeFile,
+    virtual bool isTriggeringEvent(QIODevice *activeDevice,
                                    const LoggingEvent &event) = 0;
 
     /*!

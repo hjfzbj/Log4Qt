@@ -57,7 +57,7 @@ public:
     QString maxFileSize() const;
     void setMaxFileSize(const QString &maxFileSize);
 
-    bool isTriggeringEvent(QIODevice *activeFile,
+    bool isTriggeringEvent(QIODevice *activeDevice,
                            const LoggingEvent &event) override;
 
 private:

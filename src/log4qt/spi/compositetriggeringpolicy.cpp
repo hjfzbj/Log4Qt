@@ -44,12 +44,12 @@ void CompositeTriggeringPolicy::activateOptions()
         policy->activateOptions();
 }
 
-bool CompositeTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
+bool CompositeTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
                                                     const LoggingEvent &event)
 {
     for (const auto &policy : mPolicies)
     {
-        if (policy->isTriggeringEvent(activeFile, event))
+        if (policy->isTriggeringEvent(activeDevice, event))
             return true;
     }
     return false;

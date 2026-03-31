@@ -30,10 +30,10 @@ OnStartupTriggeringPolicy::OnStartupTriggeringPolicy(QObject *parent) :
 {
 }
 
-bool OnStartupTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
+bool OnStartupTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
                                                     const LoggingEvent &event)
 {
-    Q_UNUSED(activeFile)
+    Q_UNUSED(activeDevice)
     Q_UNUSED(event)
     return false;
 }

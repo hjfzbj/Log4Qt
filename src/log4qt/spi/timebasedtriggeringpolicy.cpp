@@ -46,10 +46,10 @@ void TimeBasedTriggeringPolicy::activateOptions()
         computeRollOverTime();
 }
 
-bool TimeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
+bool TimeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
                                                     const LoggingEvent &event)
 {
-    Q_UNUSED(activeFile)
+    Q_UNUSED(activeDevice)
     Q_UNUSED(event)
 
     if (mActiveDatePattern.isEmpty())

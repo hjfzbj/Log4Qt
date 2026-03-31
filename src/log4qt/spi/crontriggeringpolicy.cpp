@@ -43,10 +43,10 @@ void CronTriggeringPolicy::activateOptions()
     computeNextFireTime();
 }
 
-bool CronTriggeringPolicy::isTriggeringEvent(QIODevice *activeFile,
+bool CronTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
                                                const LoggingEvent &event)
 {
-    Q_UNUSED(activeFile)
+    Q_UNUSED(activeDevice)
     Q_UNUSED(event)
 
     if (!mNextFireTime.isValid())

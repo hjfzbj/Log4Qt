@@ -37,7 +37,7 @@ class LOG4QT_EXPORT OnStartupTriggeringPolicy : public TriggeringPolicy
 public:
     explicit OnStartupTriggeringPolicy(QObject *parent = nullptr);
 
-    bool isTriggeringEvent(QIODevice *activeFile,
+    bool isTriggeringEvent(QIODevice *activeDevice,
                            const LoggingEvent &event) override;
 
     bool isStartupTrigger(const QString &fileName, qint64 fileSize) override;

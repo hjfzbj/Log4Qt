@@ -64,7 +64,7 @@ public:
 
     void activateOptions() override;
 
-    bool isTriggeringEvent(QIODevice *activeFile,
+    bool isTriggeringEvent(QIODevice *activeDevice,
                            const LoggingEvent &event) override;
 
 private:

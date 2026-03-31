@@ -288,6 +288,7 @@ void PolicyTest::SizeBasedTriggeringPolicy_trigger()
     QBuffer buffer;
     buffer.open(QIODevice::ReadWrite);
     buffer.buffer().resize(fileSize);
+    buffer.seek(fileSize);
 
     LoggingEvent event;
     QCOMPARE(policy.isTriggeringEvent(&buffer, event), expected);
@@ -581,10 +582,11 @@ void PolicyTest::CompositeTriggeringPolicy_orCombination()
 
     LoggingEvent event;
 
-    auto makeBuffer = [](qint64 size) {
+    auto makeBuffer = [](qint64 pos) {
         auto buf = std::make_unique<QBuffer>();
         buf->open(QIODevice::ReadWrite);
-        buf->buffer().resize(size);
+        buf->buffer().resize(pos);
+        buf->seek(pos);
         return buf;
     };
 
