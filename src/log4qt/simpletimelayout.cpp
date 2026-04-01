@@ -20,9 +20,9 @@
 
 #include "simpletimelayout.h"
 
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 #include "helpers/datetime.h"
-
 
 namespace Log4Qt
 {

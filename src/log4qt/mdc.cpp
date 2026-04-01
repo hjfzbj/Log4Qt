@@ -23,8 +23,6 @@
 #include <QMutex>
 #include <QThread>
 #include "helpers/initialisationhelper.h"
-#include "logger.h"
-
 
 namespace Log4Qt
 {

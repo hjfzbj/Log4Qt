@@ -29,7 +29,6 @@
 
 #include <QString>
 
-#include <limits>
 #include <utility>
 
 namespace Log4Qt

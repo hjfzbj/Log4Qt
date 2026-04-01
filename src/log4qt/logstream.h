@@ -25,8 +25,9 @@
 
 #include <QTextStream>
 #include <QString>
-#include <memory>
 #include <QPointer>
+
+#include <memory>
 
 #ifdef __cpp_concepts
 #include <concepts>

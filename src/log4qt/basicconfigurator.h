@@ -21,8 +21,7 @@
 #ifndef LOG4QT_BASICCONFIGURATOR_H
 #define LOG4QT_BASICCONFIGURATOR_H
 
-#include "log4qtdefs.h"
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 namespace Log4Qt
 {

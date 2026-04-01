@@ -20,9 +20,7 @@
 
 #include "ttcclayout.h"
 
-#include "helpers/datetime.h"
 #include "helpers/patternformatter.h"
-#include "logger.h"
 #include "loggingevent.h"
 
 #include <QDateTime>

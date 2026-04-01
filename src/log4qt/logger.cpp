@@ -21,9 +21,7 @@
 #include "logger.h"
 
 #include "appenderskeleton.h"
-#include "varia/listappender.h"
 #include "loggingevent.h"
-#include "log4qt.h"
 #include "loggerrepository.h"
 #include "logmanager.h"
 #include "logstream.h"

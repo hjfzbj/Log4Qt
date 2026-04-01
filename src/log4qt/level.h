@@ -26,7 +26,6 @@
 #include <QString>
 #include <QStringView>
 #include <QMetaType>
-#include <compare>
 
 namespace Log4Qt
 {
@@ -46,7 +45,7 @@ public:
     /*!
      * The enumeration Value contains all possible Level values.
      */
-    enum Value : uint8_t
+    enum Value : quint8
     {
         /*! NULL_INT is used for no level has been specified */
         NULL_INT = 0,

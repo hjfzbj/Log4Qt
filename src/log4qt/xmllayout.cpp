@@ -19,6 +19,8 @@
  ******************************************************************************/
 
 #include "xmllayout.h"
+
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 
 #include <QXmlStreamWriter>

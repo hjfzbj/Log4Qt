@@ -21,7 +21,7 @@
 #ifndef LOG4QT_JSONCONFIGURATOR_H
 #define LOG4QT_JSONCONFIGURATOR_H
 
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 class QJsonObject;
 

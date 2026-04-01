@@ -18,10 +18,9 @@
  *
  ******************************************************************************/
 
+#include "log4qtdefs.h"
 #include "layout.h"
 
-#include "loggingevent.h"
-#include "logmanager.h"
 
 namespace Log4Qt
 {

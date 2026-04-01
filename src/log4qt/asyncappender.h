@@ -21,6 +21,7 @@
 #ifndef LOG4QT_ASYNCAPPENDER_H
 #define LOG4QT_ASYNCAPPENDER_H
 
+#include "log4qtshared.h"
 #include "appenderskeleton.h"
 #include "helpers/appenderattachable.h"
 

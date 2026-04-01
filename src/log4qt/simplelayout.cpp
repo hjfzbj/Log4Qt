@@ -20,6 +20,7 @@
 
 #include "simplelayout.h"
 
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 
 namespace Log4Qt

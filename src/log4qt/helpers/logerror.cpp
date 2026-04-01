@@ -19,7 +19,7 @@
  ******************************************************************************/
 
 #include "helpers/logerror.h"
-#include "helpers/initialisationhelper.h"
+#include "log4qtdefs.h"
 
 #include <QBuffer>
 #include <QByteArray>

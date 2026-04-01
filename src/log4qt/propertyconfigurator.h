@@ -21,8 +21,7 @@
 #ifndef LOG4QT_PROPERTYCONFIGURATOR_H
 #define LOG4QT_PROPERTYCONFIGURATOR_H
 
-#include "log4qt.h"
-#include "layout.h"
+#include "log4qtshared.h"
 #include "appender.h"
 
 #include <QHash>

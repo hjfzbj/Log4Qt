@@ -20,7 +20,6 @@
 
 #include "loggingevent.h"
 
-#include "helpers/datetime.h"
 #include "helpers/initialisationhelper.h"
 #include "helpers/timestampprovider.h"
 #include "logger.h"

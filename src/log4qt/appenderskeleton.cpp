@@ -22,7 +22,6 @@
 
 #include "layout.h"
 #include "loggingevent.h"
-#include "logmanager.h"
 #include "spi/filter.h"
 #include "logger.h"
 

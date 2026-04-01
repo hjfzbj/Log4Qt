@@ -22,7 +22,7 @@
 #define LOG4QT_MDC_H
 
 #include "log4qtdefs.h"
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 #include <QString>
 #include <QHash>

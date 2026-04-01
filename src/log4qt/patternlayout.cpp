@@ -26,7 +26,6 @@
 namespace Log4Qt
 {
 
-
 PatternLayout::PatternLayout(QObject *parent) :
     Layout(parent)
 {
