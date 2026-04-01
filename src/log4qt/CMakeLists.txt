@@ -14,7 +14,7 @@ set(log4qt_SOURCES
     helpers/cronexpression.cpp
     helpers/datetime.cpp
     helpers/asyncworker.cpp
-    helpers/dispatcher.cpp
+
     helpers/factory.cpp
     helpers/initialisationhelper.cpp
     helpers/logerror.cpp
@@ -107,7 +107,7 @@ set(log4qt_HEADERS_helpers
     helpers/configuratorhelper.h
     helpers/cronexpression.h
     helpers/datetime.h
-    helpers/dispatcher.h
+
     helpers/factory.h
     helpers/initialisationhelper.h
     helpers/logerror.h
