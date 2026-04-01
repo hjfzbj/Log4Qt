@@ -68,6 +68,7 @@ class LOG4QT_EXPORT DailyRollingFileAppender : public RollingFileAppender
 public:
     explicit DailyRollingFileAppender(QObject *parent = nullptr);
     DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern = QString(), int keepDays = 0, QObject *parent = nullptr);
+    ~DailyRollingFileAppender() override;
 
     [[nodiscard]] QString datePattern() const;
     void setDatePattern(const QString &datePattern);

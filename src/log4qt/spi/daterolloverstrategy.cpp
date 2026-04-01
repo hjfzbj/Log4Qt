@@ -128,6 +128,11 @@ void DateRolloverStrategy::activateOptions()
     mActiveSuffix = currentDateTime().toString(mDatePattern);
 }
 
+void DateRolloverStrategy::waitForCleanup()
+{
+    mCleanupExecutors.waitForFinished();
+}
+
 QDateTime DateRolloverStrategy::currentDateTime() const
 {
     return mDateTimeProvider ? mDateTimeProvider() : QDateTime::currentDateTime();

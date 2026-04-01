@@ -115,6 +115,9 @@ public:
     void activateOptions() override;
     QString rollover(const QString &fileName) override;
 
+    // Blocks until all pending async cleanup tasks have finished.
+    void waitForCleanup();
+
 private:
     Q_DISABLE_COPY_MOVE(DateRolloverStrategy)
 

@@ -23,12 +23,19 @@
 #include "loggingevent.h"
 #include "spi/daterolloverstrategy.h"
 
-#include <QDir>
-
 namespace Log4Qt
 {
 
 IDateRetriever::~IDateRetriever() = default;
+
+DailyRollingFileAppender::~DailyRollingFileAppender()
+{
+    // deleteLater() defers QObject destruction, so the strategy's QFutureSynchronizer
+    // would not wait synchronously if we relied on the shared_ptr's deleter alone.
+    // Explicitly wait here, while the strategy is still alive.
+    if (auto *strategy = qobject_cast<DateRolloverStrategy *>(rolloverStrategy().get()))
+        strategy->waitForCleanup();
+}
 
 QDate DefaultDateRetriever::currentDate() const
 {
@@ -99,6 +106,7 @@ void DailyRollingFileAppender::activateOptions()
     mLastDate = mDateRetriever->currentDate();
     closeFile();
     setFile(strategy->rollover(mOriginalFilename));
+    strategy->waitForCleanup();
 
     FileAppender::activateOptions();
 }
