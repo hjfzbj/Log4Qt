@@ -1,3 +1,4 @@
+add_subdirectory(asyncappendertest)
 add_subdirectory(dailyrollingfileappendertest)
 add_subdirectory(jsontest)
 add_subdirectory(log4qttest)

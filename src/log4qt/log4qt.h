@@ -579,7 +579,9 @@ enum ErrorCode
     AppenderExecSqlQueryError,
     AppenderInvalidDatabaseLayoutError,
     AppenderTelnetServerNotRunning,
-    AppenderAsncDispatcherNotRunning
+    AppenderAsncDispatcherNotRunning,
+    AppenderAsyncQueueFull,
+    AppenderAsyncShutdownTimeout
 };
 
 } // namespace Log4Qt

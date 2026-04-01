@@ -24,20 +24,35 @@
 #include "appenderskeleton.h"
 #include "helpers/appenderattachable.h"
 
+#include <atomic>
 #include <memory>
 
 namespace Log4Qt
 {
 
-class Dispatcher;
+class AsyncWorker;
+class LoggingEvent;
+template<typename T> class BoundedBlockingQueue;
 
 /*!
  * \brief The class AsyncAppender lets users log events asynchronously.
  *
- * The AsyncAppender will collect the events sent to it and then dispatch them to all the
- * appenders that are attached to it. You can attach multiple appenders to an AsyncAppender.
+ * The AsyncAppender collects events sent to it into a bounded blocking
+ * queue and dispatches them to all attached appenders on a dedicated
+ * worker thread. You can attach multiple appenders to an AsyncAppender.
  *
- * The AsyncAppender uses a separate thread to serve the events fromthe event loop.
+ * When the queue is full, the behaviour is controlled by the
+ * \l queueFullPolicy property:
+ *
+ * \list
+ * \li \b Block — the calling thread blocks until space is available
+ *     (default). If \l blocking is false, the event is routed to the
+ *     error appender instead of blocking.
+ * \li \b Discard — events at or below the \l discardThreshold level
+ *     are silently dropped; higher-priority events still block.
+ * \li \b Synchronous — the event is logged directly on the calling
+ *     thread, bypassing the queue.
+ * \endlist
  *
  * \note All the functions declared in this class are thread-safe.
  * &nbsp;
@@ -48,34 +63,103 @@ class LOG4QT_EXPORT AsyncAppender : public AppenderSkeleton, public AppenderAtta
 {
     Q_OBJECT
 
+    /*!
+     * The maximum number of events the queue can hold. Applied when
+     * activateOptions() is called. The default is 1024.
+     */
+    Q_PROPERTY(int bufferSize READ bufferSize WRITE setBufferSize)
+
+    /*!
+     * If true (default), the calling thread blocks when the queue is
+     * full (Block policy). If false, the event is routed to the error
+     * appender immediately.
+     */
+    Q_PROPERTY(bool blocking READ blocking WRITE setBlocking)
+
+    /*!
+     * Milliseconds to wait for the queue to drain during shutdown.
+     * 0 (default) means wait indefinitely.
+     */
+    Q_PROPERTY(int shutdownTimeout READ shutdownTimeout WRITE setShutdownTimeout)
+
+    /*!
+     * Events at or below this level are discarded when the queue is
+     * full and the Discard policy is active. The default is INFO.
+     */
+    Q_PROPERTY(Log4Qt::Level discardThreshold READ discardThreshold WRITE setDiscardThreshold)
+
+    /*!
+     * The queue-full policy as a string: "Block", "Discard", or
+     * "Synchronous". The default is "Block".
+     */
+    Q_PROPERTY(QString queueFullPolicy READ queueFullPolicyString WRITE setQueueFullPolicyString)
+
+    /*!
+     * Name of a fallback appender that receives events when the queue
+     * is full and the event cannot be enqueued. Resolved at
+     * activateOptions() time.
+     */
+    Q_PROPERTY(QString errorRef READ errorRef WRITE setErrorRef)
+
 public:
+    /*!
+     * Controls what happens when the queue is full.
+     */
+    enum class QueueFullPolicy
+    {
+        Block,        //!< Caller blocks until space is available (default)
+        Discard,      //!< Drop events at/below discardThreshold
+        Synchronous   //!< Log directly on the calling thread
+    };
+    Q_ENUM(QueueFullPolicy)
+
     AsyncAppender(QObject *parent = nullptr);
     ~AsyncAppender() override;
 
     bool requiresLayout() const override;
 
+    // --- Property accessors ---------------------------------------------------
+
+    int bufferSize() const;
+    void setBufferSize(int size);
+
+    bool blocking() const;
+    void setBlocking(bool blocking);
+
+    int shutdownTimeout() const;
+    void setShutdownTimeout(int timeoutMs);
+
+    Level discardThreshold() const;
+    void setDiscardThreshold(Level level);
+
+    QueueFullPolicy queueFullPolicy() const;
+    void setQueueFullPolicy(QueueFullPolicy policy);
+
+    QString queueFullPolicyString() const;
+    void setQueueFullPolicyString(const QString &policy);
+
+    QString errorRef() const;
+    void setErrorRef(const QString &name);
+
+    void setErrorAppender(const AppenderSharedPtr &appender);
+
+    qint64 discardedCount() const;
+
+    // --- Lifecycle ------------------------------------------------------------
+
     void activateOptions() override;
     void close() override;
     void callAppenders(const LoggingEvent &event) const;
 
-    /*!
-     * Tests if all entry conditions for using append() in this class are
-     * met.
-     *
-     * If a conditions is not met, an error is logged and the function
-     * returns false. Otherwise the result of
-     * AppenderSkeleton::checkEntryConditions() is returned.
-     *
-     * The checked conditions are:
-     * - dispatcher thread running (AppenderAsncDispatcherNotRunning)
-     *
-     * The function is called as part of the checkEntryConditions() chain
-     * started by AppenderSkeleton::doAppend().
-     *
-     * \sa AppenderSkeleton::doAppend(),
-     *     AppenderSkeleton::checkEntryConditions()
-     */
     bool checkEntryConditions() const override;
+
+Q_SIGNALS:
+    /*!
+     * Emitted on the worker thread when the queue becomes empty after
+     * dispatching. Downstream code can connect to this for batch-flush
+     * optimisation.
+     */
+    void batchComplete();
 
 protected:
     void append(const LoggingEvent &event) override;
@@ -83,13 +167,61 @@ protected:
 private:
     Q_DISABLE_COPY_MOVE(AsyncAppender)
 
-    //! Event dispatcher thread
-    std::unique_ptr<QThread> mpThread;
-    std::unique_ptr<Dispatcher> mpDispatcher;
     void closeInternal();
+    void handleQueueFull(const LoggingEvent &event);
+
+    int mBufferSize = 1024;
+    bool mBlocking = true;
+    int mShutdownTimeout = 0;
+    Level mDiscardThreshold{Level::INFO_INT};
+    QueueFullPolicy mQueueFullPolicy = QueueFullPolicy::Block;
+    QString mErrorRef;
+    AppenderSharedPtr mErrorAppender;
+
+    std::unique_ptr<BoundedBlockingQueue<LoggingEvent>> mQueue;
+    std::unique_ptr<AsyncWorker> mWorker;
+
+    std::atomic<qint64> mDiscardedCount{0};
 };
 
+// --- Inline implementations --------------------------------------------------
+
+inline int AsyncAppender::bufferSize() const
+{ return mBufferSize; }
+
+inline void AsyncAppender::setBufferSize(int size)
+{ mBufferSize = size; }
+
+inline bool AsyncAppender::blocking() const
+{ return mBlocking; }
+
+inline void AsyncAppender::setBlocking(bool blocking)
+{ mBlocking = blocking; }
+
+inline int AsyncAppender::shutdownTimeout() const
+{ return mShutdownTimeout; }
+
+inline void AsyncAppender::setShutdownTimeout(int timeoutMs)
+{ mShutdownTimeout = timeoutMs; }
+
+inline Level AsyncAppender::discardThreshold() const
+{ return mDiscardThreshold; }
+
+inline void AsyncAppender::setDiscardThreshold(Level level)
+{ mDiscardThreshold = level; }
+
+inline AsyncAppender::QueueFullPolicy AsyncAppender::queueFullPolicy() const
+{ return mQueueFullPolicy; }
+
+inline QString AsyncAppender::errorRef() const
+{ return mErrorRef; }
+
+inline void AsyncAppender::setErrorRef(const QString &name)
+{ mErrorRef = name; }
+
+inline qint64 AsyncAppender::discardedCount() const
+{ return mDiscardedCount.load(std::memory_order_relaxed); }
 
 } // namespace Log4Qt
 
-#endif // LOG4QT_AsyncAppender_H
+#endif // LOG4QT_ASYNCAPPENDER_H

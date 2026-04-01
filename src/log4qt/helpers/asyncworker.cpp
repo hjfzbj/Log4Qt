@@ -18,47 +18,47 @@
  *
  ******************************************************************************/
 
-#include "mainthreadappender.h"
+#include "helpers/asyncworker.h"
+#include "helpers/boundedblockingqueue.h"
+#include "asyncappender.h"
 #include "loggingevent.h"
 
-#include <QCoreApplication>
-#include <QReadLocker>
-#include <QThread>
+#include <vector>
 
 namespace Log4Qt
 {
 
-MainThreadAppender::MainThreadAppender(QObject *parent) : AppenderSkeleton(parent)
-{}
-
-bool MainThreadAppender::requiresLayout() const
-{
-    return false;
-}
-
-void MainThreadAppender::activateOptions()
+AsyncWorker::AsyncWorker(AsyncAppender *appender,
+                         BoundedBlockingQueue<LoggingEvent> *queue,
+                         QObject *parent)
+    : QThread(parent)
+    , mAppender(appender)
+    , mQueue(queue)
 {
 }
 
-void MainThreadAppender::append(const LoggingEvent &event)
+void AsyncWorker::run()
 {
-    QReadLocker locker(&mAppenderGuard);
+    LoggingEvent event;
 
-    for (const auto& pAppender : mAppenders)
+    while (mQueue->dequeue(event))
     {
-        if (QThread::currentThread() != qApp->thread())
-            qApp->postEvent(pAppender.data(), new LoggingEvent(event));
-        else
-            pAppender->doAppend(event);
-    }
-}
+        mAppender->callAppenders(event);
 
-bool MainThreadAppender::checkEntryConditions() const
-{
-    return AppenderSkeleton::checkEntryConditions();
+        if (mQueue->isEmpty())
+            Q_EMIT mAppender->batchComplete();
+    }
+
+    // Drain remaining events after shutdown signal
+    std::vector<LoggingEvent> remaining;
+    mQueue->drain(remaining, mQueue->capacity());
+    for (const auto &e : remaining)
+        mAppender->callAppenders(e);
+
+    if (!remaining.empty())
+        Q_EMIT mAppender->batchComplete();
 }
 
 } // namespace Log4Qt
 
-#include "moc_mainthreadappender.cpp"
-
+#include "moc_asyncworker.cpp"

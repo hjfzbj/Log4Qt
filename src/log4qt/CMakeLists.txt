@@ -13,6 +13,7 @@ set(log4qt_SOURCES
     helpers/configuratorhelper.cpp
     helpers/cronexpression.cpp
     helpers/datetime.cpp
+    helpers/asyncworker.cpp
     helpers/dispatcher.cpp
     helpers/factory.cpp
     helpers/initialisationhelper.cpp
@@ -100,6 +101,8 @@ set(log4qt_HEADERS
 )
 set(log4qt_HEADERS_helpers
     helpers/appenderattachable.h
+    helpers/asyncworker.h
+    helpers/boundedblockingqueue.h
     helpers/classlogger.h
     helpers/configuratorhelper.h
     helpers/cronexpression.h
