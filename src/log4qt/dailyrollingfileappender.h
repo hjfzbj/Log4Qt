@@ -24,7 +24,6 @@
 #include "rollingfileappender.h"
 
 #include <QDate>
-#include <QFutureSynchronizer>
 #include <memory>
 #include <QString>
 
@@ -92,8 +91,6 @@ private:
     QDate mLastDate;
     int mKeepDays;
     QString mOriginalFilename;
-
-    QFutureSynchronizer<void> mDeleteObsoleteFilesExecutors;
 };
 
 }

@@ -76,6 +76,13 @@ class LOG4QT_EXPORT DateRolloverStrategy : public RolloverStrategy
      */
     Q_PROPERTY(int maxBackups READ maxBackups WRITE setMaxBackups)
 
+    /*!
+     * Number of days to keep old backup files.
+     * Files whose date (parsed from the filename) is older than
+     * today minus keepDays are deleted. 0 means unlimited (default).
+     */
+    Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
+
 public:
     using DateTimeProvider = std::function<QDateTime()>;
 
@@ -100,6 +107,9 @@ public:
     [[nodiscard]] int maxBackups() const;
     void setMaxBackups(int maxBackups);
 
+    [[nodiscard]] int keepDays() const;
+    void setKeepDays(int keepDays);
+
     void setDateTimeProvider(DateTimeProvider provider);
 
     void activateOptions() override;
@@ -114,6 +124,7 @@ private:
     QString mDatePattern;
     NamingMode mMode;
     int mMaxBackups;
+    int mKeepDays;
     DateTimeProvider mDateTimeProvider;
     QString mActiveSuffix;
     QFutureSynchronizer<void> mCleanupExecutors;
@@ -147,6 +158,16 @@ inline int DateRolloverStrategy::maxBackups() const
 inline void DateRolloverStrategy::setMaxBackups(int maxBackups)
 {
     mMaxBackups = maxBackups;
+}
+
+inline int DateRolloverStrategy::keepDays() const
+{
+    return mKeepDays;
+}
+
+inline void DateRolloverStrategy::setKeepDays(int keepDays)
+{
+    mKeepDays = keepDays;
 }
 
 } // namespace Log4Qt

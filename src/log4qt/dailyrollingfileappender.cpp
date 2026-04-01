@@ -24,13 +24,6 @@
 #include "spi/daterolloverstrategy.h"
 
 #include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QRegularExpression>
-#include <QStringList>
-#include <QtConcurrentRun>
-
-#include <algorithm>
 
 namespace Log4Qt
 {
@@ -84,50 +77,6 @@ void DailyRollingFileAppender::setKeepDays(const int keepDays)
     mKeepDays = keepDays;
 }
 
-namespace
-{
-
-void deleteObsoleteFiles(
-        QDate currentDate,
-        const QString &datePattern,
-        int keepDays,
-        const QString &originalFilename)
-{
-    const QFileInfo fi(originalFilename);
-    const QDir logDir(fi.absolutePath());
-    const auto logFileNames(
-                logDir.entryList(
-                    QStringList(u"*."_s + fi.completeSuffix()),
-                    QDir::NoSymLinks | QDir::Files));
-
-    const QRegularExpression creationDateExtractor(
-                fi.baseName() % u"(.*)"_s % u"."_s % fi.completeSuffix());
-
-    const auto startOfLogging(currentDate.addDays(-keepDays));
-
-    // Helper to check if file is obsolete
-    auto isObsolete = [&](const QString& fileName) -> bool {
-        // determine creation date from file name instead of using file attributes, since file might
-        // have been moved around, modified by user etc.
-        const auto match = creationDateExtractor.match(fileName);
-        if (!match.hasMatch())
-            return false;
-        
-        const auto creationDate = QDate::fromString(match.captured(1), datePattern);
-        return creationDate.isValid() && creationDate < startOfLogging;
-    };
-
-    // Single-pass: filter and delete in one go
-    std::for_each(logFileNames.begin(), logFileNames.end(),
-                  [&](const QString& fileName) {
-                      if (isObsolete(fileName)) {
-                          QFile::remove(logDir.filePath(fileName));
-                      }
-                  });
-}
-
-}
-
 void DailyRollingFileAppender::activateOptions()
 {
     QMutexLocker locker(&mObjectGuard);
@@ -138,23 +87,18 @@ void DailyRollingFileAppender::activateOptions()
         mOriginalFilename = file();
 
     // Set up DateRolloverStrategy in Embedded mode for filename construction.
-    // maxBackups=0 because DailyRollingFileAppender manages its own date-based cleanup via keepDays.
     auto *strategy = new DateRolloverStrategy;
     strategy->setMode(DateRolloverStrategy::Embedded);
     strategy->setDatePattern(mDatePattern);
-    strategy->setMaxBackups(0);
+    strategy->setKeepDays(mKeepDays);
     strategy->setDateTimeProvider([retriever = mDateRetriever]() {
         return QDateTime(retriever->currentDate(), QTime(0, 0));
     });
     setRolloverStrategy(RolloverStrategySharedPtr(strategy));
 
-    // Compute today's dated filename via the strategy
     mLastDate = mDateRetriever->currentDate();
     closeFile();
     setFile(strategy->rollover(mOriginalFilename));
-
-    if (mKeepDays > 0 && !mOriginalFilename.isEmpty())
-        deleteObsoleteFiles(mLastDate, mDatePattern, mKeepDays, mOriginalFilename);
 
     FileAppender::activateOptions();
 }
@@ -169,19 +113,9 @@ void DailyRollingFileAppender::append(const LoggingEvent &event)
     {
         mLastDate = currentDate;
 
-        // Reset to base filename so the strategy receives the un-dated name
+        // Reset to base filename so the strategy receives the un-dated name.
         setFile(mOriginalFilename);
         rollOver();
-
-        // schedule check for obsolete files for asynchronous execution, destructor will wait for
-        // completion of each executor
-        if (mKeepDays > 0 && !mOriginalFilename.isEmpty())
-        {
-            mDeleteObsoleteFilesExecutors.addFuture(
-                        QtConcurrent::run(
-                            deleteObsoleteFiles,
-                            currentDate, mDatePattern, mKeepDays, mOriginalFilename));
-        }
     }
     FileAppender::append(event);
 }

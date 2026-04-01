@@ -28,6 +28,8 @@
 #include <QFileInfo>
 #include <QtConcurrentRun>
 
+#include <QRegularExpression>
+
 #include <algorithm>
 
 namespace
@@ -36,6 +38,9 @@ namespace
 void deleteObsoleteFiles(
         Log4Qt::DateRolloverStrategy::NamingMode mode,
         int maxBackups,
+        int keepDays,
+        const QString &datePattern,
+        const QDate &currentDate,
         const QString &fileName)
 {
     const QFileInfo fi(fileName);
@@ -55,15 +60,33 @@ void deleteObsoleteFiles(
         return entry.absoluteFilePath() == fi.absoluteFilePath();
     });
 
-    if (entries.size() <= maxBackups)
-        return;
+    if (keepDays > 0)
+    {
+        const QDate cutoff = currentDate.addDays(-keepDays);
+        const QRegularExpression dateExtractor(
+            base + u"(.*)"_s + (ext.isEmpty() ? u""_s : u"\\."_s + ext));
 
-    std::sort(entries.begin(), entries.end(), [](const QFileInfo &a, const QFileInfo &b) {
-        return a.lastModified() > b.lastModified();
-    });
+        entries.removeIf([&](const QFileInfo &entry) {
+            const auto match = dateExtractor.match(entry.fileName());
+            if (!match.hasMatch())
+                return false;
 
-    for (int i = maxBackups; i < entries.size(); ++i)
-        QFile::remove(entries.at(i).absoluteFilePath());
+            const auto fileDate = QDate::fromString(match.captured(1), datePattern);
+            if (fileDate.isValid() && fileDate < cutoff)
+                return QFile::remove(entry.absoluteFilePath());
+            return false;
+        });
+    }
+
+    if (maxBackups > 0 && entries.size() > maxBackups)
+    {
+        std::sort(entries.begin(), entries.end(), [](const QFileInfo &a, const QFileInfo &b) {
+            return a.lastModified() > b.lastModified();
+        });
+
+        for (int i = maxBackups; i < entries.size(); ++i)
+            QFile::remove(entries.at(i).absoluteFilePath());
+    }
 }
 
 } // anonymous namespace
@@ -76,6 +99,7 @@ DateRolloverStrategy::DateRolloverStrategy(QObject *parent) :
     mDatePattern(u"'.'yyyy-MM-dd"_s),
     mMode(Suffix),
     mMaxBackups(0),
+    mKeepDays(0),
     mDateTimeProvider([]() { return QDateTime::currentDateTime(); })
 {
 }
@@ -113,6 +137,13 @@ QString DateRolloverStrategy::rollover(const QString &fileName)
 {
     const auto dateTime = currentDateTime();
 
+    auto scheduleCleanup = [&] {
+        if (mMaxBackups > 0 || mKeepDays > 0)
+            mCleanupExecutors.addFuture(
+                QtConcurrent::run(deleteObsoleteFiles, mMode, mMaxBackups,
+                                  mKeepDays, mDatePattern, dateTime.date(), fileName));
+    };
+
     if (mMode == Suffix)
     {
         // Use the active suffix to name the backup after the period it belongs to.
@@ -125,18 +156,13 @@ QString DateRolloverStrategy::rollover(const QString &fileName)
             removeFile(backupName);
         if (QFile::exists(fileName))
             renameFile(fileName, backupName);
-        if (mMaxBackups > 0)
-            mCleanupExecutors.addFuture(
-                QtConcurrent::run(deleteObsoleteFiles, mMode, mMaxBackups, fileName));
+        scheduleCleanup();
         return fileName;
     }
 
-    // Embedded mode: return the new dated filename for the current period
     mActiveSuffix = dateTime.toString(mDatePattern);
     const QString backupName = buildBackupName(fileName, dateTime);
-    if (mMaxBackups > 0)
-        mCleanupExecutors.addFuture(
-            QtConcurrent::run(deleteObsoleteFiles, mMode, mMaxBackups, fileName));
+    scheduleCleanup();
     return backupName;
 }
 
