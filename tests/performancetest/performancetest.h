@@ -45,6 +45,9 @@ private slots:
 
     void testAppenderComparison();
     void testAppenderComparison_data();
+
+    void testAppenderComparisonMultiThreaded();
+    void testAppenderComparisonMultiThreaded_data();
     
     void testMultiThreadedLoggingPerformance();
     void testMultiThreadedLoggingPerformance_data();

@@ -34,6 +34,15 @@
 namespace Log4Qt
 {
 
+// Thread-local staging buffer filled by preAppend() and consumed by append().
+// Exposed via a function to avoid MSVC C2492 (thread-local data must not have
+// DLL linkage when declared as an exported class member).
+static QByteArray &encodedMessageBuffer()
+{
+    thread_local QByteArray buf;
+    return buf;
+}
+
 RandomAccessFileAppender::RandomAccessFileAppender(QObject *parent)
     : AppenderSkeleton(false, parent)
     , mAppendFile(false)
@@ -141,14 +150,28 @@ bool RandomAccessFileAppender::handleIoErrors() const
     return true;
 }
 
+void RandomAccessFileAppender::preAppend(const LoggingEvent &event, const LayoutSharedPtr &layout)
+{
+    // Called outside mObjectGuard — format and encode here so that append()
+    // (which runs under the lock) only needs to copy bytes into the buffer.
+    encodedMessageBuffer() = layout->format(event).toUtf8();
+}
+
 void RandomAccessFileAppender::append(const LoggingEvent &event)
 {
-    const QByteArray encoded = layout()->format(event).toUtf8();
+    Q_UNUSED(event)
+    // s_encodedMessage was filled by preAppend() outside the lock.
+    // If it is empty (e.g. close() raced between preAppend and append),
+    // there is nothing to write.
+    QByteArray &encoded = encodedMessageBuffer();
+    if (encoded.isEmpty())
+        return;
 
     if (mByteBuffer.size() + encoded.size() > mBufferSize.load(std::memory_order_relaxed))
         flushBuffer();
 
     mByteBuffer.append(encoded);
+    encoded.clear();
 
     if (mImmediateFlush.load(std::memory_order_relaxed))
         flushBuffer();

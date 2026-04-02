@@ -25,45 +25,27 @@
 #include "spi/filter.h"
 #include "logger.h"
 
+#include <QScopeGuard>
+
 namespace Log4Qt
 {
 
-/*!
- * \brief The class RecursionGuardLocker controls a boolean flag.
- *
- * It is a helper class to control a boolean flag. The class sets the flag
- * on creation and resets it on destruction.
- */
-class RecursionGuardLocker
-{
-public:
-    explicit RecursionGuardLocker(bool *guard);
-    ~RecursionGuardLocker();
-private:
-    Q_DISABLE_COPY_MOVE(RecursionGuardLocker)
-private:
-    bool *mGuard;
-};
+// Per-thread recursion depth. Incremented on entry to doAppend() and
+// decremented on exit. Any value > 0 means the current thread is already
+// inside an appender's processing chain, so further doAppend() calls on
+// the same thread are silently dropped to prevent infinite recursion.
+//
+// This replaces the former per-appender bool flag (mAppendRecursionGuard)
+// and makes it thread-local so that doAppend() can release mObjectGuard
+// before the expensive formatting step without creating a data race on the
+// guard variable itself.
+thread_local int s_appendDepth = 0;
 
-inline RecursionGuardLocker::RecursionGuardLocker(bool *guard)
-{
-    Q_ASSERT_X(guard != nullptr, "RecursionGuardLocker::RecursionGuardLocker()", "Pointer to guard bool must not be null");
-
-    mGuard = guard;
-    *mGuard = true;
-}
-
-inline RecursionGuardLocker::~RecursionGuardLocker()
-{
-    *mGuard = false;
-}
-
-AppenderSkeleton::AppenderSkeleton(QObject *parent) 
+AppenderSkeleton::AppenderSkeleton(QObject *parent)
     : Appender(parent)
 #if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive)
 #endif
-    , mAppendRecursionGuard(false)
     , mThreshold(Level::NULL_INT)
 {
     mIsActive.store(true, std::memory_order_relaxed);
@@ -71,12 +53,11 @@ AppenderSkeleton::AppenderSkeleton(QObject *parent)
 }
 
 AppenderSkeleton::AppenderSkeleton(bool isActive,
-                                   QObject *parent) 
+                                   QObject *parent)
     : Appender(parent)
 #if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive)
 #endif
-    , mAppendRecursionGuard(false)
     , mThreshold(Level::NULL_INT)
 {
     mIsActive.store(isActive, std::memory_order_relaxed);
@@ -85,12 +66,11 @@ AppenderSkeleton::AppenderSkeleton(bool isActive,
 
 AppenderSkeleton::AppenderSkeleton(bool isActive,
                                    const LayoutSharedPtr &layout,
-                                   QObject *parent) 
+                                   QObject *parent)
     : Appender(parent)
 #if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive) // Recursive for doAppend()
+    , mObjectGuard(QMutex::Recursive)
 #endif
-    , mAppendRecursionGuard(false)
     , mpLayout(layout)
     , mThreshold(Level::NULL_INT)
 {
@@ -175,31 +155,41 @@ void AppenderSkeleton::customEvent(QEvent *event)
 
 void AppenderSkeleton::doAppend(const LoggingEvent &event)
 {
-    // The mutex serialises concurrent access from multiple threads.
-    // - e.g. two threads using the same logger
-    // - e.g. two threads using different logger with the same appender
-    //
-    // A call from the same thread will pass the mutex (QMutex::Recursive)
-    // and get to the recursion guard. The recursion guard blocks recursive
-    // invocation and prevents a possible endless loop.
-    // - e.g. an appender logs an error with a logger that uses it
-
-    QMutexLocker locker(&mObjectGuard);
-
-    if (mAppendRecursionGuard)
+    // Phase 1 — recursion guard (thread-local, no lock needed).
+    // Prevents infinite loops when an appender internally logs an error
+    // through a logger that routes back to the same (or any) appender.
+    if (s_appendDepth > 0)
         return;
 
-    RecursionGuardLocker recursion_locker(&mAppendRecursionGuard);
+    ++s_appendDepth;
+    const auto depthGuard = qScopeGuard([]{ --s_appendDepth; });
 
-    if (!checkEntryConditions())
-        return;
-    if (!isAsSevereAsThreshold(event.level()))
+    // Phase 2 — fast pre-checks via atomics (no lock needed).
+    if (!isActive() || isClosed())
         return;
 
-    const auto  *filter = mpHeadFilter.data();
+    // Phase 3 — entry conditions + config snapshot (under lock, then release).
+    // mpHeadFilter and mpLayout are snapshots: they keep their objects alive
+    // even if the appender is reconfigured or closed after we drop the lock.
+    FilterSharedPtr headFilter;
+    LayoutSharedPtr layoutSnap;
+    {
+        QMutexLocker locker(&mObjectGuard);
+
+        if (!checkEntryConditions())
+            return;
+        if (!isAsSevereAsThreshold(event.level()))
+            return;
+
+        headFilter  = mpHeadFilter;
+        layoutSnap  = mpLayout;
+    } // mObjectGuard released — expensive work happens outside the lock
+
+    // Phase 4 — filter chain (outside lock, filter::decide() is const).
+    const auto *filter = headFilter.data();
     while (filter)
     {
-        Filter::Decision decision = filter->decide(event);
+        const Filter::Decision decision = filter->decide(event);
         if (decision == Filter::Accept)
             break;
         else if (decision == Filter::Deny)
@@ -208,7 +198,24 @@ void AppenderSkeleton::doAppend(const LoggingEvent &event)
             filter = filter->next().data();
     }
 
-    append(event);
+    // Phase 4b — pre-format hook (outside lock).
+    // Subclasses such as RandomAccessFileAppender override this to encode the
+    // log message into a thread-local buffer while the lock is free, so that
+    // multiple threads can format concurrently.
+    preAppend(event, layoutSnap);
+
+    // Phase 5 — actual I/O (under lock).
+    // Re-check isActive(): close() may have been called while the lock was
+    // released during Phases 4–4b.
+    QMutexLocker locker(&mObjectGuard);
+    if (isActive())
+        append(event);
+}
+
+void AppenderSkeleton::preAppend(const LoggingEvent & /*event*/, const LayoutSharedPtr & /*layout*/)
+{
+    // Default implementation: no-op.
+    // Subclasses that want to pre-format outside the lock override this.
 }
 
 bool AppenderSkeleton::checkEntryConditions() const

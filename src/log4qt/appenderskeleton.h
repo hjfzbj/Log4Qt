@@ -97,10 +97,25 @@ public:
     void close() override;
 
     /*!
-     * Performs checks and delegates the actuall appending to the subclass
-     * specific append() function.
+     * Performs checks and delegates the actual appending to the subclass.
      *
-     * \sa append(), checkEntryConditions(), isAsSevereAsThreshold(), Filter
+     * The function executes in five phases:
+     * \li Phase 1 — Thread-local recursion guard. Prevents infinite loops when
+     *     an appender internally logs a message through a logger that routes
+     *     back to any appender on the same thread.
+     * \li Phase 2 — Fast atomic pre-checks (\c isActive(), \c isClosed())
+     *     without acquiring the lock.
+     * \li Phase 3 — Entry conditions (\c checkEntryConditions()), threshold
+     *     and filter-chain/layout snapshot, all under \c mObjectGuard. The
+     *     lock is released at the end of this phase.
+     * \li Phase 4 — Filter chain evaluation and \c preAppend() call, both
+     *     \e outside \c mObjectGuard. Multiple threads may execute this phase
+     *     concurrently.
+     * \li Phase 5 — \c append() call under \c mObjectGuard. Serialises the
+     *     actual I/O across threads.
+     *
+     * \sa append(), preAppend(), checkEntryConditions(),
+     *     isAsSevereAsThreshold(), Filter
      */
     void doAppend(const LoggingEvent &event) override;
 
@@ -135,6 +150,35 @@ protected:
      */
     virtual bool checkEntryConditions() const;
 
+    /*!
+     * Optional hook called \e outside \c mObjectGuard, after all entry checks
+     * have passed and the filter chain has accepted the event.
+     *
+     * \c doAppend() calls this function between releasing the appender lock
+     * (after snapshotting the filter chain and layout) and re-acquiring it for
+     * the actual \c append() call. This window allows subclasses to perform
+     * expensive, purely read-only preparation work — most commonly layout
+     * formatting — while other threads are free to run their own \c preAppend()
+     * calls in parallel.
+     *
+     * \par Contract
+     * \li \a layout is a \c QSharedPointer snapshot taken under the lock; it
+     *     remains valid for the full duration of this call even if the
+     *     appender's layout is replaced concurrently.
+     * \li The function must be stateless with respect to shared appender data.
+     *     Any result must be stored in thread-local storage and consumed by the
+     *     subsequent \c append() call.
+     * \li The function must not call \c doAppend() (directly or indirectly) —
+     *     the per-thread recursion guard in \c doAppend() would silently drop
+     *     the nested call.
+     *
+     * The default implementation is a no-op; all existing appenders are
+     * unaffected.
+     *
+     * \sa doAppend(), append(), RandomAccessFileAppender
+     */
+    virtual void preAppend(const LoggingEvent &event, const LayoutSharedPtr &layout);
+
 protected:
 #if QT_VERSION < 0x050E00
     mutable QMutex mObjectGuard;
@@ -144,7 +188,6 @@ protected:
 
 private:
     Q_DISABLE_COPY_MOVE(AppenderSkeleton)
-    bool mAppendRecursionGuard;
     std::atomic<bool> mIsActive{false};
     std::atomic<bool> mIsClosed{false};
     LayoutSharedPtr mpLayout;
