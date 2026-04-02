@@ -25,6 +25,7 @@
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
 #include "log4qt/fileappender.h"
+#include "log4qt/randomaccessfileappender.h"
 #include "log4qt/patternlayout.h"
 #include "log4qt/simplelayout.h"
 #include "log4qt/varia/nullappender.h"
@@ -540,6 +541,84 @@ void PerformanceTest::testLogStreamLazyInit()
     }
 
     logger->removeAllAppenders();
+}
+
+void PerformanceTest::testAppenderComparison_data()
+{
+    QTest::addColumn<int>("iterations");
+    QTest::addColumn<QString>("appenderType");
+
+    QTest::newRow("FileAppender 1000 msgs")               << 1000   << "file";
+    QTest::newRow("RandomAccessFileAppender 1000 msgs")   << 1000   << "raf";
+    QTest::newRow("FileAppender 10000 msgs")              << 10000  << "file";
+    QTest::newRow("RandomAccessFileAppender 10000 msgs")  << 10000  << "raf";
+    QTest::newRow("FileAppender 100000 msgs")             << 100000 << "file";
+    QTest::newRow("RandomAccessFileAppender 100000 msgs") << 100000 << "raf";
+}
+
+void PerformanceTest::testAppenderComparison()
+{
+    QFETCH(int, iterations);
+    QFETCH(QString, appenderType);
+
+    const QString testFile = mTestDir + QString("/comparison_%1_%2.log").arg(appenderType).arg(iterations);
+
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->setLevel(Log4Qt::Level::INFO_INT);
+
+    auto layout = new Log4Qt::PatternLayout();
+    layout->setConversionPattern("%d{ISO8601} [%t] %-5p %c - %m%n");
+    layout->activateOptions();
+
+    Log4Qt::Appender *appenderPtr = nullptr;
+
+    if (appenderType == "file")
+    {
+        auto appender = new Log4Qt::FileAppender();
+        appender->setName("FileAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+    else
+    {
+        auto appender = new Log4Qt::RandomAccessFileAppender();
+        appender->setName("RAFAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+            logger->info("Comparison benchmark message number %1", i);
+    }
+
+    // Explicitly close before removeAllAppenders() to guarantee all buffered
+    // data is flushed to disk (removeAllAppenders does not call close).
+    if (appenderPtr)
+        appenderPtr->close();
+    logger->removeAllAppenders();
+
+    // Correctness: verify the log file was written with the expected number of lines
+    QFile result(testFile);
+    QVERIFY2(result.exists(), "Log file must exist after benchmark");
+    QVERIFY2(result.open(QIODevice::ReadOnly), "Log file must be readable");
+    const QByteArray content = result.readAll();
+    result.close();
+
+    const int lineCount = content.count('\n');
+    QVERIFY2(lineCount >= iterations,
+             qPrintable(QString("Expected at least %1 lines, got %2").arg(iterations).arg(lineCount)));
+
+    QFile::remove(testFile);
 }
 
 QTEST_MAIN(PerformanceTest)

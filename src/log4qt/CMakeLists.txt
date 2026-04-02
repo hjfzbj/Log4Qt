@@ -36,7 +36,8 @@ set(log4qt_SOURCES
     ndc.cpp                                                                                                                                                           
     patternlayout.cpp                                                                                                                                                 
     propertyconfigurator.cpp                                                                                                                                          
-    rollingfileappender.cpp                                                                                                                                           
+    randomaccessfileappender.cpp
+    rollingfileappender.cpp                                              
     signalappender.cpp                                                                                                                                                
     simplelayout.cpp                                                                                                                                                  
     simpletimelayout.cpp                                                                                                                                                                                                                       
@@ -89,6 +90,7 @@ set(log4qt_HEADERS
     ndc.h
     patternlayout.h
     propertyconfigurator.h
+    randomaccessfileappender.h
     rollingfileappender.h
     signalappender.h
     simplelayout.h
