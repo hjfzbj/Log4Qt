@@ -120,6 +120,26 @@ public:
     QString toString(const QString &format) const;
 
     /*!
+     * Formats an epoch millisecond timestamp directly to a string using \a format,
+     * bypassing QDateTime construction entirely for the named formats ISO8601,
+     * ABSOLUTE, DATE, NONE, and RELATIVE.
+     *
+     * This is the preferred fast path for all hot-path callers that already hold a
+     * raw \c qint64 timestamp (e.g. \c LoggingEvent::timeStamp()), because it avoids
+     * the timezone-resolution overhead of \c QDateTime::fromMSecsSinceEpoch() and
+     * the redundant \c toMSecsSinceEpoch() round-trip inside the instance overload.
+     * Results for ISO8601 and ABSOLUTE are additionally cached per calling thread
+     * (thread-local, keyed by epoch millisecond) so that repeated calls within the
+     * same millisecond cost only a \c qint64 comparison and a string copy (~1 ns).
+     *
+     * For custom (non-named) format strings the method falls back to constructing a
+     * QDateTime, equivalent to calling the instance overload.
+     *
+     * \sa toString(const QString &format)
+     */
+    static QString formatMsecs(qint64 msecs, const QString &format);
+
+    /*!
      * Returns the current datetime, as reported by the system clock, in
      * the local time zone.
      *

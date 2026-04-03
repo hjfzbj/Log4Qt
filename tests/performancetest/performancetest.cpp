@@ -21,6 +21,7 @@
  ******************************************************************************/
 
 #include "performancetest.h"
+#include "log4qt/helpers/datetime.h"
 #include "log4qt/loggingevent.h"
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
@@ -797,6 +798,41 @@ void PerformanceTest::testLoggingEventComparison()
                 OldLoggingEvent copy = event;
                 Q_UNUSED(copy);
             }
+        }
+    }
+}
+
+void PerformanceTest::testISO8601FormattingPerformance_data()
+{
+    QTest::addColumn<QString>("format");
+    QTest::addColumn<int>("iterations");
+
+    QTest::newRow("ISO8601, same ms (cache hit), 100000")    << "ISO8601"        << 100000;
+    QTest::newRow("ISO8601, unique ms (cache miss), 100000") << "ISO8601_unique" << 100000;
+    QTest::newRow("ABSOLUTE, same ms (cache hit), 100000")   << "ABSOLUTE"       << 100000;
+    QTest::newRow("custom format, 10000")                    << "hh:mm:ss"       << 10000;
+}
+
+void PerformanceTest::testISO8601FormattingPerformance()
+{
+    QFETCH(QString, format);
+    QFETCH(int, iterations);
+
+    const bool uniqueMs = format.endsWith(u"_unique"_s);
+    const QString actualFormat = uniqueMs ? format.chopped(7) : format;
+
+    // Use DateTime::formatMsecs() directly — this is the hot path called by
+    // DatePatternConverter::convert() and avoids QDateTime construction overhead
+    // so the benchmark isolates the formatting cost alone.
+    const qint64 baseMs = QDateTime::currentMSecsSinceEpoch();
+
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+        {
+            const qint64 ms = uniqueMs ? (baseMs + i) : baseMs;
+            const QString result = Log4Qt::DateTime::formatMsecs(ms, actualFormat);
+            Q_UNUSED(result)
         }
     }
 }

@@ -61,6 +61,9 @@ private slots:
     void testTimestampCacheWindowPerformance();
     void testTimestampCacheWindowPerformance_data();
 
+    void testISO8601FormattingPerformance();
+    void testISO8601FormattingPerformance_data();
+
     // LoggingEvent performance tests
     void testLoggingEventPerformance();
     void testLoggingEventPerformance_data();

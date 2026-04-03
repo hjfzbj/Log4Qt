@@ -675,7 +675,7 @@ void BasicPatternConverter::convert(QString &format, const LoggingEvent &logging
 
 void DatePatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
-    format.append(DateTime::fromMSecsSinceEpoch(loggingEvent.timeStamp()).toString(mFormat));
+    format.append(DateTime::formatMsecs(loggingEvent.timeStamp(), mFormat));
 }
 
 void LiteralPatternConverter::convert(QString &format, [[maybe_unused]] const LoggingEvent &loggingEvent) const
