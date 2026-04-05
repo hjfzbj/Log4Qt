@@ -29,9 +29,13 @@ namespace Log4Qt
 {
 
 XMLLayout::XMLLayout(QObject *parent)
-    : AbstractLayout(parent)
-
+    : AbstractStringLayout(parent)
 {
+}
+
+QString XMLLayout::contentType() const
+{
+    return u"application/xml; charset=UTF-8"_s;
 }
 
 QString XMLLayout::format(const LoggingEvent &event)
