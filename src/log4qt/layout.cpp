@@ -40,6 +40,11 @@ void Layout::activateOptions()
 {
 }
 
+bool Layout::requiresLocation() const
+{
+    return false;
+}
+
 QString Layout::endOfLine()
 {
     // There seams to be no function in Qt for this. MinGW enter '\r\n' automatically

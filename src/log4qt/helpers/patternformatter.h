@@ -76,6 +76,16 @@ public:
      */
     QString format(const LoggingEvent &loggingEvent) const;
 
+    /*!
+     * Returns true if the pattern contains at least one location-sensitive
+     * conversion character (\c %F, \c %L, \c %M, \c %l).
+     *
+     * Layouts that use a PatternFormatter delegate their \c requiresLocation()
+     * implementation to this method so that appenders can make informed
+     * decisions about location capture cost.
+     */
+    bool requiresLocation() const;
+
 private:
     /*!
      * If the character \a digit is a digit the digit is added to the
@@ -131,6 +141,7 @@ private:
     const QString mOptionCharacters;
     QString mPattern;
     std::vector<std::unique_ptr<PatternConverter>> mPatternConverters;
+    bool mRequiresLocation = false;
 };
 
 

@@ -77,6 +77,16 @@ public:
     virtual QString format(const LoggingEvent &event) = 0;
 
     /*!
+     * Returns true if this layout uses caller location information
+     * (\c %F, \c %L, \c %M, \c %l in PatternLayout).
+     *
+     * Appenders and the logging infrastructure may query this to decide
+     * whether capturing caller location is necessary for a given layout.
+     * The default implementation returns \c false.
+     */
+    [[nodiscard]] virtual bool requiresLocation() const;
+
+    /*!
      * Returns the end of line seperator for the operating system.
      *
      * Windows: \\r\\n

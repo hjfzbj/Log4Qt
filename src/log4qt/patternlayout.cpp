@@ -20,6 +20,7 @@
 
 #include "patternlayout.h"
 
+#include "abstractstringlayout.h"
 #include "helpers/patternformatter.h"
 #include "loggingevent.h"
 
@@ -27,21 +28,21 @@ namespace Log4Qt
 {
 
 PatternLayout::PatternLayout(QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
     setConversionPattern(DefaultPattern);
 }
 
 PatternLayout::PatternLayout(const QString &pattern,
                              QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
     setConversionPattern(pattern);
 }
 
 PatternLayout::PatternLayout(ConversionPattern conversionPattern,
                              QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
     setConversionPattern(conversionPattern);
 }
@@ -67,6 +68,11 @@ QString PatternLayout::format(const LoggingEvent &event)
     Q_ASSERT_X(mpPatternFormatter, "PatternLayout::format()", "mpPatternConverter must not be null");
 
     return mpPatternFormatter->format(event);
+}
+
+bool PatternLayout::requiresLocation() const
+{
+    return mpPatternFormatter && mpPatternFormatter->requiresLocation();
 }
 
 void PatternLayout::updatePatternFormatter()

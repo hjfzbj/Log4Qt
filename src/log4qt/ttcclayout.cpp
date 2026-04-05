@@ -29,7 +29,7 @@ namespace Log4Qt
 {
 
 TTCCLayout::TTCCLayout(QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)
@@ -39,7 +39,7 @@ TTCCLayout::TTCCLayout(QObject *parent) :
 
 TTCCLayout::TTCCLayout(const QString &dateFormat,
                        QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)
@@ -49,7 +49,7 @@ TTCCLayout::TTCCLayout(const QString &dateFormat,
 
 TTCCLayout::TTCCLayout(DateFormat dateFormat,
                        QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)

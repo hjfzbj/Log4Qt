@@ -1,6 +1,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(log4qt_SOURCES
+    abstractstringlayout.cpp
     appender.cpp
     appenderskeleton.cpp
     asyncappender.cpp
@@ -24,6 +25,7 @@ set(log4qt_SOURCES
     helpers/timestampprovider.cpp
     hierarchy.cpp
     jsonconfigurator.cpp
+    jsonlayout.cpp
     layout.cpp
     level.cpp
     logger.cpp
@@ -65,6 +67,7 @@ set(log4qt_SOURCES
     xmllayout.cpp
 )
 set(log4qt_HEADERS
+    abstractstringlayout.h
     appender.h
     appenderskeleton.h
     asyncappender.h
@@ -74,6 +77,7 @@ set(log4qt_HEADERS
     fileappender.h
     hierarchy.h
     jsonconfigurator.h
+    jsonlayout.h
     layout.h
     level.h
     log4qtdefs.h

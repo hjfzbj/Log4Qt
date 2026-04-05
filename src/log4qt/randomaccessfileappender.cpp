@@ -19,6 +19,7 @@
  ******************************************************************************/
 
 #include "randomaccessfileappender.h"
+#include "abstractstringlayout.h"
 #include "layout.h"
 #include "loggingevent.h"
 
@@ -34,13 +35,12 @@
 namespace Log4Qt
 {
 
-// Thread-local staging buffer filled by preAppend() and consumed by append().
-// Exposed via a function to avoid MSVC C2492 (thread-local data must not have
-// DLL linkage when declared as an exported class member).
-static QByteArray &encodedMessageBuffer()
+// Convenience alias: the per-thread staging buffer lives in
+// AbstractStringLayout so all appenders can share it without each
+// having their own thread_local.
+static inline QByteArray &encodedMessageBuffer()
 {
-    thread_local QByteArray buf;
-    return buf;
+    return AbstractStringLayout::threadLocalBuffer();
 }
 
 RandomAccessFileAppender::RandomAccessFileAppender(QObject *parent)
@@ -154,7 +154,12 @@ void RandomAccessFileAppender::preAppend(const LoggingEvent &event, const Layout
 {
     // Called outside mObjectGuard — format and encode here so that append()
     // (which runs under the lock) only needs to copy bytes into the buffer.
-    encodedMessageBuffer() = layout->format(event).toUtf8();
+    QByteArray &buf = encodedMessageBuffer();
+    buf.clear();
+    if (auto *sl = qobject_cast<AbstractStringLayout *>(layout.data()))
+        sl->formatTo(event, buf);
+    else
+        buf = layout->format(event).toUtf8();
 }
 
 void RandomAccessFileAppender::append(const LoggingEvent &event)
@@ -229,6 +234,12 @@ void RandomAccessFileAppender::openFile()
         return;
     }
     logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
+
+    // Write the layout header (if any) into the buffer so it is included in
+    // the first flush. This matches the behaviour of WriterAppender.
+    const LayoutSharedPtr l = layout();
+    if (l && !l->header().isEmpty())
+        mByteBuffer += l->header().toUtf8();
 }
 
 void RandomAccessFileAppender::closeFile()
@@ -236,6 +247,13 @@ void RandomAccessFileAppender::closeFile()
     if (mFile)
     {
         logger()->debug(u"Closing file '%1' for appender '%2'"_s, mFile->fileName(), name());
+
+        // Write the layout footer (if any) before the final flush so it is
+        // included in the last data written to disk.
+        const LayoutSharedPtr l = layout();
+        if (l && !l->footer().isEmpty())
+            mByteBuffer += l->footer().toUtf8();
+
         flushBuffer();
     }
     mFile.reset();

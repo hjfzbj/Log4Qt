@@ -282,6 +282,12 @@ QString PatternFormatter::format(const LoggingEvent &loggingEvent) const
 }
 
 
+bool PatternFormatter::requiresLocation() const
+{
+    return mRequiresLocation;
+}
+
+
 bool PatternFormatter::addDigit(QChar digit,
                                 int &value) const
 {
@@ -361,18 +367,22 @@ void PatternFormatter::createConverter(QChar character,
     case 'F':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
                                                         BasicPatternConverter::FilenameConverter));
+        mRequiresLocation = true;
         break;
     case 'M':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
                                                         BasicPatternConverter::FunctionNameConverter));
+        mRequiresLocation = true;
         break;
     case 'L':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
                                                         BasicPatternConverter::LineNumberConverter));
+        mRequiresLocation = true;
         break;
     case 'l':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
                                                         BasicPatternConverter::LocationConverter));
+        mRequiresLocation = true;
         break;
     default:
         Q_ASSERT_X(false, "PatternFormatter::createConverter", "Unknown pattern character");

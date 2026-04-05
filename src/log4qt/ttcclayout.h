@@ -21,7 +21,7 @@
 #ifndef LOG4QT_TTCCLAYOUT_H
 #define LOG4QT_TTCCLAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 #include "helpers/patternformatter.h"
 
 #include <memory>
@@ -38,7 +38,7 @@ class LoggingEvent;
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT TTCCLayout : public Layout
+class LOG4QT_EXPORT TTCCLayout : public AbstractStringLayout
 {
     Q_OBJECT
 

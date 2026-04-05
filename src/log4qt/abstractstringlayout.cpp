@@ -18,39 +18,36 @@
  *
  ******************************************************************************/
 
-#ifndef LOG4QT_SIMPLETIMELAYOUT_H
-#define LOG4QT_SIMPLETIMELAYOUT_H
-
 #include "abstractstringlayout.h"
+
+#include "loggingevent.h"
+#include "log4qtdefs.h"
 
 namespace Log4Qt
 {
 
-/*!
- * \brief The class SimpleTimeLayout outputs the time, logger name, thread, level and message of a logging
- *        event.
- *
- * \note The ownership and lifetime of objects of this class are managed.
- *       See \ref Ownership "Object ownership" for more details.
- */
-class LOG4QT_EXPORT SimpleTimeLayout : public AbstractStringLayout
+AbstractStringLayout::AbstractStringLayout(QObject *parent)
+    : Layout(parent)
+    , mCharset(u"UTF-8"_s)
 {
-    Q_OBJECT
+}
 
-public:
-    SimpleTimeLayout(QObject *parent = nullptr);
+QString AbstractStringLayout::contentType() const
+{
+    return u"text/plain; charset=%1"_s.arg(mCharset);
+}
 
-private:
-    Q_DISABLE_COPY_MOVE(SimpleTimeLayout)
+void AbstractStringLayout::formatTo(const LoggingEvent &event, QByteArray &dest)
+{
+    dest += format(event).toUtf8();
+}
 
-public:
-    QString format(const LoggingEvent &event) override;
-};
-
-inline SimpleTimeLayout::SimpleTimeLayout(QObject *parent) :
-    AbstractStringLayout(parent)
-{}
+QByteArray &AbstractStringLayout::threadLocalBuffer()
+{
+    thread_local QByteArray buf;
+    return buf;
+}
 
 } // namespace Log4Qt
 
-#endif // LOG4QT_SIMPLETIMELAYOUT_H
+#include "moc_abstractstringlayout.cpp"

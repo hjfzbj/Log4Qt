@@ -21,7 +21,7 @@
 #ifndef LOG4QT_PATTERNLAYOUT_H
 #define LOG4QT_PATTERNLAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 #include "helpers/patternformatter.h"
 
 #include <memory>
@@ -47,7 +47,7 @@ namespace Log4Qt
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT PatternLayout : public Layout
+class LOG4QT_EXPORT PatternLayout : public AbstractStringLayout
 {
     Q_OBJECT
 
@@ -103,6 +103,13 @@ public:
     void setConversionPattern(ConversionPattern conversionPattern);
 
     [[nodiscard]] QString format(const LoggingEvent &event) override;
+
+    /*!
+     * Returns true if the current pattern contains at least one
+     * location-sensitive conversion character (\c %F, \c %L, \c %M,
+     * \c %l).
+     */
+    [[nodiscard]] bool requiresLocation() const override;
 
 private:
     void updatePatternFormatter();
