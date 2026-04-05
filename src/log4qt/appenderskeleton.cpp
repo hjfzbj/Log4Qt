@@ -20,7 +20,7 @@
 
 #include "appenderskeleton.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 #include "spi/filter.h"
 #include "logger.h"

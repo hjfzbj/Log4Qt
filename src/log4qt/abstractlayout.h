@@ -18,8 +18,8 @@
  *
  ******************************************************************************/
 
-#ifndef LOG4QT_LAYOUT_H
-#define LOG4QT_LAYOUT_H
+#ifndef LOG4QT_ABSTRACTLAYOUT_H
+#define LOG4QT_ABSTRACTLAYOUT_H
 
 #include "log4qtshared.h"
 #include "log4qtsharedptr.h"
@@ -37,7 +37,7 @@ class LoggingEvent;
  * \note The ownership and lifetime of objects of this class are managed. See
  *       \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT Layout : public QObject
+class LOG4QT_EXPORT AbstractLayout : public QObject
 {
     Q_OBJECT
 
@@ -61,8 +61,8 @@ class LOG4QT_EXPORT Layout : public QObject
     Q_PROPERTY(QString header READ header WRITE setHeader)
 
 public:
-    Layout(QObject *parent = nullptr);
-    virtual ~Layout();
+    AbstractLayout(QObject *parent = nullptr);
+    virtual ~AbstractLayout();
 
 public:
     [[nodiscard]] virtual QString contentType() const;
@@ -97,43 +97,43 @@ public:
 
     // Member variables
 private:
-    Q_DISABLE_COPY_MOVE(Layout)
+    Q_DISABLE_COPY_MOVE(AbstractLayout)
     QString mFooter;
     QString mHeader;
 };
 
-inline QString Layout::footer() const
+inline QString AbstractLayout::footer() const
 {
     return mFooter;
 }
 
-inline QString Layout::header() const
+inline QString AbstractLayout::header() const
 {
     return mHeader;
 }
 
-inline QString Layout::name() const
+inline QString AbstractLayout::name() const
 {
     return objectName();
 }
 
-inline void Layout::setFooter(const QString &footer)
+inline void AbstractLayout::setFooter(const QString &footer)
 {
     mFooter = footer;
 }
 
-inline void Layout::setHeader(const QString &header)
+inline void AbstractLayout::setHeader(const QString &header)
 {
     mHeader = header;
 }
 
-inline void Layout::setName(const QString &name)
+inline void AbstractLayout::setName(const QString &name)
 {
     setObjectName(name);
 }
 
-using LayoutSharedPtr = Log4QtSharedPtr<Layout>;
+using LayoutSharedPtr = Log4QtSharedPtr<AbstractLayout>;
 
 } // namespace Log4Qt
 
-#endif // LOG4QT_LAYOUT_H
+#endif // LOG4QT_ABSTRACTLAYOUT_H

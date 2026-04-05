@@ -24,7 +24,7 @@
 
 #include "telnetappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #include <QTcpServer>

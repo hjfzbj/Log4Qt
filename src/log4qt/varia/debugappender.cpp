@@ -20,7 +20,7 @@
 
 #include "varia/debugappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #ifdef Q_OS_WIN

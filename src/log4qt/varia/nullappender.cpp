@@ -20,7 +20,7 @@
 
 #include "varia/nullappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 

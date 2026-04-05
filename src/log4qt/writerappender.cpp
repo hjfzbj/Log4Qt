@@ -20,7 +20,7 @@
 
 #include "writerappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #if QT_VERSION < 0x060000
@@ -206,7 +206,7 @@ void WriterAppender::writeFooter() const
     if (footer.isEmpty())
         return;
 
-    *mWriter << footer << Layout::endOfLine();
+    *mWriter << footer << AbstractLayout::endOfLine();
     if (handleIoErrors())
         return;
 }
@@ -220,7 +220,7 @@ void WriterAppender::writeHeader() const
     if (header.isEmpty())
         return;
 
-    *mWriter << header << Layout::endOfLine();
+    *mWriter << header << AbstractLayout::endOfLine();
     if (handleIoErrors())
         return;
 }

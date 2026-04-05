@@ -99,7 +99,7 @@ QString JsonLayout::format(const LoggingEvent &event)
 
     const QJsonDocument doc(obj);
     return doc.toJson(mPrettyPrint ? QJsonDocument::Indented : QJsonDocument::Compact)
-           + Layout::endOfLine();
+           + AbstractLayout::endOfLine();
 }
 
 } // namespace Log4Qt

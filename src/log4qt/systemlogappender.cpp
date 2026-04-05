@@ -20,7 +20,7 @@
 
 #include "systemlogappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "level.h"
 #include "loggingevent.h"
 

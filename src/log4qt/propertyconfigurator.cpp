@@ -25,7 +25,7 @@
 #include "helpers/optionconverter.h"
 #include "helpers/properties.h"
 #include "appenderskeleton.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "logger.h"
 #include "logmanager.h"
 #include "loggerrepository.h"

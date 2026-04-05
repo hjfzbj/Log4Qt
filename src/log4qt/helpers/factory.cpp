@@ -180,17 +180,17 @@ Filter *create_string_match_filter()
 
 // Layouts
 
-Layout *create_pattern_layout()
+AbstractLayout *create_pattern_layout()
 {
     return new PatternLayout;
 }
 
-Layout *create_simple_layout()
+AbstractLayout *create_simple_layout()
 {
     return new SimpleLayout;
 }
 
-Layout *create_simple_time_layout()
+AbstractLayout *create_simple_time_layout()
 {
     return new SimpleTimeLayout;
 }
@@ -202,12 +202,12 @@ Layout *create_database_layout()
 }
 #endif
 
-Layout *create_ttcc_layout()
+AbstractLayout *create_ttcc_layout()
 {
     return new TTCCLayout;
 }
 
-Layout *create_xml_layout()
+AbstractLayout *create_xml_layout()
 {
     return new XMLLayout;
 }
@@ -283,7 +283,7 @@ Filter *Factory::doCreateFilter(const QString &filterClassName)
 }
 
 
-Layout *Factory::doCreateLayout(const QString &layoutClassName)
+AbstractLayout *Factory::doCreateLayout(const QString &layoutClassName)
 {
     QMutexLocker locker(&mObjectGuard);
 

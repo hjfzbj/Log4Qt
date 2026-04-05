@@ -20,7 +20,7 @@
 
 #include "rollingfileappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 #include "spi/compositetriggeringpolicy.h"
 #include "spi/defaultrolloverstrategy.h"

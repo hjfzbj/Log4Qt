@@ -26,7 +26,7 @@ set(log4qt_SOURCES
     hierarchy.cpp
     jsonconfigurator.cpp
     jsonlayout.cpp
-    layout.cpp
+    abstractlayout.cpp
     level.cpp
     logger.cpp
     loggerrepository.cpp
@@ -78,7 +78,7 @@ set(log4qt_HEADERS
     hierarchy.h
     jsonconfigurator.h
     jsonlayout.h
-    layout.h
+    abstractlayout.h
     level.h
     log4qtdefs.h
     log4qt.h

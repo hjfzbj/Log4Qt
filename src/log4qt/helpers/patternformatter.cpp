@@ -22,7 +22,7 @@
 
 #include "helpers/datetime.h"
 #include "helpers/logerror.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "logger.h"
 #include "loggingevent.h"
 #include "logmanager.h"
@@ -450,7 +450,7 @@ void PatternFormatter::parse()
             }
             else if (ch == 'n')
             {
-                literal += Layout::endOfLine();
+                literal += AbstractLayout::endOfLine();
                 state = LiteralState;
             }
             else

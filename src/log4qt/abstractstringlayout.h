@@ -21,7 +21,7 @@
 #ifndef LOG4QT_ABSTRACTSTRINGLAYOUT_H
 #define LOG4QT_ABSTRACTSTRINGLAYOUT_H
 
-#include "layout.h"
+#include "abstractlayout.h"
 
 #include <QByteArray>
 
@@ -59,7 +59,7 @@ namespace Log4Qt
  *
  * \sa Layout, PatternLayout, JsonLayout, AppenderSkeleton::preAppend()
  */
-class LOG4QT_EXPORT AbstractStringLayout : public Layout
+class LOG4QT_EXPORT AbstractStringLayout : public AbstractLayout
 {
     Q_OBJECT
 

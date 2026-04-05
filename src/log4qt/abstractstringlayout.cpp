@@ -27,7 +27,7 @@ namespace Log4Qt
 {
 
 AbstractStringLayout::AbstractStringLayout(QObject *parent)
-    : Layout(parent)
+    : AbstractLayout(parent)
     , mCharset(u"UTF-8"_s)
 {
 }

@@ -20,7 +20,7 @@
 
 #include "wdcappender.h"
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #ifdef Q_OS_WIN

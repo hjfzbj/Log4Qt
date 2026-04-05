@@ -20,7 +20,7 @@
 
 #include "randomaccessfileappender.h"
 #include "abstractstringlayout.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #include <QDir>

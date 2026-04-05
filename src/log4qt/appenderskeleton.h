@@ -23,7 +23,7 @@
 
 #include "appender.h"
 #include "log4qtshared.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "spi/filter.h"
 #include "logger.h"
 

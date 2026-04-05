@@ -26,7 +26,7 @@
 #define LOG4QT_DATABASELAYOUT_H
 
 
-#include "layout.h"
+#include "abstractlayout.h"
 
 #include <QtSql/QSqlRecord>
 
@@ -40,7 +40,7 @@ namespace Log4Qt
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT DatabaseLayout : public Layout
+class LOG4QT_EXPORT DatabaseLayout : public AbstractLayout
 {
     Q_OBJECT
 

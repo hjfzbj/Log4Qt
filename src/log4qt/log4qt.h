@@ -479,7 +479,7 @@
  *   - \ref Log4Qt::Level "Level"
  *   - \ref Log4Qt::Logger "Logger"
  *   - \ref Log4Qt::WriterAppender "WriterAppender"
- * - \ref Log4Qt::Layout::format() "Layout::format()" is implemented reentrant
+ * - \ref Log4Qt::AbstractLayout::format() "AbstractLayout::format()" is implemented reentrant
  *   in all sub-classes.
  *   - \ref Log4Qt::AppenderSkeleton "AppenderSkeleton"
  * - Being able to use singleton objects during static de-initialization without

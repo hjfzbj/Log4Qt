@@ -29,7 +29,7 @@ namespace Log4Qt
 {
 
 XMLLayout::XMLLayout(QObject *parent)
-    : Layout(parent)
+    : AbstractLayout(parent)
 
 {
 }

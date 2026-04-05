@@ -36,7 +36,7 @@ namespace Log4Qt
 
 class Appender;
 class Filter;
-class Layout;
+class AbstractLayout;
 class TriggeringPolicy;
 class RolloverStrategy;
 
@@ -85,7 +85,7 @@ public:
          *
          * \sa registerLayout(), createLayout()
      */
-    using LayoutFactoryFunc = Layout *(*)();
+    using LayoutFactoryFunc = AbstractLayout *(*)();
 
     /*!
          * Prototype for a TriggeringPolicy factory function. The function creates
@@ -143,12 +143,12 @@ public:
      *
      * \sa registerLayout(), unregisterLayout(), registeredLayouts()
      */
-    static Layout *createLayout(const QString &layoutClassName);
+    static AbstractLayout *createLayout(const QString &layoutClassName);
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static Layout *createLayout(const char *layoutClassName);
+    static AbstractLayout *createLayout(const char *layoutClassName);
 
     static TriggeringPolicy *createTriggeringPolicy(const QString &className);
     static TriggeringPolicy *createTriggeringPolicy(const char *className);
@@ -316,7 +316,7 @@ public:
 private:
     Appender *doCreateAppender(const QString &appenderClassName);
     Filter *doCreateFilter(const QString &filterClassName);
-    Layout *doCreateLayout(const QString &layoutClassName);
+    AbstractLayout *doCreateLayout(const QString &layoutClassName);
     void doRegisterAppender(const QString &appenderClassName,
                             AppenderFactoryFunc appenderFactoryFunc);
     void doRegisterFilter(const QString &filterClassName,
@@ -375,12 +375,12 @@ inline Filter *Factory::createFilter(const char *layoutClassName)
     return instance()->doCreateFilter(QLatin1String(layoutClassName));
 }
 
-inline Layout *Factory::createLayout(const QString &layoutClassName)
+inline AbstractLayout *Factory::createLayout(const QString &layoutClassName)
 {
     return instance()->doCreateLayout(layoutClassName);
 }
 
-inline Layout *Factory::createLayout(const char *layoutClassName)
+inline AbstractLayout *Factory::createLayout(const char *layoutClassName)
 {
     return instance()->doCreateLayout(QLatin1String(layoutClassName));
 }

@@ -19,7 +19,7 @@
  ******************************************************************************/
 
 #include "fileappender.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #include <QDir>

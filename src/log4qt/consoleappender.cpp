@@ -21,7 +21,7 @@
 #include "consoleappender.h"
 
 #include "helpers/optionconverter.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #include <QTextStream>

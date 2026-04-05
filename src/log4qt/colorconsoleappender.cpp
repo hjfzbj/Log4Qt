@@ -21,7 +21,7 @@
 #include "colorconsoleappender.h"
 
 #include "loggingevent.h"
-#include "layout.h"
+#include "abstractlayout.h"
 
 #include <QTextStream>
 #include <vector>

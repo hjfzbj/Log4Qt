@@ -19,33 +19,33 @@
  ******************************************************************************/
 
 #include "log4qtdefs.h"
-#include "layout.h"
+#include "abstractlayout.h"
 
 
 namespace Log4Qt
 {
 
-Layout::Layout(QObject *parent) :
+AbstractLayout::AbstractLayout(QObject *parent) :
     QObject(parent)
 {}
 
-Layout::~Layout() = default;
+AbstractLayout::~AbstractLayout() = default;
 
-QString Layout::contentType() const
+QString AbstractLayout::contentType() const
 {
     return u"text/plain"_s;
 }
 
-void Layout::activateOptions()
+void AbstractLayout::activateOptions()
 {
 }
 
-bool Layout::requiresLocation() const
+bool AbstractLayout::requiresLocation() const
 {
     return false;
 }
 
-QString Layout::endOfLine()
+QString AbstractLayout::endOfLine()
 {
     // There seams to be no function in Qt for this. MinGW enter '\r\n' automatically
     return u"\n"_s;
@@ -53,4 +53,4 @@ QString Layout::endOfLine()
 
 } // namespace Log4Qt
 
-#include "moc_layout.cpp"
+#include "moc_abstractlayout.cpp"
