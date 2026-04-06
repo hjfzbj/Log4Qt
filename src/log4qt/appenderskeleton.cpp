@@ -218,6 +218,19 @@ void AppenderSkeleton::preAppend(const LoggingEvent & /*event*/, const LayoutSha
     // Subclasses that want to pre-format outside the lock override this.
 }
 
+void AppenderSkeleton::forwardEvent(const AppenderSharedPtr &appender, const LoggingEvent &event)
+{
+    if (!appender)
+        return;
+    // Temporarily reset the recursion depth so that doAppend() on the target
+    // appender is not silently dropped. This is safe because forwarding is an
+    // intentional redirect, not a recursive side-effect of logging.
+    const int saved = s_appendDepth;
+    s_appendDepth = 0;
+    appender->doAppend(event);
+    s_appendDepth = saved;
+}
+
 bool AppenderSkeleton::checkEntryConditions() const
 {
     if (!isActive())

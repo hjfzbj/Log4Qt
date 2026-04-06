@@ -179,6 +179,22 @@ protected:
      */
     virtual void preAppend(const LoggingEvent &event, const LayoutSharedPtr &layout);
 
+    /*!
+     * Forwards \a event to \a appender via its \c doAppend() entry point,
+     * bypassing the thread-local recursion guard for this one call.
+     *
+     * Use this for \e intentional event forwarding (e.g. routing an overflow
+     * event to an error appender) where the call is not a recursive side-effect
+     * of logging but an explicit redirect. All other \c doAppend() checks
+     * (active, closed, threshold, filters) still run normally on the target
+     * appender.
+     *
+     * \note Do \e not use this inside \c append() or \c preAppend() to route
+     *       internally generated log messages — use a normal logger call there;
+     *       the recursion guard will silently drop true recursive loops.
+     */
+    static void forwardEvent(const AppenderSharedPtr &appender, const LoggingEvent &event);
+
 protected:
 #if QT_VERSION < 0x050E00
     mutable QMutex mObjectGuard;

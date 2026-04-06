@@ -140,7 +140,7 @@ void AsyncAppender::callAppenders(const LoggingEvent &event) const
     QReadLocker locker(&mAppenderGuard);
 
     for (const auto &appender : mAppenders)
-        appender->doAppend(event);
+        forwardEvent(appender, event);
 }
 
 void AsyncAppender::append(const LoggingEvent &event)
@@ -188,7 +188,7 @@ void AsyncAppender::handleQueueFull(const LoggingEvent &event)
 {
     if (mErrorAppender)
     {
-        mErrorAppender->doAppend(event);
+        forwardEvent(mErrorAppender, event);
     }
     else
     {
