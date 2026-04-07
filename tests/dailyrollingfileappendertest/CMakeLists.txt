@@ -1,6 +1,6 @@
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
 
-set(TEST_NAME dailyrollingfileappendertest)
+set(TEST_NAME tst_dailyrollingfileappendertest)
 
 set(dfa_SOURCES
     dailyrollingfileappendertest.cpp
