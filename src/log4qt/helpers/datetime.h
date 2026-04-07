@@ -24,7 +24,9 @@
 #include "log4qt/log4qtshared.h"
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QTimeZone>
+#include <functional>
 
 namespace Log4Qt
 {
@@ -38,6 +40,18 @@ namespace Log4Qt
 class LOG4QT_EXPORT DateTime : public QDateTime
 {
 public:
+    /*!
+     * Callable type used as an injectable time source.
+     *
+     * Components that need testable wall-clock access (e.g.
+     * \c DailyRollingFileAppender, \c DateRolloverStrategy) accept a
+     * \c Provider so tests can substitute a lambda that returns a
+     * controlled \c QDateTime without touching global state.
+     *
+     * The default value for such components is always
+     * \c []{ return QDateTime::currentDateTime(); }.
+     */
+    using Provider = std::function<QDateTime()>;
     /*!
      * Constructs a null date time.
      *
@@ -132,6 +146,32 @@ public:
      * \sa QDateTime::currentDateTime()
      */
     static DateTime currentDateTime();
+
+    /*!
+     * Returns the current time as milliseconds since the Unix epoch.
+     *
+     * Uses a thread-local cache keyed by a monotonic \c QElapsedTimer so
+     * that repeated calls within the same cache window (default 1 ms) cost
+     * only a \c qint64 comparison and avoid a system call.
+     *
+     * \sa setCacheWindow(), cacheWindow()
+     */
+    static qint64 currentMSecsSinceEpoch();
+
+    /*!
+     * Sets the cache window for \c currentMSecsSinceEpoch() in milliseconds.
+     *
+     * \a cacheWindowMs == 0 disables caching (maximum precision).
+     * Values of 1–100 give the best balance of performance and precision.
+     * The default is 1 ms.
+     */
+    static void setCacheWindow(qint64 cacheWindowMs);
+
+    /*!
+     * Returns the current cache window in milliseconds.
+     */
+    static qint64 cacheWindow();
+
     static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone);
 
     static DateTime fromMSecsSinceEpoch(qint64 msecs);

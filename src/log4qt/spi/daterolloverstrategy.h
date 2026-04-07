@@ -22,12 +22,11 @@
 #define LOG4QT_DATEROLLOVERSTRATEGY_H
 
 #include "rolloverstrategy.h"
+#include "helpers/datetime.h"
 
 #include <QDateTime>
 #include <QFutureSynchronizer>
 #include <QString>
-
-#include <functional>
 
 namespace Log4Qt
 {
@@ -84,7 +83,7 @@ class LOG4QT_EXPORT DateRolloverStrategy : public RolloverStrategy
     Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
 
 public:
-    using DateTimeProvider = std::function<QDateTime()>;
+    using DateTimeProvider = DateTime::Provider;
 
     enum NamingMode
     {

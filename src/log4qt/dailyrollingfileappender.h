@@ -22,30 +22,12 @@
 #define LOG4QT_DAILYROLLINGFILEAPPENDER_H
 
 #include "rollingfileappender.h"
+#include "helpers/datetime.h"
 
-#include <QDate>
-#include <memory>
 #include <QString>
 
 namespace Log4Qt
 {
-
-class LOG4QT_EXPORT IDateRetriever
-{
-public:
-    virtual ~IDateRetriever();
-    virtual QDate currentDate() const = 0;
-};
-
-class LOG4QT_EXPORT DefaultDateRetriever final : public IDateRetriever
-{
-public:
-
-    /**
-     * Return the current date, as reported by the system clock.
-     */
-    QDate currentDate() const override;
-};
 
 /*!
  * \brief The class DailyRollingFileAppender extends FileAppender so that the
@@ -78,7 +60,19 @@ public:
 
     void activateOptions() override;
 
-    void setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever);
+    /*!
+     * Sets a custom date/time provider for testing.
+     *
+     * When set, \c activateOptions() and \c append() use the return value of
+     * \a provider instead of \c QDateTime::currentDateTime(). This allows
+     * tests to control the perceived date without touching global state:
+     * \code
+     *   QDate d = QDate(2024, 1, 1);
+     *   appender->setDateTimeProvider([&d]{ return QDateTime(d, QTime(0,0)); });
+     *   d = d.addDays(1); // advance the clock
+     * \endcode
+     */
+    void setDateTimeProvider(const DateTime::Provider &provider);
 
 protected:
     void append(const LoggingEvent &event) override;
@@ -86,7 +80,7 @@ protected:
 private:
     Q_DISABLE_COPY_MOVE(DailyRollingFileAppender)
 
-    std::shared_ptr<const IDateRetriever> mDateRetriever;
+    DateTime::Provider mDateTimeProvider;
 
     QString mDatePattern;
     QDate mLastDate;

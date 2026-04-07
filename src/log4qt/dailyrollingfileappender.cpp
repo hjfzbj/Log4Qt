@@ -26,7 +26,12 @@
 namespace Log4Qt
 {
 
-IDateRetriever::~IDateRetriever() = default;
+constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
+
+static DateTime::Provider defaultProvider()
+{
+    return []() { return QDateTime::currentDateTime(); };
+}
 
 DailyRollingFileAppender::~DailyRollingFileAppender()
 {
@@ -37,16 +42,9 @@ DailyRollingFileAppender::~DailyRollingFileAppender()
         strategy->waitForCleanup();
 }
 
-QDate DefaultDateRetriever::currentDate() const
-{
-    return QDate::currentDate();
-}
-
-constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
-
 DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
     : RollingFileAppender(parent)
-    , mDateRetriever(std::make_shared<DefaultDateRetriever>())
+    , mDateTimeProvider(defaultProvider())
     , mDatePattern(defaultDatePattern)
     , mKeepDays(0)
 {
@@ -54,7 +52,7 @@ DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
 
 DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
     : RollingFileAppender(layout, fileName, parent)
-    , mDateRetriever(std::make_shared<DefaultDateRetriever>())
+    , mDateTimeProvider(defaultProvider())
     , mDatePattern(datePattern.isEmpty() ? defaultDatePattern : datePattern)
     , mKeepDays(keepDays)
 {
@@ -88,8 +86,6 @@ void DailyRollingFileAppender::activateOptions()
 {
     QMutexLocker locker(&mObjectGuard);
 
-    Q_ASSERT_X(mDateRetriever, "DailyRollingFileAppender::activateOptions()", "No date retriever set");
-
     if (mOriginalFilename.isEmpty())
         mOriginalFilename = file();
 
@@ -98,12 +94,10 @@ void DailyRollingFileAppender::activateOptions()
     strategy->setMode(DateRolloverStrategy::Embedded);
     strategy->setDatePattern(mDatePattern);
     strategy->setKeepDays(mKeepDays);
-    strategy->setDateTimeProvider([retriever = mDateRetriever]() {
-        return QDateTime(retriever->currentDate(), QTime(0, 0));
-    });
+    strategy->setDateTimeProvider(mDateTimeProvider);
     setRolloverStrategy(RolloverStrategySharedPtr(strategy));
 
-    mLastDate = mDateRetriever->currentDate();
+    mLastDate = mDateTimeProvider().date();
     closeFile();
     setFile(strategy->rollover(mOriginalFilename));
     strategy->waitForCleanup();
@@ -113,9 +107,7 @@ void DailyRollingFileAppender::activateOptions()
 
 void DailyRollingFileAppender::append(const LoggingEvent &event)
 {
-    Q_ASSERT_X(mDateRetriever, "DailyRollingFileAppender::append()", "No date retriever set");
-
-    const auto currentDate(mDateRetriever->currentDate());
+    const auto currentDate(mDateTimeProvider().date());
 
     if (currentDate != mLastDate)
     {
@@ -128,11 +120,10 @@ void DailyRollingFileAppender::append(const LoggingEvent &event)
     FileAppender::append(event);
 }
 
-void DailyRollingFileAppender::setDateRetriever(const std::shared_ptr<const IDateRetriever> &dateRetriever)
+void DailyRollingFileAppender::setDateTimeProvider(const DateTime::Provider &provider)
 {
     QMutexLocker locker(&mObjectGuard);
-
-    mDateRetriever = dateRetriever;
+    mDateTimeProvider = provider;
 }
 
 }

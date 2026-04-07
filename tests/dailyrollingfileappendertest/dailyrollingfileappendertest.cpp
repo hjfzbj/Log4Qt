@@ -4,33 +4,10 @@
 #include "log4qt/simplelayout.h"
 
 #include <QDate>
-#include <memory>
 #include <QTemporaryDir>
 #include <QtTest/QTest>
 
 using Log4Qt::DailyRollingFileAppender;
-
-namespace
-{
-
-class DateRetrieverMock final : public Log4Qt::IDateRetriever
-{
-public:
-    QDate currentDate() const override
-    {
-        return mCurrentDate;
-    }
-
-    void setCurrentDate(const QDate currentDate)
-    {
-        mCurrentDate = currentDate;
-    }
-
-private:
-    QDate mCurrentDate = QDate(2019, 1, 15);
-};
-
-}
 
 class DailyRollingFileAppenderTest : public QObject
 {
@@ -52,20 +29,18 @@ private Q_SLOTS:
 
 private:
     QTemporaryDir *mLogDirectory;
-    std::shared_ptr<DateRetrieverMock> mDateRetriever;
+    QDate mMockDate;
     DailyRollingFileAppender *mAppender;
 };
 
 void DailyRollingFileAppenderTest::init()
 {
     mLogDirectory = new QTemporaryDir;
-
-    mDateRetriever = std::make_shared<DateRetrieverMock>();
+    mMockDate = QDate(2019, 1, 15);
 
     mAppender = new DailyRollingFileAppender;
     mAppender->setLayout(Log4Qt::LayoutSharedPtr(new Log4Qt::SimpleLayout));
-
-    mAppender->setDateRetriever(mDateRetriever);
+    mAppender->setDateTimeProvider([this]() { return QDateTime(mMockDate, QTime(0, 0)); });
 }
 
 void DailyRollingFileAppenderTest::cleanup()
@@ -87,7 +62,7 @@ void DailyRollingFileAppenderTest::testFileCreation_data()
 
 void DailyRollingFileAppenderTest::testFileCreation()
 {
-    mDateRetriever->setCurrentDate(QDate(2019, 7, 9));
+    mMockDate = QDate(2019, 7, 9);
 
     QFETCH(QString, appName);
     QFETCH(QString, datePattern);
@@ -135,7 +110,7 @@ void DailyRollingFileAppenderTest::testRollOver()
     QVERIFY(QFileInfo::exists(fileNameDay1));
 
     // one day has passed ...
-    mDateRetriever->setCurrentDate(mDateRetriever->currentDate().addDays(1));
+    mMockDate = mMockDate.addDays(1);
 
     // ... and when we try to append ...
     mAppender->doAppend(Log4Qt::LoggingEvent());
@@ -174,7 +149,7 @@ void DailyRollingFileAppenderTest::testObsoleteLogFileDeletion()
 
     createFile(alwaysKeptFileName);
 
-    mDateRetriever->setCurrentDate(QDate(2019, 01, 10));
+    mMockDate = QDate(2019, 1, 10);
 
     mAppender->setFile(mLogDirectory->path() + QLatin1Char('/') + QStringLiteral("app.log"));
 
@@ -197,7 +172,7 @@ void DailyRollingFileAppenderTest::testObsoleteLogFileDeletion()
     QVERIFY(QFileInfo::exists(alwaysKeptFileName));
 
     // one day has passed ...
-    mDateRetriever->setCurrentDate(mDateRetriever->currentDate().addDays(1));
+    mMockDate = mMockDate.addDays(1);
 
     // ... and we append additional messages ...
     mAppender->doAppend(Log4Qt::LoggingEvent());

@@ -31,7 +31,7 @@
 #include "log4qt/simplelayout.h"
 #include "log4qt/varia/nullappender.h"
 #include "log4qt/varia/levelmatchfilter.h"
-#include "log4qt/helpers/timestampprovider.h"
+#include "log4qt/helpers/datetime.h"
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
@@ -371,7 +371,7 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     QFETCH(int, messageCount);
     
     // Configure timestamp cache window
-    Log4Qt::TimestampProvider::setCacheWindow(cacheWindowMs);
+    Log4Qt::DateTime::setCacheWindow(cacheWindowMs);
     
     // Create a null appender (discards all output - pure LoggingEvent creation benchmark)
     auto logger = Log4Qt::Logger::rootLogger();
@@ -395,7 +395,7 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     logger->removeAllAppenders();
     
     // Reset to default
-    Log4Qt::TimestampProvider::setCacheWindow(1);
+    Log4Qt::DateTime::setCacheWindow(1);
 }
 
 void PerformanceTest::testLoggerTemplateDisabled_data()

@@ -22,7 +22,6 @@ set(log4qt_SOURCES
     helpers/optionconverter.cpp
     helpers/patternformatter.cpp
     helpers/properties.cpp
-    helpers/timestampprovider.cpp
     hierarchy.cpp
     jsonconfigurator.cpp
     jsonlayout.cpp
@@ -120,7 +119,6 @@ set(log4qt_HEADERS_helpers
     helpers/optionconverter.h
     helpers/patternformatter.h
     helpers/properties.h
-    helpers/timestampprovider.h
 )
 set(log4qt_HEADERS_spi
     spi/compositetriggeringpolicy.h

@@ -22,6 +22,8 @@
 
 #include "helpers/initialisationhelper.h"
 
+#include <atomic>
+
 namespace Log4Qt
 {
 
@@ -35,6 +37,26 @@ struct TimestampCache
     qint64 epochMs = -1;
     QString str;
 };
+
+// -----------------------------------------------------------------------
+// currentMSecsSinceEpoch() caching state
+// -----------------------------------------------------------------------
+
+// Per-thread cached epoch-ms value and the monotonic counter at which it
+// was captured. Used by DateTime::currentMSecsSinceEpoch().
+static thread_local qint64 s_cachedTimestamp = 0;
+static thread_local qint64 s_lastCounterValue = 0;
+
+// Configurable cache window (ms). Atomic because setCacheWindow() and
+// currentMSecsSinceEpoch() may be called from different threads.
+static std::atomic<qint64> s_cacheWindowMs{1};
+
+// Monotonic timer started at library load time.
+static QElapsedTimer s_elapsedTimer = []() {
+    QElapsedTimer t;
+    t.start();
+    return t;
+}();
 
 } // anonymous namespace
 
@@ -105,6 +127,38 @@ QString DateTime::toString(const QString &format) const
 QString DateTime::formatDateTime(const QString &format) const
 {
     return QDateTime::toString(format);
+}
+
+qint64 DateTime::currentMSecsSinceEpoch()
+{
+    const qint64 cacheWindow = s_cacheWindowMs.load(std::memory_order_relaxed);
+
+    if (cacheWindow <= 0)
+        return QDateTime::currentMSecsSinceEpoch();
+
+    if (Q_UNLIKELY(!s_elapsedTimer.isValid()))
+        s_elapsedTimer.start();
+
+    const qint64 now = s_elapsedTimer.elapsed();
+    const qint64 elapsed = now - s_lastCounterValue;
+
+    if (s_cachedTimestamp == 0 || elapsed < 0 || elapsed >= cacheWindow)
+    {
+        s_cachedTimestamp = QDateTime::currentMSecsSinceEpoch();
+        s_lastCounterValue = now;
+    }
+
+    return s_cachedTimestamp;
+}
+
+void DateTime::setCacheWindow(qint64 cacheWindowMs)
+{
+    s_cacheWindowMs.store(cacheWindowMs, std::memory_order_relaxed);
+}
+
+qint64 DateTime::cacheWindow()
+{
+    return s_cacheWindowMs.load(std::memory_order_relaxed);
 }
 
 } // namespace Log4Qt
