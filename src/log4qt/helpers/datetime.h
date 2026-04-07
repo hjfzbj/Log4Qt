@@ -172,6 +172,18 @@ public:
      */
     static qint64 cacheWindow();
 
+    /*!
+     * Sets the global date/time provider used by \c currentDateTime() and
+     * \c currentMSecsSinceEpoch().
+     *
+     * Passing a null (default-constructed) \c Provider resets to the built-in
+     * default of \c QDateTime::currentDateTime().
+     *
+     * Thread-safe. Intended for use in tests — set once before any threads
+     * start logging, reset in cleanup.
+     */
+    static void setProvider(Provider provider);
+
     static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone);
 
     static DateTime fromMSecsSinceEpoch(qint64 msecs);
@@ -193,11 +205,6 @@ inline DateTime &DateTime::operator=(const DateTime &other)
 {
     QDateTime::operator=(other);
     return *this;
-}
-
-inline DateTime DateTime::currentDateTime()
-{
-    return DateTime(QDateTime::currentDateTime());
 }
 
 inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs)

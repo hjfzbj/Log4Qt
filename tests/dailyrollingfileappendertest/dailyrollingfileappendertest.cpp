@@ -1,4 +1,5 @@
 #include "log4qt/dailyrollingfileappender.h"
+#include "log4qt/helpers/datetime.h"
 
 #include "log4qt/loggingevent.h"
 #include "log4qt/simplelayout.h"
@@ -38,15 +39,17 @@ void DailyRollingFileAppenderTest::init()
     mLogDirectory = new QTemporaryDir;
     mMockDate = QDate(2019, 1, 15);
 
+    Log4Qt::DateTime::setProvider([this]() { return QDateTime(mMockDate, QTime(0, 0)); });
+
     mAppender = new DailyRollingFileAppender;
     mAppender->setLayout(Log4Qt::LayoutSharedPtr(new Log4Qt::SimpleLayout));
-    mAppender->setDateTimeProvider([this]() { return QDateTime(mMockDate, QTime(0, 0)); });
 }
 
 void DailyRollingFileAppenderTest::cleanup()
 {
     delete mAppender;
     delete mLogDirectory;  // destructor will remove temporary directory
+    Log4Qt::DateTime::setProvider({});  // reset to real clock
 }
 
 void DailyRollingFileAppenderTest::testFileCreation_data()

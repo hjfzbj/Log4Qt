@@ -20,6 +20,7 @@
 
 #include "spi/daterolloverstrategy.h"
 
+#include "helpers/datetime.h"
 #include "log4qtdefs.h"
 
 #include <QDateTime>
@@ -99,8 +100,7 @@ DateRolloverStrategy::DateRolloverStrategy(QObject *parent) :
     mDatePattern(u"'.'yyyy-MM-dd"_s),
     mMode(Suffix),
     mMaxBackups(0),
-    mKeepDays(0),
-    mDateTimeProvider([]() { return QDateTime::currentDateTime(); })
+    mKeepDays(0)
 {
 }
 
@@ -117,15 +117,10 @@ void DateRolloverStrategy::setModeString(const QString &mode)
         mMode = Suffix;
 }
 
-void DateRolloverStrategy::setDateTimeProvider(DateTimeProvider provider)
-{
-    mDateTimeProvider = std::move(provider);
-}
-
 void DateRolloverStrategy::activateOptions()
 {
     RolloverStrategy::activateOptions();
-    mActiveSuffix = currentDateTime().toString(mDatePattern);
+    mActiveSuffix = DateTime::currentDateTime().toString(mDatePattern);
 }
 
 void DateRolloverStrategy::waitForCleanup()
@@ -133,14 +128,9 @@ void DateRolloverStrategy::waitForCleanup()
     mCleanupExecutors.waitForFinished();
 }
 
-QDateTime DateRolloverStrategy::currentDateTime() const
-{
-    return mDateTimeProvider ? mDateTimeProvider() : QDateTime::currentDateTime();
-}
-
 QString DateRolloverStrategy::rollover(const QString &fileName)
 {
-    const auto dateTime = currentDateTime();
+    const auto dateTime = DateTime::currentDateTime();
 
     auto scheduleCleanup = [&] {
         if (mMaxBackups > 0 || mKeepDays > 0)

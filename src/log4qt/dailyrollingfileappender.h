@@ -22,8 +22,8 @@
 #define LOG4QT_DAILYROLLINGFILEAPPENDER_H
 
 #include "rollingfileappender.h"
-#include "helpers/datetime.h"
 
+#include <QDate>
 #include <QString>
 
 namespace Log4Qt
@@ -60,27 +60,11 @@ public:
 
     void activateOptions() override;
 
-    /*!
-     * Sets a custom date/time provider for testing.
-     *
-     * When set, \c activateOptions() and \c append() use the return value of
-     * \a provider instead of \c QDateTime::currentDateTime(). This allows
-     * tests to control the perceived date without touching global state:
-     * \code
-     *   QDate d = QDate(2024, 1, 1);
-     *   appender->setDateTimeProvider([&d]{ return QDateTime(d, QTime(0,0)); });
-     *   d = d.addDays(1); // advance the clock
-     * \endcode
-     */
-    void setDateTimeProvider(const DateTime::Provider &provider);
-
 protected:
     void append(const LoggingEvent &event) override;
 
 private:
     Q_DISABLE_COPY_MOVE(DailyRollingFileAppender)
-
-    DateTime::Provider mDateTimeProvider;
 
     QString mDatePattern;
     QDate mLastDate;

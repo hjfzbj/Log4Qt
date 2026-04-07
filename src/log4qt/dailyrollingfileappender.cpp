@@ -20,6 +20,7 @@
 
 #include "dailyrollingfileappender.h"
 
+#include "helpers/datetime.h"
 #include "loggingevent.h"
 #include "spi/daterolloverstrategy.h"
 
@@ -27,11 +28,6 @@ namespace Log4Qt
 {
 
 constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
-
-static DateTime::Provider defaultProvider()
-{
-    return []() { return QDateTime::currentDateTime(); };
-}
 
 DailyRollingFileAppender::~DailyRollingFileAppender()
 {
@@ -44,7 +40,6 @@ DailyRollingFileAppender::~DailyRollingFileAppender()
 
 DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
     : RollingFileAppender(parent)
-    , mDateTimeProvider(defaultProvider())
     , mDatePattern(defaultDatePattern)
     , mKeepDays(0)
 {
@@ -52,7 +47,6 @@ DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
 
 DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
     : RollingFileAppender(layout, fileName, parent)
-    , mDateTimeProvider(defaultProvider())
     , mDatePattern(datePattern.isEmpty() ? defaultDatePattern : datePattern)
     , mKeepDays(keepDays)
 {
@@ -94,10 +88,9 @@ void DailyRollingFileAppender::activateOptions()
     strategy->setMode(DateRolloverStrategy::Embedded);
     strategy->setDatePattern(mDatePattern);
     strategy->setKeepDays(mKeepDays);
-    strategy->setDateTimeProvider(mDateTimeProvider);
     setRolloverStrategy(RolloverStrategySharedPtr(strategy));
 
-    mLastDate = mDateTimeProvider().date();
+    mLastDate = DateTime::currentDateTime().date();
     closeFile();
     setFile(strategy->rollover(mOriginalFilename));
     strategy->waitForCleanup();
@@ -107,7 +100,7 @@ void DailyRollingFileAppender::activateOptions()
 
 void DailyRollingFileAppender::append(const LoggingEvent &event)
 {
-    const auto currentDate(mDateTimeProvider().date());
+    const auto currentDate(DateTime::currentDateTime().date());
 
     if (currentDate != mLastDate)
     {
@@ -118,12 +111,6 @@ void DailyRollingFileAppender::append(const LoggingEvent &event)
         rollOver();
     }
     FileAppender::append(event);
-}
-
-void DailyRollingFileAppender::setDateTimeProvider(const DateTime::Provider &provider)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mDateTimeProvider = provider;
 }
 
 }

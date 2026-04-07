@@ -20,6 +20,7 @@
 
 #include "spi/crontriggeringpolicy.h"
 
+#include "helpers/datetime.h"
 #include "log4qtdefs.h"
 
 namespace Log4Qt
@@ -52,7 +53,7 @@ bool CronTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
     if (!mNextFireTime.isValid())
         return false;
 
-    if (QDateTime::currentDateTime() >= mNextFireTime)
+    if (DateTime::currentDateTime() >= mNextFireTime)
     {
         computeNextFireTime();
         return true;
@@ -62,7 +63,7 @@ bool CronTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
 
 void CronTriggeringPolicy::computeNextFireTime()
 {
-    mNextFireTime = mCronExpression.nextFireTime(QDateTime::currentDateTime());
+    mNextFireTime = mCronExpression.nextFireTime(DateTime::currentDateTime());
 }
 
 } // namespace Log4Qt

@@ -23,6 +23,7 @@
 #include "helpers/initialisationhelper.h"
 
 #include <atomic>
+#include <QReadWriteLock>
 
 namespace Log4Qt
 {
@@ -57,6 +58,13 @@ static QElapsedTimer s_elapsedTimer = []() {
     t.start();
     return t;
 }();
+
+// -----------------------------------------------------------------------
+// Global provider
+// -----------------------------------------------------------------------
+
+static QReadWriteLock s_providerLock;
+static DateTime::Provider s_globalProvider = []() { return QDateTime::currentDateTime(); };
 
 } // anonymous namespace
 
@@ -129,12 +137,30 @@ QString DateTime::formatDateTime(const QString &format) const
     return QDateTime::toString(format);
 }
 
+DateTime DateTime::currentDateTime()
+{
+    QReadLocker lk(&s_providerLock);
+    return DateTime(s_globalProvider());
+}
+
+void DateTime::setProvider(Provider provider)
+{
+    QWriteLocker lk(&s_providerLock);
+    s_globalProvider = provider ? std::move(provider)
+                                : []() { return QDateTime::currentDateTime(); };
+}
+
 qint64 DateTime::currentMSecsSinceEpoch()
 {
     const qint64 cacheWindow = s_cacheWindowMs.load(std::memory_order_relaxed);
 
+    auto wallClock = []() -> qint64 {
+        QReadLocker lk(&s_providerLock);
+        return s_globalProvider().toMSecsSinceEpoch();
+    };
+
     if (cacheWindow <= 0)
-        return QDateTime::currentMSecsSinceEpoch();
+        return wallClock();
 
     if (Q_UNLIKELY(!s_elapsedTimer.isValid()))
         s_elapsedTimer.start();
@@ -144,7 +170,7 @@ qint64 DateTime::currentMSecsSinceEpoch()
 
     if (s_cachedTimestamp == 0 || elapsed < 0 || elapsed >= cacheWindow)
     {
-        s_cachedTimestamp = QDateTime::currentMSecsSinceEpoch();
+        s_cachedTimestamp = wallClock();
         s_lastCounterValue = now;
     }
 

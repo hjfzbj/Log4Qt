@@ -20,6 +20,7 @@
 
 #include "spi/timebasedtriggeringpolicy.h"
 
+#include "helpers/datetime.h"
 #include "log4qtdefs.h"
 
 #include <QRandomGenerator>
@@ -55,7 +56,7 @@ bool TimeBasedTriggeringPolicy::isTriggeringEvent(QIODevice *activeDevice,
     if (mActiveDatePattern.isEmpty())
         return false;
 
-    if (QDateTime::currentDateTime() > mRollOverTime)
+    if (DateTime::currentDateTime() > mRollOverTime)
     {
         computeRollOverTime();
         return true;
@@ -140,7 +141,7 @@ void TimeBasedTriggeringPolicy::computeRollOverTime()
 {
     Q_ASSERT_X(!mActiveDatePattern.isEmpty(), "TimeBasedTriggeringPolicy::computeRollOverTime()", "No active date pattern");
 
-    QDateTime now = QDateTime::currentDateTime();
+    QDateTime now = DateTime::currentDateTime();
     QDate nowDate = now.date();
     QTime nowTime = now.time();
 

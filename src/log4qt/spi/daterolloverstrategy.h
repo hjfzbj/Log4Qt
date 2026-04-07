@@ -22,7 +22,6 @@
 #define LOG4QT_DATEROLLOVERSTRATEGY_H
 
 #include "rolloverstrategy.h"
-#include "helpers/datetime.h"
 
 #include <QDateTime>
 #include <QFutureSynchronizer>
@@ -83,8 +82,6 @@ class LOG4QT_EXPORT DateRolloverStrategy : public RolloverStrategy
     Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
 
 public:
-    using DateTimeProvider = DateTime::Provider;
-
     enum NamingMode
     {
         Suffix = 0,
@@ -109,8 +106,6 @@ public:
     [[nodiscard]] int keepDays() const;
     void setKeepDays(int keepDays);
 
-    void setDateTimeProvider(DateTimeProvider provider);
-
     void activateOptions() override;
     QString rollover(const QString &fileName) override;
 
@@ -120,14 +115,12 @@ public:
 private:
     Q_DISABLE_COPY_MOVE(DateRolloverStrategy)
 
-    QDateTime currentDateTime() const;
     QString buildBackupName(const QString &fileName, const QDateTime &dateTime) const;
 
     QString mDatePattern;
     NamingMode mMode;
     int mMaxBackups;
     int mKeepDays;
-    DateTimeProvider mDateTimeProvider;
     QString mActiveSuffix;
     QFutureSynchronizer<void> mCleanupExecutors;
 };
