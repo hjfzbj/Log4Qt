@@ -43,9 +43,6 @@ thread_local int s_appendDepth = 0;
 
 AppenderSkeleton::AppenderSkeleton(QObject *parent)
     : Appender(parent)
-#if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive)
-#endif
     , mThreshold(Level::NULL_INT)
 {
     mIsActive.store(true, std::memory_order_relaxed);
@@ -55,9 +52,6 @@ AppenderSkeleton::AppenderSkeleton(QObject *parent)
 AppenderSkeleton::AppenderSkeleton(bool isActive,
                                    QObject *parent)
     : Appender(parent)
-#if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive)
-#endif
     , mThreshold(Level::NULL_INT)
 {
     mIsActive.store(isActive, std::memory_order_relaxed);
@@ -68,9 +62,6 @@ AppenderSkeleton::AppenderSkeleton(bool isActive,
                                    const LayoutSharedPtr &layout,
                                    QObject *parent)
     : Appender(parent)
-#if QT_VERSION < 0x050E00
-    , mObjectGuard(QMutex::Recursive)
-#endif
     , mpLayout(layout)
     , mThreshold(Level::NULL_INT)
 {

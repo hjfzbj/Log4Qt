@@ -64,11 +64,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-# Min. Qt version is 6.4, we want to use cmake automoc feature
-# and settings some defines for Qt
+# we want to use cmake automoc feature
 set(CMAKE_AUTOMOC TRUE)
+# Min. Qt version is 6.5
+set(QT_MIN_VERSION 6.5.0)
 
-set(QT_MIN_VERSION 6.4.0)
 if (NOT Qt6_FOUND)
     find_package(Qt6 COMPONENTS Core REQUIRED)
 endif()

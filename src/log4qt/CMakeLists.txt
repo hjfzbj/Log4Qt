@@ -205,7 +205,7 @@ if(BUILD_WITH_QML_LOGGING)
         PRIVATE
             LOG4QT_QML_LOGGING_SUPPORT
     )
-    if (QT_VERSION_MAJOR GREATER 6 OR (QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER 1))
+    if (TRUE) # Qt >= 6.5 always supports qt_add_qml_module
         qt_add_qml_module(
             log4qt
             URI org.log4qt

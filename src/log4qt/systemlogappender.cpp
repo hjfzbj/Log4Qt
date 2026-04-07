@@ -155,11 +155,7 @@ void SystemLogAppender::append(const LoggingEvent &event)
 
     openlog(mIdent.c_str(), LOG_PID, LOG_DAEMON);
 
-#if QT_VERSION >= 0x050e00
     for (const auto &line : message.split('\n', Qt::SkipEmptyParts))
-#else
-    for (const auto &line : message.split('\n', QString::SkipEmptyParts))
-#endif
         syslog(st, "%s", line.toLocal8Bit().constData());
     closelog();
 

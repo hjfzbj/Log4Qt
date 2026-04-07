@@ -196,11 +196,7 @@ protected:
     static void forwardEvent(const AppenderSharedPtr &appender, const LoggingEvent &event);
 
 protected:
-#if QT_VERSION < 0x050E00
-    mutable QMutex mObjectGuard;
-#else
     mutable QRecursiveMutex mObjectGuard;
-#endif
 
 private:
     Q_DISABLE_COPY_MOVE(AppenderSkeleton)

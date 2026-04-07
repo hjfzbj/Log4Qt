@@ -79,8 +79,9 @@ All notable changes to this project will be documented in this file.
 - All CTest/build target names now carry a `tst_` prefix.
 
 ### Changed
-- **Breaking:** Minimum required Qt version raised to Qt 6.4. Qt 5 is no longer
+- **Breaking:** Minimum required Qt version raised to Qt 6.5. Qt 5 is no longer
   supported. Use branch 1.6 / release 1.6.x for Qt 5.7+ support.
+  All pre-6.5 `#if QT_VERSION` code paths have been removed.
 - **Breaking:** PropertyConfigurator now uses a Log4j2-style configuration
   format. The `log4j.` prefix is removed, appenders use explicit `type` keys,
   and loggers use appender references instead of inline declarations:

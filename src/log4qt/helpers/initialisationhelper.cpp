@@ -85,13 +85,6 @@ void InitialisationHelper::doRegisterTypes()
     qRegisterMetaType<Log4Qt::Level>("Log4Qt::Level");
     qRegisterMetaType<Log4Qt::LoggingEvent>("Log4Qt::LoggingEvent");
 
-#ifndef QT_NO_DATASTREAM
-#if QT_VERSION < 0x060000
-    qRegisterMetaTypeStreamOperators<Log4Qt::LogError>("Log4Qt::LogError");
-    qRegisterMetaTypeStreamOperators<Log4Qt::Level>("Log4Qt::Level");
-    qRegisterMetaTypeStreamOperators<LoggingEvent>("Log4Qt::LoggingEvent");
-#endif
-#endif
 
 }
 
