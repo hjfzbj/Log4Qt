@@ -30,7 +30,7 @@ namespace Log4Qt
 QString MDC::get(const QString &key)
 {
     if (!instance()->mHash.hasLocalData())
-        return QString();
+        return {};
 
     return instance()->mHash.localData()->value(key);
 }

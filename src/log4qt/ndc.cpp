@@ -57,7 +57,7 @@ QString NDC::pop()
     if (!instance()->mStack.hasLocalData() || instance()->mStack.localData()->isEmpty())
     {
         logger()->warn(u"Requesting pop from empty NDC stack"_s);
-        return QString();
+        return {};
     }
 
     return instance()->mStack.localData()->pop();
@@ -87,7 +87,7 @@ QString NDC::peek()
 {
     if (!instance()->mStack.hasLocalData() ||
             instance()->mStack.localData()->isEmpty())
-        return QString();
+        return {};
 
     return instance()->mStack.localData()->top();
 }

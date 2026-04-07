@@ -90,7 +90,7 @@ QString Properties::property(const QString &key) const
 
     if (mpDefaultProperties)
         return mpDefaultProperties->property(key);
-    return QString();
+    return {};
 }
 
 

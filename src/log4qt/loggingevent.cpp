@@ -228,7 +228,7 @@ QString LoggingEvent::loggername() const
 {
     if (d->mLogger)
         return d->mLogger->name();
-    return QString();
+    return {};
 }
 
 QString LoggingEvent::toString() const

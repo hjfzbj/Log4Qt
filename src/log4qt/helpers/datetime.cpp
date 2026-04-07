@@ -74,10 +74,10 @@ DateTime::DateTime(const DateTime &other) = default;
 QString DateTime::formatMsecs(qint64 msecs, const QString &format)
 {
     if (format.isEmpty())
-        return QString();
+        return {};
 
     if (format == u"NONE"_s)
-        return QString();
+        return {};
     if (format == u"RELATIVE"_s)
         return QString::number(msecs - InitialisationHelper::startTime());
 
@@ -120,7 +120,7 @@ QString DateTime::formatMsecs(qint64 msecs, const QString &format)
 QString DateTime::toString(const QString &format) const
 {
     if (!isValid())
-        return QString();
+        return {};
     return formatMsecs(toMSecsSinceEpoch(), format);
 }
 
