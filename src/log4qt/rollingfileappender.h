@@ -53,6 +53,22 @@ class LOG4QT_EXPORT RollingFileAppender : public FileAppender
 {
     Q_OBJECT
 
+    /*!
+     * The property controls whether the layout footer is suppressed when a
+     * startup rollover occurs.
+     *
+     * When true and a triggering policy fires on startup (e.g.
+     * OnStartupTriggeringPolicy), the footer is not written to the previous
+     * log file before rolling over. This is useful when the footer is a
+     * structural delimiter (such as \c "]" for JsonLayout) that should only
+     * appear in normally-closed files.
+     *
+     * The default is false (footer is always written).
+     *
+     * \sa skipFooterOnStartup(), setSkipFooterOnStartup()
+     */
+    Q_PROPERTY(bool skipFooterOnStartup READ skipFooterOnStartup WRITE setSkipFooterOnStartup)
+
 public:
     RollingFileAppender(QObject *parent = nullptr);
     RollingFileAppender(const LayoutSharedPtr &layout,
@@ -74,6 +90,9 @@ public:
     void setRolloverStrategy(const RolloverStrategySharedPtr &strategy);
     RolloverStrategySharedPtr rolloverStrategy() const;
 
+    [[nodiscard]] bool skipFooterOnStartup() const;
+    void setSkipFooterOnStartup(bool skip);
+
     void activateOptions() override;
 
 protected:
@@ -83,6 +102,7 @@ protected:
 private:
     TriggeringPolicySharedPtr mTriggeringPolicy;
     RolloverStrategySharedPtr mRolloverStrategy;
+    bool mSkipFooterOnStartup = false;
 };
 
 inline TriggeringPolicySharedPtr RollingFileAppender::triggeringPolicy() const
@@ -95,6 +115,16 @@ inline RolloverStrategySharedPtr RollingFileAppender::rolloverStrategy() const
 {
     QMutexLocker locker(&mObjectGuard);
     return mRolloverStrategy;
+}
+
+inline bool RollingFileAppender::skipFooterOnStartup() const
+{
+    return mSkipFooterOnStartup;
+}
+
+inline void RollingFileAppender::setSkipFooterOnStartup(bool skip)
+{
+    mSkipFooterOnStartup = skip;
 }
 
 } // namespace Log4Qt

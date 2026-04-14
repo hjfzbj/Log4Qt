@@ -199,11 +199,24 @@ void FileAppender::openFile()
         logger()->error(e);
         return;
     }
+    // Skip the header when appending to a non-empty existing file —
+    // the header is already present from the previous run.
+    if (mAppendFile.load(std::memory_order_relaxed) && mFile->size() > 0)
+        mSuppressNextHeader = true;
     mTextStream = std::make_unique<QTextStream>(mFile.get());
     setWriter(mTextStream.get());
     logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 }
 
+
+void FileAppender::writeHeader() const
+{
+    if (mSuppressNextHeader) {
+        mSuppressNextHeader = false;
+        return;
+    }
+    WriterAppender::writeHeader();
+}
 
 bool FileAppender::removeFile(QFile &file) const
 {

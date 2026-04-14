@@ -108,8 +108,11 @@ void RollingFileAppender::activateOptions()
 
     FileAppender::activateOptions();
 
-    if (startupRollover)
+    if (startupRollover) {
+        if (mSkipFooterOnStartup)
+            suppressNextFooter();
         rollOver();
+    }
 }
 
 void RollingFileAppender::append(const LoggingEvent &event)

@@ -60,6 +60,27 @@ class LOG4QT_EXPORT PatternLayout : public AbstractStringLayout
      */
     Q_PROPERTY(QString conversionPattern READ conversionPattern WRITE setConversionPattern)
 
+    /*!
+     * The property holds an optional conversion pattern for the layout header.
+     *
+     * When set, the header is formatted using the pattern at the time the
+     * file is opened. Useful conversions are \c %d (current date/time) and
+     * \c %r (milliseconds since start). Overrides the plain \c header
+     * property when both are set.
+     *
+     * \sa headerPattern(), setHeaderPattern()
+     */
+    Q_PROPERTY(QString headerPattern READ headerPattern WRITE setHeaderPattern)
+
+    /*!
+     * The property holds an optional conversion pattern for the layout footer.
+     *
+     * Symmetric to \c headerPattern; formatted at the time the file is closed.
+     *
+     * \sa footerPattern(), setFooterPattern()
+     */
+    Q_PROPERTY(QString footerPattern READ footerPattern WRITE setFooterPattern)
+
 public:
     /*!
      * The enum ConversionPattern defines constants for pattern strings.
@@ -102,6 +123,14 @@ public:
      */
     void setConversionPattern(ConversionPattern conversionPattern);
 
+    [[nodiscard]] QString headerPattern() const;
+    void setHeaderPattern(const QString &pattern);
+    [[nodiscard]] QString footerPattern() const;
+    void setFooterPattern(const QString &pattern);
+
+    [[nodiscard]] QString header() const override;
+    [[nodiscard]] QString footer() const override;
+
     [[nodiscard]] QString format(const LoggingEvent &event) override;
 
     /*!
@@ -117,6 +146,10 @@ private:
 private:
     QString mPattern;
     std::unique_ptr<PatternFormatter> mpPatternFormatter;
+    QString mHeaderPattern;
+    QString mFooterPattern;
+    std::unique_ptr<PatternFormatter> mHeaderFormatter;
+    std::unique_ptr<PatternFormatter> mFooterFormatter;
 };
 
 inline QString PatternLayout::conversionPattern() const
@@ -128,6 +161,16 @@ inline void PatternLayout::setConversionPattern(const QString &pattern)
 {
     mPattern = pattern;
     updatePatternFormatter();
+}
+
+inline QString PatternLayout::headerPattern() const
+{
+    return mHeaderPattern;
+}
+
+inline QString PatternLayout::footerPattern() const
+{
+    return mFooterPattern;
 }
 
 } // namespace Log4Qt

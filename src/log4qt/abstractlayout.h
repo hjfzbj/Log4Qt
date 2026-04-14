@@ -23,8 +23,10 @@
 
 #include "log4qtshared.h"
 #include "log4qtsharedptr.h"
+#include "spi/headerfooterprovider.h"
 
 #include <QObject>
+#include <QReadWriteLock>
 
 namespace Log4Qt
 {
@@ -66,12 +68,45 @@ public:
 
 public:
     [[nodiscard]] virtual QString contentType() const;
-    [[nodiscard]] inline QString footer() const;
-    [[nodiscard]] inline QString header() const;
+    [[nodiscard]] virtual QString footer() const;
+    [[nodiscard]] virtual QString header() const;
     [[nodiscard]] inline QString name() const;
     inline void setFooter(const QString &footer);
     inline void setHeader(const QString &header);
     inline void setName(const QString &name);
+
+    /*!
+     * Sets a per-layout header/footer provider. When set and the provider
+     * returns a non-empty string, it takes priority over both
+     * \c headerPattern / \c footerPattern (on \c PatternLayout) and the
+     * static \c header / \c footer strings.
+     *
+     * \sa headerFooterProvider(), setGlobalHeaderFooterProvider()
+     */
+    void setHeaderFooterProvider(const HeaderFooterProviderSharedPtr &provider);
+
+    /*!
+     * Returns the per-layout header/footer provider, or a null pointer if
+     * none has been set.
+     */
+    [[nodiscard]] HeaderFooterProviderSharedPtr headerFooterProvider() const;
+
+    /*!
+     * Registers a global fallback provider used by all layouts that have no
+     * per-layout provider set and no static header/footer string configured.
+     * Passing a null pointer clears the global provider.
+     *
+     * Thread-safe. Intended to be called once during application startup.
+     *
+     * \sa globalHeaderFooterProvider(), setHeaderFooterProvider()
+     */
+    static void setGlobalHeaderFooterProvider(const HeaderFooterProviderSharedPtr &provider);
+
+    /*!
+     * Returns the currently registered global header/footer provider, or a
+     * null pointer if none is registered.
+     */
+    [[nodiscard]] static HeaderFooterProviderSharedPtr globalHeaderFooterProvider();
 
     virtual void activateOptions();
     virtual QString format(const LoggingEvent &event) = 0;
@@ -100,17 +135,11 @@ private:
     Q_DISABLE_COPY_MOVE(AbstractLayout)
     QString mFooter;
     QString mHeader;
+    HeaderFooterProviderSharedPtr mHeaderFooterProvider;
+
+    static HeaderFooterProviderSharedPtr s_globalProvider;
+    static QReadWriteLock s_providerLock;
 };
-
-inline QString AbstractLayout::footer() const
-{
-    return mFooter;
-}
-
-inline QString AbstractLayout::header() const
-{
-    return mHeader;
-}
 
 inline QString AbstractLayout::name() const
 {

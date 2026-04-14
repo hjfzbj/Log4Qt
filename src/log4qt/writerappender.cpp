@@ -164,8 +164,18 @@ bool WriterAppender::handleIoErrors() const
     return false;
 }
 
+void WriterAppender::suppressNextFooter()
+{
+    mSuppressNextFooter = true;
+}
+
 void WriterAppender::writeFooter() const
 {
+    if (mSuppressNextFooter) {
+        mSuppressNextFooter = false;
+        return;
+    }
+
     if (!layout() || (mWriter == nullptr))
         return;
 

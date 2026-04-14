@@ -1,4 +1,5 @@
 add_subdirectory(asyncappendertest)
+add_subdirectory(headerfootertest)
 add_subdirectory(jsonlayouttest)
 add_subdirectory(dailyrollingfileappendertest)
 add_subdirectory(jsontest)

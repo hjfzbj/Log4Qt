@@ -236,10 +236,14 @@ void RandomAccessFileAppender::openFile()
     logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 
     // Write the layout header (if any) into the buffer so it is included in
-    // the first flush. This matches the behaviour of WriterAppender.
-    const LayoutSharedPtr l = layout();
-    if (l && !l->header().isEmpty())
-        mByteBuffer += l->header().toUtf8();
+    // the first flush. Skip when appending to a non-empty existing file —
+    // the header is already present from the previous run.
+    const bool isNewFile = !mAppendFile.load(std::memory_order_relaxed) || mFile->size() == 0;
+    if (isNewFile) {
+        const LayoutSharedPtr l = layout();
+        if (l && !l->header().isEmpty())
+            mByteBuffer += l->header().toUtf8() + AbstractLayout::endOfLine().toUtf8();
+    }
 }
 
 void RandomAccessFileAppender::closeFile()
@@ -252,7 +256,7 @@ void RandomAccessFileAppender::closeFile()
         // included in the last data written to disk.
         const LayoutSharedPtr l = layout();
         if (l && !l->footer().isEmpty())
-            mByteBuffer += l->footer().toUtf8();
+            mByteBuffer += l->footer().toUtf8() + AbstractLayout::endOfLine().toUtf8();
 
         flushBuffer();
     }

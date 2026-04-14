@@ -80,6 +80,42 @@ void PatternLayout::updatePatternFormatter()
     mpPatternFormatter = std::make_unique<PatternFormatter>(mPattern);
 }
 
+void PatternLayout::setHeaderPattern(const QString &pattern)
+{
+    mHeaderPattern = pattern;
+    mHeaderFormatter = pattern.isEmpty() ? nullptr
+                                         : std::make_unique<PatternFormatter>(pattern);
+}
+
+void PatternLayout::setFooterPattern(const QString &pattern)
+{
+    mFooterPattern = pattern;
+    mFooterFormatter = pattern.isEmpty() ? nullptr
+                                         : std::make_unique<PatternFormatter>(pattern);
+}
+
+QString PatternLayout::header() const
+{
+    if (auto p = headerFooterProvider()) {
+        QString h = p->header();
+        if (!h.isEmpty()) return h;
+    }
+    if (mHeaderFormatter)
+        return mHeaderFormatter->format(LoggingEvent{});
+    return AbstractStringLayout::header();
+}
+
+QString PatternLayout::footer() const
+{
+    if (auto p = headerFooterProvider()) {
+        QString f = p->footer();
+        if (!f.isEmpty()) return f;
+    }
+    if (mFooterFormatter)
+        return mFooterFormatter->format(LoggingEvent{});
+    return AbstractStringLayout::footer();
+}
+
 } // namespace Log4Qt
 
 #include "moc_patternlayout.cpp"

@@ -149,8 +149,11 @@ protected:
     bool renameFile(QFile &file,
                     const QString &fileName) const;
 
+    void writeHeader() const override;
+
 private:
     std::atomic<bool> mAppendFile;
+    mutable bool mSuppressNextHeader = false;
     std::atomic<bool> mBufferedIo;
     QString mFileName;
     std::unique_ptr<QFile> mFile;

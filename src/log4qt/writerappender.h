@@ -126,13 +126,20 @@ protected:
     void closeWriter();
 
     virtual bool handleIoErrors() const;
-    void writeFooter() const;
-    void writeHeader() const;
+    virtual void writeFooter() const;
+    virtual void writeHeader() const;
+
+    /*!
+     * Suppresses the next footer write. Call before closing a file when the
+     * footer should be omitted (e.g. during a startup rollover).
+     */
+    void suppressNextFooter();
 
 private:
     QStringConverter::Encoding mEncoding;
     QTextStream *mWriter;
     std::atomic<bool> mImmediateFlush;
+    mutable bool mSuppressNextFooter = false;
     void closeInternal();
 };
 
