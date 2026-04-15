@@ -23,6 +23,7 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
+#include "log4qt/abstractlayout.h"
 #include "log4qt/consoleappender.h"
 #include "log4qt/dailyrollingfileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
@@ -32,6 +33,7 @@
 #include "log4qt/patternlayout.h"
 #include "log4qt/propertyconfigurator.h"
 #include "log4qt/simplelayout.h"
+#include "log4qt/spi/headerfooterprovider.h"
 #include "log4qt/ttcclayout.h"
 #include "log4qt/varia/levelmatchfilter.h"
 #include "log4qt/loggerrepository.h"
@@ -75,6 +77,11 @@ private Q_SLOTS:
     void testLegacyRealWorldConfig();
     void testLegacyVariableSubstitution();
     void testLegacyCrossReferenceSubstitution();
+    // HeaderFooterProvider configuration tests
+    void testGlobalHeaderFooterProvider();
+    void testPerLayoutHeaderFooterProvider();
+    void testLegacyGlobalHeaderFooterProvider();
+    void testPerLayoutProviderOverridesGlobal();
 
 private:
     void writePropertiesFile(const QString &path, const QByteArray &content);
@@ -82,6 +89,7 @@ private:
 
 void PropertyConfiguratorTest::cleanup()
 {
+    AbstractLayout::setGlobalHeaderFooterProvider({});
     LogManager::resetConfiguration();
 }
 
@@ -727,6 +735,90 @@ void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
     auto *ttcc = qobject_cast<TTCCLayout *>(dailyApp->layout().data());
     QVERIFY(ttcc);
     QCOMPARE(ttcc->dateFormat(), u"ISO8601"_s);
+}
+
+// --- HeaderFooterProvider configuration ---
+
+void PropertyConfiguratorTest::testGlobalHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"headerFooterProvider.type"_s,          u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"headerFooterProvider.headerPattern"_s, u"Session start"_s);
+    props.setProperty(u"headerFooterProvider.footerPattern"_s, u"Session end"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto provider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"Session start"_s);
+    QCOMPARE(provider->footer(), u"Session end"_s);
+}
+
+void PropertyConfiguratorTest::testPerLayoutHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"appender.console.type"_s,                                          u"Console"_s);
+    props.setProperty(u"appender.console.layout.type"_s,                                   u"PatternLayout"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.type"_s,              u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.headerPattern"_s,     u"File opened"_s);
+    props.setProperty(u"rootLogger.level"_s,                                               u"INFO"_s);
+    props.setProperty(u"rootLogger.appenderRef.0.ref"_s,                                   u"console"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(
+        LogManager::rootLogger()->appenders().first().data());
+    QVERIFY(consoleApp);
+
+    auto *layout = qobject_cast<PatternLayout *>(consoleApp->layout().data());
+    QVERIFY(layout);
+
+    auto provider = layout->headerFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"File opened"_s);
+    // Global provider is not set — only the per-layout one
+    QVERIFY(!AbstractLayout::globalHeaderFooterProvider());
+}
+
+void PropertyConfiguratorTest::testLegacyGlobalHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"log4j.headerFooterProvider.type"_s,          u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"log4j.headerFooterProvider.headerPattern"_s, u"Legacy header"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto provider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"Legacy header"_s);
+}
+
+void PropertyConfiguratorTest::testPerLayoutProviderOverridesGlobal()
+{
+    Properties props;
+    props.setProperty(u"headerFooterProvider.type"_s,                                      u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"headerFooterProvider.headerPattern"_s,                             u"Global header"_s);
+    props.setProperty(u"appender.console.type"_s,                                          u"Console"_s);
+    props.setProperty(u"appender.console.layout.type"_s,                                   u"PatternLayout"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.type"_s,              u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.headerPattern"_s,     u"Per-layout header"_s);
+    props.setProperty(u"rootLogger.level"_s,                                               u"INFO"_s);
+    props.setProperty(u"rootLogger.appenderRef.0.ref"_s,                                   u"console"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    // Global provider is set
+    auto globalProvider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(globalProvider);
+    QCOMPARE(globalProvider->header(), u"Global header"_s);
+
+    // Per-layout provider wins over global
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(
+        LogManager::rootLogger()->appenders().first().data());
+    QVERIFY(consoleApp);
+    auto *layout = qobject_cast<PatternLayout *>(consoleApp->layout().data());
+    QVERIFY(layout);
+    QCOMPARE(layout->header(), u"Per-layout header"_s);
 }
 
 QTEST_GUILESS_MAIN(PropertyConfiguratorTest)
