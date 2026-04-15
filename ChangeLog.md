@@ -77,6 +77,10 @@ All notable changes to this project will be documented in this file.
 - Dedicated unit test suites for `AsyncAppender` (`tests/asyncappendertest`)
   and `JsonLayout` (`tests/jsonlayouttest`).
 - All CTest/build target names now carry a `tst_` prefix.
+- **`HeaderFooterProvider` SPI** (`spi/headerfooterprovider.h`) — pluggable
+  interface for dynamic log-file headers and footers. Applications subclass
+  `HeaderFooterProvider` and register it with the `Factory` to inject runtime
+  content (e.g. device serial numbers) without touching layout classes.
 
 ### Changed
 - **Breaking:** Minimum required Qt version raised to Qt 6.5. Qt 5 is no longer

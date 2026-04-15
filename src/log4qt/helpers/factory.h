@@ -27,6 +27,7 @@
 #include <QHash>
 #include <QMutex>
 #include <QStringList>
+#include <functional>
 
 class QObject;
 class QMetaProperty;
@@ -110,7 +111,7 @@ public:
          *
          * \sa registerHeaderFooterProvider(), createHeaderFooterProvider()
      */
-    using HeaderFooterProviderFactoryFunc = HeaderFooterProvider *(*)();
+    using HeaderFooterProviderFactoryFunc = std::function<HeaderFooterProvider *()>;
 
 private:
     Factory();

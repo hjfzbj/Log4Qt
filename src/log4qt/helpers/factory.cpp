@@ -25,6 +25,7 @@
 #include "helpers/logerror.h"
 #include "helpers/initialisationhelper.h"
 #include "helpers/optionconverter.h"
+#include "jsonlayout.h"
 #include "patternlayout.h"
 #include "rollingfileappender.h"
 #include "signalappender.h"
@@ -211,6 +212,11 @@ AbstractLayout *create_ttcc_layout()
 AbstractLayout *create_xml_layout()
 {
     return new XMLLayout;
+}
+
+AbstractLayout *create_json_layout()
+{
+    return new JsonLayout;
 }
 
 // TriggeringPolicies
@@ -627,6 +633,9 @@ void Factory::registerDefaultLayouts()
     mLayoutRegistry.insert(u"org.apache.log4j.XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"Log4Qt::XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"XMLLayout"_s, create_xml_layout);
+
+    mLayoutRegistry.insert(u"Log4Qt::JsonLayout"_s, create_json_layout);
+    mLayoutRegistry.insert(u"JsonLayout"_s, create_json_layout);
 }
 
 
