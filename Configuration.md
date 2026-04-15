@@ -105,6 +105,7 @@ arbitrary identifier used to reference the appender from loggers.
 | `SimpleTimeLayout` | SimpleTimeLayout | Adds a timestamp to SimpleLayout. |
 | `TTCCLayout` | TTCCLayout | Time, thread, category, context layout. |
 | `XMLLayout` | XMLLayout | XML-formatted log events. |
+| `JsonLayout` | JsonLayout | NDJSON output (one JSON object per line). |
 | `DatabaseLayout` | DatabaseLayout | Layout for database appender (optional). |
 
 ### Built-in Filter Types
@@ -212,6 +213,162 @@ appender.multi.policy.STARTUP.type=OnStartupTriggeringPolicy
 appender.multi.strategy.type=DefaultRolloverStrategy
 appender.multi.strategy.maxIndex=10
 appender.multi.layout.type=SimpleLayout
+```
+
+---
+
+## Header/Footer Providers
+
+A `HeaderFooterProvider` supplies a **header** string written when a log file is
+opened and a **footer** string written when it is closed. This is useful for
+embedding session metadata — timestamps, software version, device serial number
+— in every log file without hardcoding text in the layout.
+
+### Priority Chain
+
+For each `header()` or `footer()` call on a layout, sources are checked in order
+and the first non-empty result wins:
+
+1. **Per-layout provider** (`appender.X.layout.headerFooterProvider.*`)
+2. **PatternLayout `headerPattern` / `footerPattern`** (PatternLayout only)
+3. **Static `header` / `footer` string** on the layout
+4. **Global provider** (`headerFooterProvider.*`)
+
+### Global Provider
+
+The global provider acts as a fallback for every layout that has no other
+header/footer configured.
+
+```properties
+headerFooterProvider.type=Pattern
+headerFooterProvider.headerPattern=--- Started %d{yyyy-MM-dd HH:mm:ss} ---
+headerFooterProvider.footerPattern=--- Stopped %d{yyyy-MM-dd HH:mm:ss} ---
+```
+
+### Per-Layout Provider
+
+A per-layout provider is attached to one specific appender's layout. It takes
+precedence over the global provider and over `PatternLayout` patterns.
+
+```properties
+appender.json.layout.headerFooterProvider.type=Pattern
+appender.json.layout.headerFooterProvider.headerPattern={"start":"%d{yyyy-MM-ddTHH:mm:ss}"}
+appender.json.layout.headerFooterProvider.footerPattern={"end":"%d{yyyy-MM-ddTHH:mm:ss}"}
+```
+
+### Built-in Provider Types
+
+| Alias | Class | Properties | Description |
+|-------|-------|------------|-------------|
+| `PatternHeaderFooterProvider`, `Pattern` | PatternHeaderFooterProvider | `headerPattern`, `footerPattern` | Formats header/footer with conversion patterns evaluated at file-open/close time. Supports all `PatternLayout` specifiers plus `%P{key}`. |
+
+### Conversion Specifiers in Patterns
+
+`PatternHeaderFooterProvider` accepts the same conversion specifiers as
+`PatternLayout`. Patterns are evaluated at file-open / file-close time so `%d`
+reflects the actual timestamp:
+
+| Specifier | Description |
+|-----------|-------------|
+| `%d{format}` | Current date/time at file open/close. Uses the same format strings as `PatternLayout` (`ISO8601`, `yyyy-MM-dd HH:mm:ss`, etc.). |
+| `%P{key}` | Value of the named property on the provider object (see below). |
+| `%r`, `%t`, `%%`, `%n`, … | All standard `PatternLayout` specifiers. |
+
+### Injecting Runtime Values with `%P{key}`
+
+`%P{key}` resolves the named key through Qt's property system
+(`QObject::property(key)`) on the provider at format time. Both static
+`Q_PROPERTY` members and dynamic properties set via `QObject::setProperty()`
+are supported.
+
+**Option 1 — Subclass with `Q_PROPERTY` (recommended for factory-created providers)**
+
+Define a provider subclass with the data you want to expose:
+
+```cpp
+class MyProvider : public Log4Qt::PatternHeaderFooterProvider {
+    Q_OBJECT
+    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
+public:
+    QString serialNumber() const { return mSn; }
+    void setSerialNumber(const QString &v) { mSn = v; }
+private:
+    QString mSn;
+};
+```
+
+Register with the Factory before loading the config, capturing the runtime
+value in the lambda so it is available before `activateOptions()` writes the
+header:
+
+```cpp
+const QString sn = readSerialFromHardware();
+Log4Qt::Factory::registerHeaderFooterProvider(
+    "MyProvider",
+    [sn]() -> Log4Qt::HeaderFooterProvider * {
+        auto *p = new MyProvider;
+        p->setSerialNumber(sn);
+        return p;
+    });
+Log4Qt::PropertyConfigurator::configureAndWatch(configFile);
+```
+
+Config file — the pattern and any other `Q_PROPERTY` values are declared here;
+the serial number is injected by the application:
+
+```properties
+headerFooterProvider.type=MyProvider
+headerFooterProvider.headerPattern=S/N: %P{serialNumber} — started %d{yyyy-MM-dd HH:mm:ss}
+headerFooterProvider.footerPattern=S/N: %P{serialNumber} — stopped %d{yyyy-MM-dd HH:mm:ss}
+```
+
+**Option 2 — Dynamic property (no subclass)**
+
+```cpp
+auto *p = new Log4Qt::PatternHeaderFooterProvider;
+p->setHeaderPattern(u"S/N: %P{serialNumber}"_s);
+p->setProperty("serialNumber", u"SN-001"_s);   // QObject::setProperty
+Log4Qt::AbstractLayout::setGlobalHeaderFooterProvider(
+    Log4Qt::HeaderFooterProviderSharedPtr(p));
+```
+
+### Custom Provider
+
+Implement `HeaderFooterProvider` (or `PatternHeaderFooterProvider`) and register
+it with the Factory before the configuration file is loaded:
+
+```cpp
+Log4Qt::Factory::registerHeaderFooterProvider(
+    "MyCustomProvider",
+    []() -> Log4Qt::HeaderFooterProvider * {
+        return new MyCustomProvider;
+    });
+```
+
+Then reference it by name in the config file. All `Q_PROPERTY` members are set
+automatically from matching configuration keys — the same mechanism used for
+appenders and layouts:
+
+```properties
+headerFooterProvider.type=MyCustomProvider
+headerFooterProvider.myProperty=value
+```
+
+### Complete Example
+
+```properties
+# Global provider: plain text header/footer for all log files
+headerFooterProvider.type=Pattern
+headerFooterProvider.headerPattern=### Session started %d{yyyy-MM-dd HH:mm:ss} ###
+headerFooterProvider.footerPattern=### Session stopped %d{yyyy-MM-dd HH:mm:ss} ###
+
+# JSON appender with a per-layout provider for machine-readable records
+appender.json.type=File
+appender.json.file=${logpath}/app.json
+appender.json.layout.type=JsonLayout
+appender.json.layout.headerFooterProvider.type=Pattern
+appender.json.layout.headerFooterProvider.headerPattern={"event":"start","time":"%d{yyyy-MM-ddTHH:mm:ss}"}
+appender.json.layout.headerFooterProvider.footerPattern={"event":"end","time":"%d{yyyy-MM-ddTHH:mm:ss}"}
 ```
 
 ---

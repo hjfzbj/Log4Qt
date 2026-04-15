@@ -327,6 +327,83 @@ void Log4QtTest::PatternFormatter()
     QCOMPARE(loggingEvents()->list().count(), event_count);
 }
 
+void Log4QtTest::PatternFormatter_propertySource()
+{
+    // %P{key} resolves a dynamic property set on the source object.
+    {
+        QObject source;
+        source.setProperty("version", QStringLiteral("1.2.3"));
+
+        Log4Qt::PatternFormatter fmt(QStringLiteral("ver=%P{version}"));
+        fmt.setPropertySource(&source);
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("ver=1.2.3"));
+    }
+
+    // Unknown key expands to empty string — no crash, no error.
+    {
+        QObject source;
+        Log4Qt::PatternFormatter fmt(QStringLiteral("[%P{noSuchKey}]"));
+        fmt.setPropertySource(&source);
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("[]"));
+    }
+
+    // No source set (nullptr) — %P{key} produces empty string.
+    {
+        Log4Qt::PatternFormatter fmt(QStringLiteral("[%P{key}]"));
+        // setPropertySource never called; mPropertySource stays nullptr
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("[]"));
+    }
+
+    // setPropertySource called after construction — late binding via
+    // pointer-to-pointer means the change is reflected immediately.
+    {
+        QObject source;
+        source.setProperty("id", QStringLiteral("LATE"));
+
+        Log4Qt::PatternFormatter fmt(QStringLiteral("id=%P{id}"));
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("id="));  // no source yet
+
+        fmt.setPropertySource(&source);
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("id=LATE"));
+    }
+
+    // Updating the property on the source object is seen on the next format()
+    // call without rebuilding the formatter.
+    {
+        QObject source;
+        source.setProperty("sn", QStringLiteral("FIRST"));
+
+        Log4Qt::PatternFormatter fmt(QStringLiteral("%P{sn}"));
+        fmt.setPropertySource(&source);
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("FIRST"));
+
+        source.setProperty("sn", QStringLiteral("SECOND"));
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("SECOND"));
+    }
+
+    // Width and padding modifiers work on %P{key}.
+    {
+        QObject source;
+        source.setProperty("x", QStringLiteral("Hi"));
+
+        Log4Qt::PatternFormatter fmt(QStringLiteral("[%-5P{x}]"));
+        fmt.setPropertySource(&source);
+        QCOMPARE(fmt.format(LoggingEvent{}), QStringLiteral("[Hi   ]"));
+    }
+
+    // %P{key} combined with other specifiers in the same pattern.
+    {
+        QObject source;
+        source.setProperty("label", QStringLiteral("START"));
+
+        Log4Qt::PatternFormatter fmt(QStringLiteral("%P{label}: %m"));
+        fmt.setPropertySource(&source);
+        LoggingEvent event(test_logger(), Level(Level::INFO_INT),
+                           QStringLiteral("hello"));
+        QCOMPARE(fmt.format(event), QStringLiteral("START: hello"));
+    }
+}
+
 void Log4QtTest::Properties_default_data()
 {
     mDefaultProperties.clear();

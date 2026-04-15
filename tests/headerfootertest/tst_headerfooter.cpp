@@ -86,6 +86,16 @@ private Q_SLOTS:
     void rollingFileAppender_startupRollover_withSkipFooter_suppressesFooter();
     void rollingFileAppender_startupRollover_withoutSkipFooter_writesFooter();
 
+    // --- PatternHeaderFooterProvider: %P{key} user properties ---
+    void patternProvider_staticProperty_resolvedInHeader();
+    void patternProvider_staticProperty_resolvedInFooter();
+    void patternProvider_staticProperty_setBeforePattern();
+    void patternProvider_staticProperty_updatedAfterPatternSet();
+    void patternProvider_dynamicProperty_resolvedInHeader();
+    void patternProvider_property_missingKeyExpandsToEmpty();
+    void patternProvider_property_formattingWidthApplied();
+    void patternProvider_property_combinedWithDate();
+
     // --- HeaderFooterProvider ---
     void provider_globalProvider_usedAsFallback();
     void provider_globalProvider_notUsedWhenStaticIsSet();
@@ -95,6 +105,7 @@ private Q_SLOTS:
     void provider_perLayoutProvider_overridesGlobal();
     void provider_patternProvider_formatsDateInHeader();
     void provider_globalProvider_writtenToFile();
+    void provider_propertyProvider_writtenToFile();
 
 private:
     QTemporaryDir mTmpDir;
@@ -589,6 +600,139 @@ void HeaderFooterTest::provider_globalProvider_writtenToFile()
     appender.close();
 
     QVERIFY(readFileBytes(path).startsWith("FILE HEADER\n"));
+}
+
+void HeaderFooterTest::provider_propertyProvider_writtenToFile()
+{
+    // End-to-end: a %P{key} property value must appear in the header written
+    // to a real file. This exercises the full chain:
+    //   TestPropertyProvider (Q_PROPERTY serialNumber)
+    //   → PatternFormatter resolves %P{serialNumber} via QObject::property()
+    //   → FileAppender writes the formatted header on open
+    auto *p = new TestPropertyProvider;
+    p->setHeaderPattern(QStringLiteral("S/N: %P{serialNumber}"));
+    p->setSerialNumber(QStringLiteral("SN-FILE-001"));
+    AbstractLayout::setGlobalHeaderFooterProvider(HeaderFooterProviderSharedPtr(p));
+
+    const QString path = tempFile(QStringLiteral("property_provider_file.log"));
+    auto layout = LayoutSharedPtr(new PatternLayout(QStringLiteral("%m%n")));
+
+    FileAppender appender(layout, path);
+    appender.activateOptions();
+    appender.close();
+
+    QVERIFY(readFileBytes(path).startsWith("S/N: SN-FILE-001\n"));
+}
+
+// ---------------------------------------------------------------------------
+// PatternHeaderFooterProvider: %P{key} user properties
+// ---------------------------------------------------------------------------
+
+// Test helper: provider subclass with a Q_PROPERTY that %P{key} can resolve.
+class TestPropertyProvider : public PatternHeaderFooterProvider
+{
+    Q_OBJECT
+    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
+    Q_PROPERTY(QString label       READ label         WRITE setLabel)
+public:
+    using PatternHeaderFooterProvider::PatternHeaderFooterProvider;
+    QString serialNumber() const { return mSerialNumber; }
+    void setSerialNumber(const QString &v) { mSerialNumber = v; }
+    QString label() const { return mLabel; }
+    void setLabel(const QString &v) { mLabel = v; }
+private:
+    QString mSerialNumber;
+    QString mLabel;
+};
+
+void HeaderFooterTest::patternProvider_staticProperty_resolvedInHeader()
+{
+    // %P{key} expands to the value of the matching Q_PROPERTY on the provider.
+    TestPropertyProvider p;
+    p.setHeaderPattern(QStringLiteral("S/N: %P{serialNumber}"));
+    p.setSerialNumber(QStringLiteral("SN-001"));
+
+    QCOMPARE(p.header(), QStringLiteral("S/N: SN-001"));
+}
+
+void HeaderFooterTest::patternProvider_staticProperty_resolvedInFooter()
+{
+    // %P{key} works in footer patterns too.
+    TestPropertyProvider p;
+    p.setFooterPattern(QStringLiteral("End S/N: %P{serialNumber}"));
+    p.setSerialNumber(QStringLiteral("SN-002"));
+
+    QCOMPARE(p.footer(), QStringLiteral("End S/N: SN-002"));
+}
+
+void HeaderFooterTest::patternProvider_staticProperty_setBeforePattern()
+{
+    // Property set BEFORE setHeaderPattern() is visible because setPropertySource(this)
+    // is called when the formatter is created — the property-source pointer is this,
+    // so the live value is always read at format time.
+    TestPropertyProvider p;
+    p.setSerialNumber(QStringLiteral("EARLY"));
+    p.setHeaderPattern(QStringLiteral("S/N: %P{serialNumber}"));
+
+    QCOMPARE(p.header(), QStringLiteral("S/N: EARLY"));
+}
+
+void HeaderFooterTest::patternProvider_staticProperty_updatedAfterPatternSet()
+{
+    // Changing the Q_PROPERTY after the pattern is set is reflected immediately —
+    // the converter holds a pointer to mPropertySource (this) and calls
+    // QObject::property() at each format() call.
+    TestPropertyProvider p;
+    p.setHeaderPattern(QStringLiteral("S/N: %P{serialNumber}"));
+    p.setSerialNumber(QStringLiteral("FIRST"));
+    QCOMPARE(p.header(), QStringLiteral("S/N: FIRST"));
+
+    p.setSerialNumber(QStringLiteral("SECOND"));
+    QCOMPARE(p.header(), QStringLiteral("S/N: SECOND"));
+}
+
+void HeaderFooterTest::patternProvider_dynamicProperty_resolvedInHeader()
+{
+    // Users can inject values without subclassing by using QObject::setProperty()
+    // to create dynamic properties — %P{key} resolves both static Q_PROPERTYs
+    // and dynamic properties through the same QObject::property() lookup.
+    PatternHeaderFooterProvider p;
+    p.setHeaderPattern(QStringLiteral("S/N: %P{serialNumber}"));
+    p.setProperty("serialNumber", QStringLiteral("DYN-001"));  // QObject::setProperty
+
+    QCOMPARE(p.header(), QStringLiteral("S/N: DYN-001"));
+}
+
+void HeaderFooterTest::patternProvider_property_missingKeyExpandsToEmpty()
+{
+    // An unknown key produces an empty string — no crash, no error message.
+    PatternHeaderFooterProvider p;
+    p.setHeaderPattern(QStringLiteral("X=%P{noSuchKey}!"));
+
+    QCOMPARE(p.header(), QStringLiteral("X=!"));
+}
+
+void HeaderFooterTest::patternProvider_property_formattingWidthApplied()
+{
+    // Width/padding modifiers work on %P{key} just like on other specifiers.
+    TestPropertyProvider p;
+    p.setHeaderPattern(QStringLiteral("[%-10P{serialNumber}]"));
+    p.setSerialNumber(QStringLiteral("ABC"));
+
+    QCOMPARE(p.header(), QStringLiteral("[ABC       ]"));
+}
+
+void HeaderFooterTest::patternProvider_property_combinedWithDate()
+{
+    DateTime::setProvider([]() {
+        return QDateTime(QDate(2026, 6, 1), QTime(0, 0, 0));
+    });
+
+    TestPropertyProvider p;
+    p.setHeaderPattern(QStringLiteral("%P{label} %d{yyyy-MM-dd}"));
+    p.setLabel(QStringLiteral("Started"));
+
+    QCOMPARE(p.header(), QStringLiteral("Started 2026-06-01"));
 }
 
 QTEST_GUILESS_MAIN(HeaderFooterTest)

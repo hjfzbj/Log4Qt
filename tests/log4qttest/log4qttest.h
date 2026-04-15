@@ -60,6 +60,7 @@ private Q_SLOTS:
     void DateTime_milliseconds();
     void PatternFormatter_data();
     void PatternFormatter();
+    void PatternFormatter_propertySource();
     void Properties_default_data();
     void Properties_default();
     void Properties_names();

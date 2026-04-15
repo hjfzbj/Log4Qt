@@ -62,17 +62,23 @@ PatternHeaderFooterProvider::~PatternHeaderFooterProvider() = default;
 void PatternHeaderFooterProvider::setHeaderPattern(const QString &pattern)
 {
     mHeaderPattern = pattern;
-    mHeaderFormatter = pattern.isEmpty()
-                           ? nullptr
-                           : std::make_unique<PatternFormatter>(pattern);
+    if (pattern.isEmpty()) {
+        mHeaderFormatter = nullptr;
+    } else {
+        mHeaderFormatter = std::make_unique<PatternFormatter>(pattern);
+        mHeaderFormatter->setPropertySource(this);
+    }
 }
 
 void PatternHeaderFooterProvider::setFooterPattern(const QString &pattern)
 {
     mFooterPattern = pattern;
-    mFooterFormatter = pattern.isEmpty()
-                           ? nullptr
-                           : std::make_unique<PatternFormatter>(pattern);
+    if (pattern.isEmpty()) {
+        mFooterFormatter = nullptr;
+    } else {
+        mFooterFormatter = std::make_unique<PatternFormatter>(pattern);
+        mFooterFormatter->setPropertySource(this);
+    }
 }
 
 QString PatternHeaderFooterProvider::header() const

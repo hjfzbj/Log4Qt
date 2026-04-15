@@ -31,7 +31,6 @@
 #include "log4qt/spi/headerfooterprovider.h"
 
 #include <QCoreApplication>
-#include <QDateTime>
 #include <QScopedPointer>
 #include <QStringBuilder>
 #include <QString>
@@ -61,30 +60,19 @@ private:
 
 // Provider for JSON log files: emits header and footer as JSON objects so
 // the serial number and session timestamps are machine-readable.
-// Registered with the Factory; the serial number is injected by the
-// application after the config has created the provider instance.
-class JsonSerialNumberHeaderProvider : public Log4Qt::HeaderFooterProvider
+// Inherits PatternHeaderFooterProvider so the output is assembled by
+// PatternFormatter: %P{serialNumber} reads the Q_PROPERTY at format time,
+// and %d{...} captures the actual file-open / file-close timestamp.
+class JsonSerialNumberHeaderProvider : public Log4Qt::PatternHeaderFooterProvider
 {
     Q_OBJECT
     Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
 public:
     explicit JsonSerialNumberHeaderProvider(QObject *parent = nullptr)
-        : Log4Qt::HeaderFooterProvider(parent) {}
+        : Log4Qt::PatternHeaderFooterProvider(parent) {}
 
     QString serialNumber() const { return mSerialNumber; }
     void setSerialNumber(const QString &sn) { mSerialNumber = sn; }
-
-    QString header() const override
-    {
-        return QStringLiteral(R"({"event":"start","serialNumber":"%1","time":"%2"})")
-            .arg(mSerialNumber, QDateTime::currentDateTime().toString(Qt::ISODate));
-    }
-
-    QString footer() const override
-    {
-        return QStringLiteral(R"({"event":"end","serialNumber":"%1","time":"%2"})")
-            .arg(mSerialNumber, QDateTime::currentDateTime().toString(Qt::ISODate));
-    }
 
 private:
     QString mSerialNumber;

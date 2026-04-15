@@ -90,16 +90,37 @@ private:
  * are evaluated at the moment \c header() or \c footer() is called (i.e. at
  * file-open / file-close time), so \c \%d reflects the actual timestamp.
  *
- * \b Example
+ * \section property-specifier User-defined properties via \c %P{key}
+ *
+ * The \c %P{key} specifier resolves \a key against the provider object's
+ * QObject property system at format time. Two usage styles are supported:
+ *
+ * \b Subclass with Q_PROPERTY (recommended for factory-created providers):
  * \code
- * auto *provider = new PatternHeaderFooterProvider;
- * provider->setHeaderPattern(u"=== Started %d{yyyy-MM-dd HH:mm:ss} ==="_s);
- * provider->setFooterPattern(u"=== Stopped %d{yyyy-MM-dd HH:mm:ss} ==="_s);
- * AbstractLayout::setGlobalHeaderFooterProvider(
- *     HeaderFooterProviderSharedPtr(provider));
+ * class MyProvider : public PatternHeaderFooterProvider {
+ *     Q_OBJECT
+ *     Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
+ * public:
+ *     QString serialNumber() const { return mSn; }
+ *     void setSerialNumber(const QString &v) { mSn = v; }
+ * private:
+ *     QString mSn;
+ * };
+ *
+ * auto *p = new MyProvider;
+ * p->setHeaderPattern(u"S/N: %P{serialNumber} started %d{HH:mm:ss}"_s);
+ * p->setSerialNumber(u"SN-001"_s);
  * \endcode
  *
- * \sa HeaderFooterProvider, AbstractLayout::setGlobalHeaderFooterProvider()
+ * \b Dynamic property (no subclass needed):
+ * \code
+ * auto *p = new PatternHeaderFooterProvider;
+ * p->setHeaderPattern(u"S/N: %P{serialNumber}"_s);
+ * p->setProperty("serialNumber", u"SN-001"_s);  // QObject::setProperty
+ * \endcode
+ *
+ * \sa HeaderFooterProvider, AbstractLayout::setGlobalHeaderFooterProvider(),
+ *     PatternFormatter::setPropertySource()
  */
 class LOG4QT_EXPORT PatternHeaderFooterProvider : public HeaderFooterProvider
 {
@@ -109,7 +130,8 @@ class LOG4QT_EXPORT PatternHeaderFooterProvider : public HeaderFooterProvider
      * The conversion pattern used to format the header string.
      *
      * Evaluated at file-open time. Useful specifiers: \c \%d (date/time),
-     * \c \%r (milliseconds since program start), literal text.
+     * \c \%r (milliseconds since program start), \c \%P{key} (application
+     * property), literal text.
      *
      * \sa headerPattern(), setHeaderPattern()
      */

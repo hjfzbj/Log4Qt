@@ -256,12 +256,57 @@ private:
     QString mKey;
 };
 
+
+/*!
+ * \brief The class PropertyPatternConverter resolves named properties via
+ *        the QObject property system.
+ *
+ * Handles the \c %P{key} conversion character. At format time it calls
+ * \c (*mSourceRef)->property(mKey).toString() on the property-source object
+ * registered with the owning PatternFormatter. Both static Q_PROPERTY
+ * members and dynamic properties (set via QObject::setProperty()) are
+ * resolved.
+ *
+ * The converter holds a \c const QObject* const* — a pointer to the
+ * \c mPropertySource member of the \c PatternFormatter that created it.
+ * Because \c PatternFormatter is \c Q_DISABLE_COPY_MOVE this address is
+ * stable for the formatter's lifetime, so calling \c setPropertySource()
+ * after construction is reflected immediately on the next \c format() call.
+ *
+ * \sa PatternFormatter::setPropertySource()
+ */
+class PropertyPatternConverter : public PatternConverter
+{
+public:
+    PropertyPatternConverter(Log4Qt::FormattingInfo formattingInfo,
+                             const QByteArray &key,
+                             const QObject * const *sourceRef)
+        : PatternConverter(formattingInfo),
+          mKey(key),
+          mSourceRef(sourceRef)
+    {}
+
+private:
+    Q_DISABLE_COPY_MOVE(PropertyPatternConverter)
+
+protected:
+    void convert(QString &format, [[maybe_unused]] const LoggingEvent &loggingEvent) const override
+    {
+        if (mSourceRef && *mSourceRef)
+            format.append((*mSourceRef)->property(mKey).toString());
+    }
+
+private:
+    QByteArray mKey;
+    const QObject * const *mSourceRef;
+};
+
 LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::PatternFormatter)
 
 PatternFormatter::PatternFormatter(const QString &pattern) :
     mIgnoreCharacters(u"C"_s),
-    mConversionCharacters(u"cdmprtxXFMLl"_s),
-    mOptionCharacters(u"cd"_s),
+    mConversionCharacters(u"cdmprtxXFMLlP"_s),
+    mOptionCharacters(u"cdP"_s),
     mPattern(pattern)
 {
     parse();
@@ -363,6 +408,11 @@ void PatternFormatter::createConverter(QChar character,
     case 'X':
         mPatternConverters.push_back(std::make_unique<MDCPatternConverter>(formattingInfo,
                                                       option));
+        break;
+    case 'P':
+        mPatternConverters.push_back(
+            std::make_unique<PropertyPatternConverter>(
+                formattingInfo, option.toLatin1(), &mPropertySource));
         break;
     case 'F':
         mPatternConverters.push_back(std::make_unique<BasicPatternConverter>(formattingInfo,
@@ -732,6 +782,11 @@ void LoggepatternConverter::convert(QString &format, const LoggingEvent &logging
 void MDCPatternConverter::convert(QString &format, const LoggingEvent &loggingEvent) const
 {
     format.append(loggingEvent.mdc().value(mKey));
+}
+
+void PatternFormatter::setPropertySource(const QObject *source)
+{
+    mPropertySource = source;
 }
 
 } // namespace Log4Qt
