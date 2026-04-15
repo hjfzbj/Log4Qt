@@ -602,6 +602,27 @@ void HeaderFooterTest::provider_globalProvider_writtenToFile()
     QVERIFY(readFileBytes(path).startsWith("FILE HEADER\n"));
 }
 
+// ---------------------------------------------------------------------------
+// PatternHeaderFooterProvider: %P{key} user properties
+// ---------------------------------------------------------------------------
+
+// Test helper: provider subclass with a Q_PROPERTY that %P{key} can resolve.
+class TestPropertyProvider : public PatternHeaderFooterProvider
+{
+    Q_OBJECT
+    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
+    Q_PROPERTY(QString label       READ label         WRITE setLabel)
+public:
+    using PatternHeaderFooterProvider::PatternHeaderFooterProvider;
+    QString serialNumber() const { return mSerialNumber; }
+    void setSerialNumber(const QString &v) { mSerialNumber = v; }
+    QString label() const { return mLabel; }
+    void setLabel(const QString &v) { mLabel = v; }
+private:
+    QString mSerialNumber;
+    QString mLabel;
+};
+
 void HeaderFooterTest::provider_propertyProvider_writtenToFile()
 {
     // End-to-end: a %P{key} property value must appear in the header written
@@ -623,27 +644,6 @@ void HeaderFooterTest::provider_propertyProvider_writtenToFile()
 
     QVERIFY(readFileBytes(path).startsWith("S/N: SN-FILE-001\n"));
 }
-
-// ---------------------------------------------------------------------------
-// PatternHeaderFooterProvider: %P{key} user properties
-// ---------------------------------------------------------------------------
-
-// Test helper: provider subclass with a Q_PROPERTY that %P{key} can resolve.
-class TestPropertyProvider : public PatternHeaderFooterProvider
-{
-    Q_OBJECT
-    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
-    Q_PROPERTY(QString label       READ label         WRITE setLabel)
-public:
-    using PatternHeaderFooterProvider::PatternHeaderFooterProvider;
-    QString serialNumber() const { return mSerialNumber; }
-    void setSerialNumber(const QString &v) { mSerialNumber = v; }
-    QString label() const { return mLabel; }
-    void setLabel(const QString &v) { mLabel = v; }
-private:
-    QString mSerialNumber;
-    QString mLabel;
-};
 
 void HeaderFooterTest::patternProvider_staticProperty_resolvedInHeader()
 {
