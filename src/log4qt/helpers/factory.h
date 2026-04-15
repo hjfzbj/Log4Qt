@@ -39,6 +39,7 @@ class Filter;
 class AbstractLayout;
 class TriggeringPolicy;
 class RolloverStrategy;
+class HeaderFooterProvider;
 
 /*!
  * \brief The class Factory provides factories for Appender, Filter and
@@ -102,6 +103,14 @@ public:
          * \sa registerRolloverStrategy(), createRolloverStrategy()
      */
     using RolloverStrategyFactoryFunc = RolloverStrategy *(*)();
+
+    /*!
+         * Prototype for a HeaderFooterProvider factory function. The function creates
+         * a HeaderFooterProvider object on the heap and returns a pointer to it.
+         *
+         * \sa registerHeaderFooterProvider(), createHeaderFooterProvider()
+     */
+    using HeaderFooterProviderFactoryFunc = HeaderFooterProvider *(*)();
 
 private:
     Factory();
@@ -255,6 +264,19 @@ public:
     static void unregisterRolloverStrategy(const QString &className);
     static void unregisterRolloverStrategy(const char *className);
 
+    static HeaderFooterProvider *createHeaderFooterProvider(const QString &className);
+    static HeaderFooterProvider *createHeaderFooterProvider(const char *className);
+
+    static void registerHeaderFooterProvider(const QString &className,
+                                              HeaderFooterProviderFactoryFunc func);
+    static void registerHeaderFooterProvider(const char *className,
+                                              HeaderFooterProviderFactoryFunc func);
+
+    static void unregisterHeaderFooterProvider(const QString &className);
+    static void unregisterHeaderFooterProvider(const char *className);
+
+    static QStringList registeredHeaderFooterProviders();
+
     /*!
      * Sets the property \a rProperty of the object \a pObject to the
      * value \a rValue. The function will test that the property
@@ -331,6 +353,10 @@ private:
     void doRegisterRolloverStrategy(const QString &className,
                                      RolloverStrategyFactoryFunc func);
     void doUnregisterRolloverStrategy(const QString &className);
+    HeaderFooterProvider *doCreateHeaderFooterProvider(const QString &className);
+    void doRegisterHeaderFooterProvider(const QString &className,
+                                         HeaderFooterProviderFactoryFunc func);
+    void doUnregisterHeaderFooterProvider(const QString &className);
     void doSetObjectProperty(QObject *object,
                              const QString &property,
                              const QString &value);
@@ -342,6 +368,7 @@ private:
     void registerDefaultLayouts();
     void registerDefaultTriggeringPolicies();
     void registerDefaultRolloverStrategies();
+    void registerDefaultHeaderFooterProviders();
     bool validateObjectProperty(QMetaProperty &metaProperty,
                                 const QString &property,
                                 QObject *object);
@@ -353,6 +380,7 @@ private:
     QHash<QString, LayoutFactoryFunc> mLayoutRegistry;
     QHash<QString, TriggeringPolicyFactoryFunc> mTriggeringPolicyRegistry;
     QHash<QString, RolloverStrategyFactoryFunc> mRolloverStrategyRegistry;
+    QHash<QString, HeaderFooterProviderFactoryFunc> mHeaderFooterProviderRegistry;
 };
 
 inline Appender *Factory::createAppender(const QString &appenderClassName)
@@ -557,6 +585,44 @@ inline void Factory::unregisterRolloverStrategy(const QString &className)
 inline void Factory::unregisterRolloverStrategy(const char *className)
 {
     instance()->doUnregisterRolloverStrategy(QLatin1String(className));
+}
+
+inline HeaderFooterProvider *Factory::createHeaderFooterProvider(const QString &className)
+{
+    return instance()->doCreateHeaderFooterProvider(className);
+}
+
+inline HeaderFooterProvider *Factory::createHeaderFooterProvider(const char *className)
+{
+    return instance()->doCreateHeaderFooterProvider(QLatin1String(className));
+}
+
+inline void Factory::registerHeaderFooterProvider(const QString &className,
+                                                   HeaderFooterProviderFactoryFunc func)
+{
+    instance()->doRegisterHeaderFooterProvider(className, func);
+}
+
+inline void Factory::registerHeaderFooterProvider(const char *className,
+                                                   HeaderFooterProviderFactoryFunc func)
+{
+    instance()->doRegisterHeaderFooterProvider(QLatin1String(className), func);
+}
+
+inline void Factory::unregisterHeaderFooterProvider(const QString &className)
+{
+    instance()->doUnregisterHeaderFooterProvider(className);
+}
+
+inline void Factory::unregisterHeaderFooterProvider(const char *className)
+{
+    instance()->doUnregisterHeaderFooterProvider(QLatin1String(className));
+}
+
+inline QStringList Factory::registeredHeaderFooterProviders()
+{
+    QMutexLocker locker(&instance()->mObjectGuard);
+    return instance()->mHeaderFooterProviderRegistry.keys();
 }
 
 } // namespace Log4Qt

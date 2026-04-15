@@ -32,6 +32,7 @@
 #include "rollingfileappender.h"
 #include "spi/triggeringpolicy.h"
 #include "spi/rolloverstrategy.h"
+#include "spi/headerfooterprovider.h"
 #include "varia/listappender.h"
 
 #include <QFile>
@@ -227,6 +228,25 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
         LogManager::setMessagePattern(value);
         staticLogger()->debug(u"Set message pattern to %1"_s, LogManager::messagePattern());
     }
+
+    // Global HeaderFooterProvider
+    value = OptionConverter::findAndSubst(properties, u"headerFooterProvider.type"_s);
+    if (!value.isNull())
+    {
+        HeaderFooterProvider *provider = Factory::createHeaderFooterProvider(value);
+        if (provider)
+        {
+            QStringList providerExclusions = {u"type"_s};
+            setProperties(properties, u"headerFooterProvider."_s, providerExclusions, provider);
+            provider->activateOptions();
+            AbstractLayout::setGlobalHeaderFooterProvider(HeaderFooterProviderSharedPtr(provider));
+            staticLogger()->debug(u"Set global HeaderFooterProvider of type '%1'"_s, value);
+        }
+        else
+        {
+            staticLogger()->warn(u"Unable to create global HeaderFooterProvider of class '%1'"_s, value);
+        }
+    }
 }
 
 
@@ -290,8 +310,27 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
             // Set layout properties
             const QString layoutPrefix = prefix + u"layout."_s;
             QStringList layoutExclusions;
-            layoutExclusions << u"type"_s;
+            layoutExclusions << u"type"_s << u"headerFooterProvider"_s;
             setProperties(properties, layoutPrefix, layoutExclusions, layout.data());
+
+            // Per-layout HeaderFooterProvider
+            QString providerType = OptionConverter::findAndSubst(properties, layoutPrefix + u"headerFooterProvider.type"_s);
+            if (!providerType.isNull())
+            {
+                HeaderFooterProvider *provider = Factory::createHeaderFooterProvider(providerType);
+                if (provider)
+                {
+                    QStringList providerExclusions = {u"type"_s};
+                    setProperties(properties, layoutPrefix + u"headerFooterProvider."_s, providerExclusions, provider);
+                    provider->activateOptions();
+                    layout->setHeaderFooterProvider(HeaderFooterProviderSharedPtr(provider));
+                }
+                else
+                {
+                    staticLogger()->warn(u"Unable to create layout HeaderFooterProvider of class '%1' for appender '%2'"_s, providerType, appenderName);
+                }
+            }
+
             layout->activateOptions();
             appender->setLayout(layout);
         }
@@ -512,7 +551,7 @@ void PropertyConfigurator::configureLoggers(const Properties &properties,
 void PropertyConfigurator::setProperties(const Properties &properties,
         const QString &prefix,
         const QStringList &exclusion,
-        QObject *object)
+        QObject *object) const
 {
     Q_ASSERT_X(!prefix.isEmpty(), "PropertyConfigurator::setProperties()", "rPrefix must not be empty.");
     Q_ASSERT_X(object, "PropertyConfigurator::setProperties()", "pObject must not be null.");
@@ -603,6 +642,17 @@ Properties PropertyConfigurator::translateLegacyProperties(const Properties &pro
         QString value = properties.property(oldKey);
         if (!value.isNull())
             result.setProperty(newKey, value);
+    }
+
+    // Pass 3a: Global HeaderFooterProvider (log4j.headerFooterProvider.*)
+    const QString providerOldPrefix = u"log4j.headerFooterProvider."_s;
+    const QString providerNewPrefix = u"headerFooterProvider."_s;
+    for (const auto &key : allKeys)
+    {
+        if (!key.startsWith(providerOldPrefix))
+            continue;
+        result.setProperty(providerNewPrefix + key.mid(providerOldPrefix.length()),
+                           properties.property(key));
     }
 
     // Pass 3: Appenders (log4j.appender.*)

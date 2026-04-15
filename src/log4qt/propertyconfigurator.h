@@ -117,7 +117,7 @@ private:
     void setProperties(const Properties &properties,
                        const QString &prefix,
                        const QStringList &exclusion,
-                       QObject *object);
+                       QObject *object) const;
     void startCaptureErrors();
     bool stopCaptureErrors();
 

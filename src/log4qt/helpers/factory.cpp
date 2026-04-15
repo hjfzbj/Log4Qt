@@ -57,6 +57,7 @@
 #include "spi/onstartuptriggeringpolicy.h"
 #include "spi/daterolloverstrategy.h"
 #include "spi/defaultrolloverstrategy.h"
+#include "spi/headerfooterprovider.h"
 #include "varia/debugappender.h"
 #include "varia/denyallfilter.h"
 #include "varia/levelmatchfilter.h"
@@ -234,6 +235,13 @@ TriggeringPolicy *create_on_startup_triggering_policy()
     return new OnStartupTriggeringPolicy;
 }
 
+// HeaderFooterProviders
+
+HeaderFooterProvider *create_pattern_header_footer_provider()
+{
+    return new PatternHeaderFooterProvider;
+}
+
 // RolloverStrategies
 
 RolloverStrategy *create_default_rollover_strategy()
@@ -253,6 +261,7 @@ Factory::Factory()
     registerDefaultLayouts();
     registerDefaultTriggeringPolicies();
     registerDefaultRolloverStrategies();
+    registerDefaultHeaderFooterProviders();
 }
 
 LOG4QT_IMPLEMENT_INSTANCE(Factory)
@@ -650,6 +659,54 @@ void Factory::registerDefaultRolloverStrategies()
     mRolloverStrategyRegistry.insert(u"Log4Qt::DateRolloverStrategy"_s, create_date_rollover_strategy);
     mRolloverStrategyRegistry.insert(u"DateRolloverStrategy"_s, create_date_rollover_strategy);
     mRolloverStrategyRegistry.insert(u"Date"_s, create_date_rollover_strategy);
+}
+
+
+HeaderFooterProvider *Factory::doCreateHeaderFooterProvider(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mHeaderFooterProviderRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of HeaderFooterProvider with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mHeaderFooterProviderRegistry.value(className)();
+}
+
+
+void Factory::doRegisterHeaderFooterProvider(const QString &className,
+                                              HeaderFooterProviderFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering HeaderFooterProvider factory function with empty class name"_s);
+        return;
+    }
+    mHeaderFooterProviderRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterHeaderFooterProvider(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mHeaderFooterProviderRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered HeaderFooterProvider factory function for class '%1'"_s, className);
+        return;
+    }
+    mHeaderFooterProviderRegistry.remove(className);
+}
+
+
+void Factory::registerDefaultHeaderFooterProviders()
+{
+    mHeaderFooterProviderRegistry.insert(u"Log4Qt::PatternHeaderFooterProvider"_s, create_pattern_header_footer_provider);
+    mHeaderFooterProviderRegistry.insert(u"PatternHeaderFooterProvider"_s, create_pattern_header_footer_provider);
+    mHeaderFooterProviderRegistry.insert(u"Pattern"_s, create_pattern_header_footer_provider);
 }
 
 
