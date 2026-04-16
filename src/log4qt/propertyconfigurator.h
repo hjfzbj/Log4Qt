@@ -133,6 +133,6 @@ private:
 inline PropertyConfigurator::PropertyConfigurator()
 {}
 
-} // namspace Log4Qt
+} // namespace Log4Qt
 
 #endif // LOG4QT_PROPERTYCONFIGURATOR_H

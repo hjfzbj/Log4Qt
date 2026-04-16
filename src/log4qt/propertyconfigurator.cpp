@@ -233,13 +233,13 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
     value = OptionConverter::findAndSubst(properties, u"headerFooterProvider.type"_s);
     if (!value.isNull())
     {
-        HeaderFooterProvider *provider = Factory::createHeaderFooterProvider(value);
+        auto provider = HeaderFooterProviderSharedPtr(Factory::createHeaderFooterProvider(value));
         if (provider)
         {
             QStringList providerExclusions = {u"type"_s};
-            setProperties(properties, u"headerFooterProvider."_s, providerExclusions, provider);
+            setProperties(properties, u"headerFooterProvider."_s, providerExclusions, provider.get());
             provider->activateOptions();
-            AbstractLayout::setGlobalHeaderFooterProvider(HeaderFooterProviderSharedPtr(provider));
+            AbstractLayout::setGlobalHeaderFooterProvider(std::move(provider));
             staticLogger()->debug(u"Set global HeaderFooterProvider of type '%1'"_s, value);
         }
         else
@@ -317,13 +317,13 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
             QString providerType = OptionConverter::findAndSubst(properties, layoutPrefix + u"headerFooterProvider.type"_s);
             if (!providerType.isNull())
             {
-                HeaderFooterProvider *provider = Factory::createHeaderFooterProvider(providerType);
+                auto provider = HeaderFooterProviderSharedPtr(Factory::createHeaderFooterProvider(providerType));
                 if (provider)
                 {
                     QStringList providerExclusions = {u"type"_s};
-                    setProperties(properties, layoutPrefix + u"headerFooterProvider."_s, providerExclusions, provider);
+                    setProperties(properties, layoutPrefix + u"headerFooterProvider."_s, providerExclusions, provider.get());
                     provider->activateOptions();
-                    layout->setHeaderFooterProvider(HeaderFooterProviderSharedPtr(provider));
+                    layout->setHeaderFooterProvider(std::move(provider));
                 }
                 else
                 {

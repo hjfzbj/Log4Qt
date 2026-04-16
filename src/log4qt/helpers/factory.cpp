@@ -404,7 +404,7 @@ void Factory::doSetObjectProperty(QObject *object,
     // Everything is checked and the type is the one of the property.
     // Write should never return false
     if (!meta_property.write(object, variant))
-        logger()->warn(u"Unxpected error result from QMetaProperty.write()"_s);
+        logger()->warn(u"Unexpected error result from QMetaProperty.write()"_s);
 }
 
 

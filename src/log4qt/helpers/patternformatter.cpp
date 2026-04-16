@@ -366,7 +366,7 @@ void PatternFormatter::createConverter(QChar character,
     {
     case 'c':
         mPatternConverters.push_back(std::make_unique<LoggepatternConverter>(formattingInfo,
-                           parseIntegeoption(option)));
+                           parseIntegerOption(option)));
         break;
     case 'd':
     {
@@ -410,6 +410,8 @@ void PatternFormatter::createConverter(QChar character,
                                                       option));
         break;
     case 'P':
+        if (option.isEmpty())
+            logger()->warn(u"%%P requires a property key in braces (e.g. %%P{key}) in pattern '%1'"_s, mPattern);
         mPatternConverters.push_back(
             std::make_unique<PropertyPatternConverter>(
                 formattingInfo, option.toLatin1(), &mPropertySource));
@@ -610,7 +612,7 @@ void PatternFormatter::parse()
 
     if (state != LiteralState)
     {
-        logger()->warn(u"Unexptected end of pattern '%1'"_s, mPattern);
+        logger()->warn(u"Unexpected end of pattern '%1'"_s, mPattern);
         if (state == EscapeState)
             literal += c;
         else
@@ -622,7 +624,7 @@ void PatternFormatter::parse()
 }
 
 
-int PatternFormatter::parseIntegeoption(QStringView option)
+int PatternFormatter::parseIntegerOption(QStringView option)
 {
     if (option.isEmpty())
         return 0;
@@ -633,7 +635,7 @@ int PatternFormatter::parseIntegeoption(QStringView option)
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Option '%1' cannot be converted into an integer"),
                                   LayoutOptionIsNotIntegerError,
-                                  "Log4Qt::Patteformatter");
+                                  "Log4Qt::PatternFormatter");
         e << option.toString();
         logger()->error(e);
     }
@@ -641,7 +643,7 @@ int PatternFormatter::parseIntegeoption(QStringView option)
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Option %1 isn't a positive integer"),
                                   LayoutIntegerIsNotPositiveError,
-                                  "Log4Qt::Patteformatter");
+                                  "Log4Qt::PatternFormatter");
         e << result;
         logger()->error(e);
         result = 0;

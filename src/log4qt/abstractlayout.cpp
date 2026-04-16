@@ -78,6 +78,9 @@ QString AbstractLayout::footer() const
 
 void AbstractLayout::setHeaderFooterProvider(const HeaderFooterProviderSharedPtr &provider)
 {
+    Q_ASSERT_X(!mActivated,
+               "AbstractLayout::setHeaderFooterProvider",
+               "setHeaderFooterProvider() must be called before activateOptions()");
     mHeaderFooterProvider = provider;
 }
 
@@ -100,6 +103,7 @@ HeaderFooterProviderSharedPtr AbstractLayout::globalHeaderFooterProvider()
 
 void AbstractLayout::activateOptions()
 {
+    mActivated = true;
     if (mHeaderFooterProvider)
         mHeaderFooterProvider->activateOptions();
 }

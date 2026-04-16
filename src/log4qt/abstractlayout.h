@@ -48,7 +48,7 @@ class LOG4QT_EXPORT AbstractLayout : public QObject
      *
      * \sa contentType()
      */
-    Q_PROPERTY(QString footercontentType READ contentType)
+    Q_PROPERTY(QString contentType READ contentType)
     /*!
      * The property holds the footer used by the layout.
      *
@@ -80,6 +80,11 @@ public:
      * returns a non-empty string, it takes priority over both
      * \c headerPattern / \c footerPattern (on \c PatternLayout) and the
      * static \c header / \c footer strings.
+     *
+     * \note Must be called \b before \c activateOptions(). Calling it after
+     *       activation is a programming error and is asserted in debug builds.
+     *       This mirrors the lifecycle contract of \c setHeader() and
+     *       \c setFooter(), which are equally unguarded.
      *
      * \sa headerFooterProvider(), setGlobalHeaderFooterProvider()
      */
@@ -122,7 +127,7 @@ public:
     [[nodiscard]] virtual bool requiresLocation() const;
 
     /*!
-     * Returns the end of line seperator for the operating system.
+     * Returns the end of line separator for the operating system.
      *
      * Windows: \\r\\n
      * Mac: \\r
@@ -136,6 +141,7 @@ private:
     QString mFooter;
     QString mHeader;
     HeaderFooterProviderSharedPtr mHeaderFooterProvider;
+    bool mActivated = false;
 
     static HeaderFooterProviderSharedPtr s_globalProvider;
     static QReadWriteLock s_providerLock;

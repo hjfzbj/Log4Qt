@@ -207,7 +207,7 @@ public:
 
     /*!
      * Registers the Layout factory function \a layoutFactoryFunc
-     * for the class \a filterClassName. If a registered factory
+     * for the class \a layoutClassName. If a registered factory
      * function exists for the class, it is replaced with
      * \a layoutFactoryFunc.
      *
@@ -325,11 +325,11 @@ public:
 
     /*!
      * Unregisters the Layout factory function for the class
-     * \a filterClassName.
+     * \a layoutClassName.
      *
      * \sa registerLayout(), registeredLayouts()
      */
-    static void unregisterLayout(const QString &filterClassName);
+    static void unregisterLayout(const QString &layoutClassName);
 
     /*!
      * This is an overloaded member function, provided for convenience.
@@ -502,9 +502,9 @@ inline void Factory::unregisterFilter(const char *filterClassName)
     instance()->doUnregisterFilter(QLatin1String(filterClassName));
 }
 
-inline void Factory::unregisterLayout(const QString &filterClassName)
+inline void Factory::unregisterLayout(const QString &layoutClassName)
 {
-    instance()->doUnregisterLayout(filterClassName);
+    instance()->doUnregisterLayout(layoutClassName);
 }
 
 inline void Factory::unregisterLayout(const char *layoutClassName)

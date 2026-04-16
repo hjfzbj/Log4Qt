@@ -119,7 +119,7 @@ private:
 
     void parse();
 
-    int parseIntegeoption(QStringView option);
+    int parseIntegerOption(QStringView option);
 
 private:
     const QString mIgnoreCharacters;
