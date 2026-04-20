@@ -146,7 +146,7 @@ If no strategy is specified, `DefaultRolloverStrategy` is used automatically.
 | Short Name | Class | Properties | Description |
 |------------|-------|------------|-------------|
 | `Default` | DefaultRolloverStrategy | `minIndex` (int, default 1), `maxIndex` (int, default 7) | Fixed-window numbered rotation: deletes the oldest backup at `maxIndex`, shifts existing backups up by one, and renames the active file to `.minIndex`. |
-| `Date` | DateRolloverStrategy | `datePattern` (QString, default `'.'yyyy-MM-dd`), `mode` (QString: `Suffix` or `Embedded`, default `Suffix`), `maxBackups` (int, default 0) | Date-based rotation. In `Suffix` mode, renames the active file by appending a date suffix (e.g. `app.log.2026-03-28`). In `Embedded` mode, opens a new file with the date in the filename (e.g. `app_2026-03-28.log`). `maxBackups` limits retained backups (0 = unlimited). |
+| `Date` | DateRolloverStrategy | `datePattern` (QString, default `'.'yyyy-MM-dd`), `mode` (QString: `Suffix` or `Embedded`, default `Suffix`), `datedActiveFile` (bool, default `false`), `maxBackups` (int, default 0), `keepDays` (int, default 0) | Date-based rotation. In `Suffix` mode, renames the active file by appending a date suffix (e.g. `app.log.2026-03-28`). In `Embedded` mode, renames the active file to a date-embedded backup on rollover (e.g. `app_2026-03-28.log`). When `datedActiveFile=true`, the active file itself carries the date from startup onwards, so each period writes directly to its own dated file and no rename happens on rollover (the `mode` property is ignored in this case). `maxBackups` limits retained backups (0 = unlimited); `keepDays` deletes backups older than N days (0 = disabled). |
 
 ### RollingFileAppender Examples
 
