@@ -34,7 +34,15 @@ All notable changes to this project will be documented in this file.
     `app_2026-03-28.log`). Supports a configurable `maxBackups` limit and
     a `DateTimeProvider` callback for test mockability. Backup files are
     named after the period they belong to, and obsolete files are cleaned
-    up asynchronously.
+    up asynchronously. A `datedActiveFile` property makes the active log
+    file itself carry the current date from the first startup, so each
+    period writes directly to its own dated file without any rename on
+    rollover.
+  - `RolloverStrategy::initialFileName()` -- new virtual hook that lets a
+    strategy choose the initial active filename before the file is opened
+    (e.g. to inject today's date). `RollingFileAppender` remembers the
+    configured base filename and always passes it to the strategy, so
+    rollovers never see an already-transformed name.
   - New `CronExpression` helper class for parsing and evaluating Quartz-style
     cron expressions.
   - Policies and strategies are configured via
