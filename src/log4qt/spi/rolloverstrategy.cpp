@@ -34,6 +34,11 @@ RolloverStrategy::~RolloverStrategy() = default;
 void RolloverStrategy::activateOptions()
 {}
 
+QString RolloverStrategy::initialFileName(const QString &fileName) const
+{
+    return fileName;
+}
+
 bool RolloverStrategy::removeFile(const QString &fileName)
 {
     QFile f(fileName);

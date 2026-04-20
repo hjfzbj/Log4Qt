@@ -102,6 +102,7 @@ protected:
 private:
     TriggeringPolicySharedPtr mTriggeringPolicy;
     RolloverStrategySharedPtr mRolloverStrategy;
+    QString mBaseFileName;
     bool mSkipFooterOnStartup = false;
 };
 

@@ -81,6 +81,15 @@ class LOG4QT_EXPORT DateRolloverStrategy : public RolloverStrategy
      */
     Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
 
+    /*!
+     * When true, the currently active log file always has the date embedded
+     * in its name (e.g. \c app_2026-04-20.log), from the very first startup.
+     * Each time period produces a distinct file that is written to directly,
+     * so no file rename happens on rollover and the \c mode property is
+     * ignored. The default is false.
+     */
+    Q_PROPERTY(bool datedActiveFile READ datedActiveFile WRITE setDatedActiveFile)
+
 public:
     enum NamingMode
     {
@@ -106,7 +115,11 @@ public:
     [[nodiscard]] int keepDays() const;
     void setKeepDays(int keepDays);
 
+    [[nodiscard]] bool datedActiveFile() const;
+    void setDatedActiveFile(bool dated);
+
     void activateOptions() override;
+    QString initialFileName(const QString &fileName) const override;
     QString rollover(const QString &fileName) override;
 
     // Blocks until all pending async cleanup tasks have finished.
@@ -121,6 +134,7 @@ private:
     NamingMode mMode;
     int mMaxBackups;
     int mKeepDays;
+    bool mDatedActiveFile;
     QString mActiveSuffix;
     QFutureSynchronizer<void> mCleanupExecutors;
 };
@@ -163,6 +177,16 @@ inline int DateRolloverStrategy::keepDays() const
 inline void DateRolloverStrategy::setKeepDays(int keepDays)
 {
     mKeepDays = keepDays;
+}
+
+inline bool DateRolloverStrategy::datedActiveFile() const
+{
+    return mDatedActiveFile;
+}
+
+inline void DateRolloverStrategy::setDatedActiveFile(bool dated)
+{
+    mDatedActiveFile = dated;
 }
 
 } // namespace Log4Qt

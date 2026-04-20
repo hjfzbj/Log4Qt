@@ -95,6 +95,16 @@ void RollingFileAppender::activateOptions()
         mTriggeringPolicy->activateOptions();
     mRolloverStrategy->activateOptions();
 
+    // Remember the configured base filename. Rollovers always operate on the
+    // base name so that strategies never see an already-transformed filename.
+    mBaseFileName = file();
+
+    // Allow the strategy to set the initial active filename (e.g. date-embedded name)
+    // before the file is opened, so the correct name is used from the very first startup.
+    const QString initial = mRolloverStrategy->initialFileName(mBaseFileName);
+    if (initial != file())
+        setFile(initial);
+
     // Check startup trigger BEFORE opening the file — openFile() may truncate
     bool startupRollover = false;
     if (mTriggeringPolicy)
@@ -131,7 +141,8 @@ void RollingFileAppender::rollOver()
                     QLatin1String(mRolloverStrategy->metaObject()->className()));
 
     closeFile();
-    QString nextFile = mRolloverStrategy->rollover(file());
+    const QString baseName = mBaseFileName.isEmpty() ? file() : mBaseFileName;
+    QString nextFile = mRolloverStrategy->rollover(baseName);
     if (nextFile != file())
         setFile(nextFile);
     FileAppender::openFile();

@@ -53,6 +53,13 @@ public:
     virtual void activateOptions();
 
     /*!
+     * Returns the initial active file path the appender should open on startup.
+     * The default returns \a fileName unchanged. Strategies may override this
+     * to provide a dated or indexed initial filename without needing a rollover.
+     */
+    virtual QString initialFileName(const QString &fileName) const;
+
+    /*!
      * Performs the rollover for the given file.
      *
      * The strategy is responsible for rotating/renaming/deleting old

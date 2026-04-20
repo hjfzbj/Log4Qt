@@ -100,7 +100,8 @@ DateRolloverStrategy::DateRolloverStrategy(QObject *parent) :
     mDatePattern(u"'.'yyyy-MM-dd"_s),
     mMode(Suffix),
     mMaxBackups(0),
-    mKeepDays(0)
+    mKeepDays(0),
+    mDatedActiveFile(false)
 {
 }
 
@@ -128,6 +129,13 @@ void DateRolloverStrategy::waitForCleanup()
     mCleanupExecutors.waitForFinished();
 }
 
+QString DateRolloverStrategy::initialFileName(const QString &fileName) const
+{
+    if (!mDatedActiveFile)
+        return fileName;
+    return buildBackupName(fileName, DateTime::currentDateTime());
+}
+
 QString DateRolloverStrategy::rollover(const QString &fileName)
 {
     const auto dateTime = DateTime::currentDateTime();
@@ -138,6 +146,15 @@ QString DateRolloverStrategy::rollover(const QString &fileName)
                 QtConcurrent::run(deleteObsoleteFiles, mMode, mMaxBackups,
                                   mKeepDays, mDatePattern, dateTime.date(), fileName));
     };
+
+    if (mDatedActiveFile)
+    {
+        // Each period writes to its own dated file directly, so no rename
+        // is needed — just return the dated name for the new active file.
+        mActiveSuffix = dateTime.toString(mDatePattern);
+        scheduleCleanup();
+        return buildBackupName(fileName, dateTime);
+    }
 
     if (mMode == Suffix)
     {
