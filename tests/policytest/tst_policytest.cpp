@@ -25,6 +25,7 @@
 #include <QtTest>
 
 #include "log4qt/helpers/cronexpression.h"
+#include "log4qt/helpers/datetime.h"
 #include "log4qt/helpers/factory.h"
 #include "log4qt/helpers/properties.h"
 #include "log4qt/loggingevent.h"
@@ -41,6 +42,15 @@
 #include "log4qt/spi/timebasedtriggeringpolicy.h"
 
 using namespace Log4Qt;
+
+// Exposes rollOver() so tests can trigger a rollover directly without
+// routing through a triggering policy.
+class RollableFileAppender : public RollingFileAppender
+{
+public:
+    using RollingFileAppender::RollingFileAppender;
+    void triggerRollover() { rollOver(); }
+};
 
 class PolicyTest : public QObject
 {
@@ -96,12 +106,24 @@ private Q_SLOTS:
     void DateRolloverStrategy_maxBackups();
     void DateRolloverStrategy_suffixPropertyConfigurator();
     void DateRolloverStrategy_embeddedPropertyConfigurator();
+    void DateRolloverStrategy_datedActiveFile_defaults();
+    void DateRolloverStrategy_initialFileName_offByDefault();
+    void DateRolloverStrategy_initialFileName_datedEmbedded();
+    void DateRolloverStrategy_initialFileName_datedSuffix();
+    void DateRolloverStrategy_datedActiveFile_rolloverNoRename();
+    void DateRolloverStrategy_datedActiveFilePropertyConfigurator();
 
     // DefaultRolloverStrategy
     void DefaultRolloverStrategy_defaults();
     void DefaultRolloverStrategy_rollover();
     void DefaultRolloverStrategy_noExistingFile();
     void DefaultRolloverStrategy_singleBackup();
+    void DefaultRolloverStrategy_initialFileNameUnchanged();
+
+    // RollingFileAppender integration
+    void RollingFileAppender_initialFileName_appliedOnStartup();
+    void RollingFileAppender_rolloverUsesBaseFileName();
+    void RollingFileAppender_defaultStrategyUnchangedOnStartup();
 
     // Factory
     void Factory_createTriggeringPolicy_data();
@@ -116,6 +138,7 @@ private Q_SLOTS:
 void PolicyTest::cleanup()
 {
     LogManager::resetConfiguration();
+    DateTime::setProvider(nullptr);
 }
 
 // ---------------------------------------------------------------------------
@@ -834,6 +857,129 @@ void PolicyTest::DateRolloverStrategy_embeddedPropertyConfigurator()
     QVERIFY(appender->file().contains(expectedSuffix));
 }
 
+void PolicyTest::DateRolloverStrategy_datedActiveFile_defaults()
+{
+    Log4Qt::DateRolloverStrategy strategy;
+    QCOMPARE(strategy.datedActiveFile(), false);
+}
+
+void PolicyTest::DateRolloverStrategy_initialFileName_offByDefault()
+{
+    const QString path = QStringLiteral("logs/app.log");
+
+    Log4Qt::DateRolloverStrategy suffix;
+    suffix.setMode(Log4Qt::DateRolloverStrategy::Suffix);
+    QCOMPARE(suffix.initialFileName(path), path);
+
+    Log4Qt::DateRolloverStrategy embedded;
+    embedded.setMode(Log4Qt::DateRolloverStrategy::Embedded);
+    QCOMPARE(embedded.initialFileName(path), path);
+}
+
+void PolicyTest::DateRolloverStrategy_initialFileName_datedEmbedded()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    Log4Qt::DateRolloverStrategy strategy;
+    strategy.setDatePattern("_yyyy_MM_dd");
+    strategy.setMode(Log4Qt::DateRolloverStrategy::Embedded);
+    strategy.setDatedActiveFile(true);
+
+    const QString basePath = tempDir.path() + "/app.log";
+    const QString expected = tempDir.path() + "/app_2026_04_20.log";
+    QCOMPARE(strategy.initialFileName(basePath), expected);
+}
+
+void PolicyTest::DateRolloverStrategy_initialFileName_datedSuffix()
+{
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    Log4Qt::DateRolloverStrategy strategy;
+    strategy.setDatePattern("'.'yyyy-MM-dd");
+    strategy.setMode(Log4Qt::DateRolloverStrategy::Suffix);
+    strategy.setDatedActiveFile(true);
+
+    const QString basePath = QStringLiteral("logs/app.log");
+    QCOMPARE(strategy.initialFileName(basePath),
+             QStringLiteral("logs/app.log.2026-04-20"));
+}
+
+void PolicyTest::DateRolloverStrategy_datedActiveFile_rolloverNoRename()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    const QString basePath = tempDir.path() + "/app.log";
+    const QString expected = tempDir.path() + "/app_2026_04_20.log";
+
+    // Pre-create the base file; it must not be touched by rollover.
+    {
+        QFile f(basePath);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("untouched");
+        f.close();
+    }
+
+    Log4Qt::DateRolloverStrategy strategy;
+    strategy.setDatePattern("_yyyy_MM_dd");
+    strategy.setMode(Log4Qt::DateRolloverStrategy::Embedded);
+    strategy.setDatedActiveFile(true);
+
+    const QString result = strategy.rollover(basePath);
+    QCOMPARE(result, expected);
+
+    // Base file survives — no rename, no delete.
+    QVERIFY(QFile::exists(basePath));
+    // Creating the new active file is the appender's job, not the strategy's.
+    QVERIFY(!QFile::exists(expected));
+}
+
+void PolicyTest::DateRolloverStrategy_datedActiveFilePropertyConfigurator()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    const QString file = tempDir.path() + "/app.log";
+
+    Properties props;
+    props.setProperty("appender.R.type", "RollingFile");
+    props.setProperty("appender.R.file", file);
+    props.setProperty("appender.R.layout.type", "SimpleLayout");
+    props.setProperty("appender.R.policy.TIME.type", "TimeBasedTriggeringPolicy");
+    props.setProperty("appender.R.policy.TIME.datePattern", "_yyyy_MM_dd");
+    props.setProperty("appender.R.strategy.type", "Date");
+    props.setProperty("appender.R.strategy.datePattern", "_yyyy_MM_dd");
+    props.setProperty("appender.R.strategy.mode", "Embedded");
+    props.setProperty("appender.R.strategy.datedActiveFile", "true");
+    props.setProperty("rootLogger.level", "DEBUG");
+    props.setProperty("rootLogger.appenderRef.0.ref", "R");
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    Logger *root = LogManager::rootLogger();
+    QCOMPARE(root->appenders().count(), 1);
+
+    auto *appender = qobject_cast<RollingFileAppender *>(root->appenders().first().data());
+    QVERIFY(appender != nullptr);
+
+    auto *dateStrategy = qobject_cast<DateRolloverStrategy *>(appender->rolloverStrategy().data());
+    QVERIFY(dateStrategy != nullptr);
+    QCOMPARE(dateStrategy->datedActiveFile(), true);
+
+    // The active file carries the current date already — no rollover happened.
+    const QString expected = tempDir.path() + "/app_2026_04_20.log";
+    QCOMPARE(appender->file(), expected);
+    QVERIFY(QFile::exists(expected));
+    QVERIFY(!QFile::exists(file));
+}
+
 // ---------------------------------------------------------------------------
 // DefaultRolloverStrategy
 // ---------------------------------------------------------------------------
@@ -956,6 +1102,105 @@ void PolicyTest::DefaultRolloverStrategy_singleBackup()
     strategy.rollover(basePath);
     QCOMPARE(readFile(basePath + ".1"), "second");
     QVERIFY(!QFile::exists(basePath + ".2"));
+}
+
+void PolicyTest::DefaultRolloverStrategy_initialFileNameUnchanged()
+{
+    Log4Qt::DefaultRolloverStrategy strategy;
+    const QString path = QStringLiteral("logs/app.log");
+    QCOMPARE(strategy.initialFileName(path), path);
+}
+
+// ---------------------------------------------------------------------------
+// RollingFileAppender integration
+// ---------------------------------------------------------------------------
+
+void PolicyTest::RollingFileAppender_initialFileName_appliedOnStartup()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    const QString basePath = tempDir.path() + "/app.log";
+    const QString expected = tempDir.path() + "/app_2026_04_20.log";
+
+    auto layout = LayoutSharedPtr(new SimpleLayout);
+    RollingFileAppender appender(layout, basePath);
+
+    auto strategy = RolloverStrategySharedPtr(new DateRolloverStrategy);
+    auto *ds = qobject_cast<DateRolloverStrategy *>(strategy.data());
+    QVERIFY(ds != nullptr);
+    ds->setDatePattern("_yyyy_MM_dd");
+    ds->setMode(DateRolloverStrategy::Embedded);
+    ds->setDatedActiveFile(true);
+    appender.setRolloverStrategy(strategy);
+
+    appender.activateOptions();
+
+    QCOMPARE(appender.file(), expected);
+    QVERIFY(QFile::exists(expected));
+    QVERIFY(!QFile::exists(basePath));
+
+    appender.close();
+}
+
+void PolicyTest::RollingFileAppender_rolloverUsesBaseFileName()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    const QString basePath = tempDir.path() + "/app.log";
+    const QString day1Path = tempDir.path() + "/app_2026_04_20.log";
+    const QString day2Path = tempDir.path() + "/app_2026_04_21.log";
+
+    // Day 1: activate with datedActiveFile=true — file becomes app_2026_04_20.log
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 20), QTime(10, 0)); });
+
+    auto layout = LayoutSharedPtr(new SimpleLayout);
+    RollableFileAppender appender(layout, basePath);
+
+    auto strategy = RolloverStrategySharedPtr(new DateRolloverStrategy);
+    auto *ds = qobject_cast<DateRolloverStrategy *>(strategy.data());
+    QVERIFY(ds != nullptr);
+    ds->setDatePattern("_yyyy_MM_dd");
+    ds->setMode(DateRolloverStrategy::Embedded);
+    ds->setDatedActiveFile(true);
+    appender.setRolloverStrategy(strategy);
+
+    appender.activateOptions();
+    QCOMPARE(appender.file(), day1Path);
+
+    // Day 2: trigger rollover — next file name must derive from the original
+    // base ("app.log"), not from the current dated file. If the base were
+    // not preserved we'd end up with "app_2026_04_20_2026_04_21.log".
+    DateTime::setProvider([] { return QDateTime(QDate(2026, 4, 21), QTime(10, 0)); });
+    appender.triggerRollover();
+
+    QCOMPARE(appender.file(), day2Path);
+    QVERIFY(QFile::exists(day2Path));
+
+    appender.close();
+}
+
+void PolicyTest::RollingFileAppender_defaultStrategyUnchangedOnStartup()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+
+    const QString basePath = tempDir.path() + "/app.log";
+
+    auto layout = LayoutSharedPtr(new SimpleLayout);
+    RollingFileAppender appender(layout, basePath);
+    // No explicit strategy → activateOptions installs DefaultRolloverStrategy,
+    // whose initialFileName() must not change the configured filename.
+
+    appender.activateOptions();
+
+    QCOMPARE(appender.file(), basePath);
+    QVERIFY(QFile::exists(basePath));
+
+    appender.close();
 }
 
 // ---------------------------------------------------------------------------
