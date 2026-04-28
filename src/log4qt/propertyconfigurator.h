@@ -21,8 +21,7 @@
 #ifndef LOG4QT_PROPERTYCONFIGURATOR_H
 #define LOG4QT_PROPERTYCONFIGURATOR_H
 
-#include "log4qt.h"
-#include "layout.h"
+#include "log4qtshared.h"
 #include "appender.h"
 
 #include <QHash>
@@ -46,7 +45,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT PropertyConfigurator
 {
 public:
-    PropertyConfigurator();
+    PropertyConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(PropertyConfigurator)
@@ -118,7 +117,7 @@ private:
     void setProperties(const Properties &properties,
                        const QString &prefix,
                        const QStringList &exclusion,
-                       QObject *object);
+                       QObject *object) const;
     void startCaptureErrors();
     bool stopCaptureErrors();
 
@@ -131,9 +130,6 @@ private:
     QHash<QString, AppenderSharedPtr> mAppenderRegistry;
 };
 
-inline PropertyConfigurator::PropertyConfigurator()
-{}
-
-} // namspace Log4Qt
+} // namespace Log4Qt
 
 #endif // LOG4QT_PROPERTYCONFIGURATOR_H

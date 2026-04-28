@@ -88,12 +88,20 @@ private:
     Q_DISABLE_COPY_MOVE(FileAppender)
 
 public:
-    inline bool appendFile() const;
-    inline QString file() const;
-    inline bool bufferedIo() const;
-    inline void setAppendFile(bool append);
-    inline void setBufferedIo(bool buffered);
-    inline void setFile(const QString &fileName);
+    bool appendFile() const { return mAppendFile; }
+    QString file() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mFileName;
+    }
+    bool bufferedIo() const { return mBufferedIo; }
+    void setAppendFile(bool append) { mAppendFile = append; }
+    void setBufferedIo(bool buffered) { mBufferedIo = buffered; }
+    void setFile(const QString &fileName)
+    {
+        QMutexLocker locker(&mObjectGuard);
+        mFileName = fileName;
+    }
 
     void activateOptions() override;
     void close() override;
@@ -107,7 +115,7 @@ protected:
      * is returned.
      *
      * The checked conditions are:
-     * - That a file is set and open (APPENDER_NO_OPEN_FILE_ERROR)
+     * - That a file is set and open (AppenderNoOpenFileError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().
@@ -136,7 +144,7 @@ protected:
 
     /*!
      * Removes the file \a file. If the operation is successful, true is
-     * returned. Otherwise an APPENDER_REMOVE_FILE_ERROR error is logged
+     * returned. Otherwise an AppenderRemoveFileError error is logged
      * and false is returned.
      */
     bool removeFile(QFile &file) const;
@@ -144,52 +152,22 @@ protected:
     /*!
      * Renames the file \a file to \a fileName. If the operation is
      * successful, true is returned. Otherwise an
-     * APPENDER_RENAMING_FILE_ERROR error is logged and false is returned.
+     * AppenderRenamingFileError error is logged and false is returned.
      */
     bool renameFile(QFile &file,
                     const QString &fileName) const;
 
+    void writeHeader() const override;
+
 private:
     std::atomic<bool> mAppendFile;
+    mutable bool mSuppressNextHeader = false;
     std::atomic<bool> mBufferedIo;
     QString mFileName;
     std::unique_ptr<QFile> mFile;
     std::unique_ptr<QTextStream> mTextStream;
     void closeInternal();
 };
-
-inline bool FileAppender::appendFile() const
-{
-    return mAppendFile;
-}
-
-inline QString FileAppender::file() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mFileName;
-}
-
-inline bool FileAppender::bufferedIo() const
-{
-    return mBufferedIo;
-}
-
-inline void FileAppender::setAppendFile(bool append)
-{
-    mAppendFile = append;
-}
-
-inline void FileAppender::setBufferedIo(bool buffered)
-{
-    mBufferedIo = buffered;
-}
-
-inline void FileAppender::setFile(const QString &fileName)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mFileName = fileName;
-}
-
 
 } // namespace Log4Qt
 

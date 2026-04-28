@@ -23,7 +23,7 @@
 
 #include "appender.h"
 #include "log4qtshared.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "spi/filter.h"
 #include "logger.h"
 
@@ -81,15 +81,27 @@ protected:
     ~AppenderSkeleton() override;
 
 public:
-    [[nodiscard]] inline FilterSharedPtr filter() const override;
+    [[nodiscard]] FilterSharedPtr filter() const override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mpHeadFilter;
+    }
     [[nodiscard]] LayoutSharedPtr layout() const override;
-    [[nodiscard]] inline bool isActive() const;
-    [[nodiscard]] inline bool isClosed() const;
-    [[nodiscard]] inline QString name() const override;
-    [[nodiscard]] inline Level threshold() const;
+    [[nodiscard]] bool isActive() const { return mIsActive.load(std::memory_order_relaxed); }
+    [[nodiscard]] bool isClosed() const { return mIsClosed.load(std::memory_order_relaxed); }
+    [[nodiscard]] QString name() const override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return objectName();
+    }
+    [[nodiscard]] Level threshold() const { return mThreshold; }
     void setLayout(const LayoutSharedPtr &layout) override;
-    inline void setName(const QString &name) override;
-    inline void setThreshold(Level level);
+    void setName(const QString &name) override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        setObjectName(name);
+    }
+    void setThreshold(Level level) { mThreshold = level; }
 
     virtual void activateOptions();
     void addFilter(const FilterSharedPtr &filter) override;
@@ -97,15 +109,34 @@ public:
     void close() override;
 
     /*!
-     * Performs checks and delegates the actuall appending to the subclass
-     * specific append() function.
+     * Performs checks and delegates the actual appending to the subclass.
      *
-     * \sa append(), checkEntryConditions(), isAsSevereAsThreshold(), Filter
+     * The function executes in five phases:
+     * \li Phase 1 — Thread-local recursion guard. Prevents infinite loops when
+     *     an appender internally logs a message through a logger that routes
+     *     back to any appender on the same thread.
+     * \li Phase 2 — Fast atomic pre-checks (\c isActive(), \c isClosed())
+     *     without acquiring the lock.
+     * \li Phase 3 — Entry conditions (\c checkEntryConditions()), threshold
+     *     and filter-chain/layout snapshot, all under \c mObjectGuard. The
+     *     lock is released at the end of this phase.
+     * \li Phase 4 — Filter chain evaluation and \c preAppend() call, both
+     *     \e outside \c mObjectGuard. Multiple threads may execute this phase
+     *     concurrently.
+     * \li Phase 5 — \c append() call under \c mObjectGuard. Serialises the
+     *     actual I/O across threads.
+     *
+     * \sa append(), preAppend(), checkEntryConditions(),
+     *     isAsSevereAsThreshold(), Filter
      */
     void doAppend(const LoggingEvent &event) override;
 
-    inline FilterSharedPtr firstFilter() const;
-    inline bool isAsSevereAsThreshold(Level level) const;
+    FilterSharedPtr firstFilter() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return filter();
+    }
+    bool isAsSevereAsThreshold(Level level) const { return (mThreshold <= level); }
 
 protected:
     virtual void append(const LoggingEvent &event) = 0;
@@ -119,10 +150,10 @@ protected:
      * returns false.
      *
      * The checked conditions are:
-     * - That the appender has been activated (APPENDER_NOT_ACTIVATED_ERROR)
-     * - That the appender was not closed (APPENDER_CLOSED_ERROR)
+     * - That the appender has been activated (AppenderNotActivatedError)
+     * - That the appender was not closed (AppenderClosedError)
      * - That the appender has a layout set, if it requires one
-     *   (logging_error(APPENDER_USE_MISSING_LAYOUT_ERROR)
+     *   (logging_error(AppenderUseMissingLayoutError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by doAppend(). The doAppend() function calls the subclass
@@ -135,16 +166,56 @@ protected:
      */
     virtual bool checkEntryConditions() const;
 
+    /*!
+     * Optional hook called \e outside \c mObjectGuard, after all entry checks
+     * have passed and the filter chain has accepted the event.
+     *
+     * \c doAppend() calls this function between releasing the appender lock
+     * (after snapshotting the filter chain and layout) and re-acquiring it for
+     * the actual \c append() call. This window allows subclasses to perform
+     * expensive, purely read-only preparation work — most commonly layout
+     * formatting — while other threads are free to run their own \c preAppend()
+     * calls in parallel.
+     *
+     * \par Contract
+     * \li \a layout is a \c QSharedPointer snapshot taken under the lock; it
+     *     remains valid for the full duration of this call even if the
+     *     appender's layout is replaced concurrently.
+     * \li The function must be stateless with respect to shared appender data.
+     *     Any result must be stored in thread-local storage and consumed by the
+     *     subsequent \c append() call.
+     * \li The function must not call \c doAppend() (directly or indirectly) —
+     *     the per-thread recursion guard in \c doAppend() would silently drop
+     *     the nested call.
+     *
+     * The default implementation is a no-op; all existing appenders are
+     * unaffected.
+     *
+     * \sa doAppend(), append(), RandomAccessFileAppender
+     */
+    virtual void preAppend(const LoggingEvent &event, const LayoutSharedPtr &layout);
+
+    /*!
+     * Forwards \a event to \a appender via its \c doAppend() entry point,
+     * bypassing the thread-local recursion guard for this one call.
+     *
+     * Use this for \e intentional event forwarding (e.g. routing an overflow
+     * event to an error appender) where the call is not a recursive side-effect
+     * of logging but an explicit redirect. All other \c doAppend() checks
+     * (active, closed, threshold, filters) still run normally on the target
+     * appender.
+     *
+     * \note Do \e not use this inside \c append() or \c preAppend() to route
+     *       internally generated log messages — use a normal logger call there;
+     *       the recursion guard will silently drop true recursive loops.
+     */
+    static void forwardEvent(const AppenderSharedPtr &appender, const LoggingEvent &event);
+
 protected:
-#if QT_VERSION < 0x050E00
-    mutable QMutex mObjectGuard;
-#else
     mutable QRecursiveMutex mObjectGuard;
-#endif
 
 private:
     Q_DISABLE_COPY_MOVE(AppenderSkeleton)
-    bool mAppendRecursionGuard;
     std::atomic<bool> mIsActive{false};
     std::atomic<bool> mIsClosed{false};
     LayoutSharedPtr mpLayout;
@@ -153,55 +224,6 @@ private:
     FilterSharedPtr mpTailFilter;
     void closeInternal();
 };
-
-inline FilterSharedPtr AppenderSkeleton::filter() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mpHeadFilter;
-}
-
-inline QString AppenderSkeleton::name() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return objectName();
-}
-
-inline Level AppenderSkeleton::threshold() const
-{
-    return mThreshold;
-}
-
-inline void AppenderSkeleton::setName(const QString &name)
-{
-    QMutexLocker locker(&mObjectGuard);
-    setObjectName(name);
-}
-
-inline void AppenderSkeleton::setThreshold(Level level)
-{
-    mThreshold = level;
-}
-
-[[nodiscard]] inline bool AppenderSkeleton::isActive() const
-{
-    return mIsActive.load(std::memory_order_relaxed);
-}
-
-[[nodiscard]] inline bool AppenderSkeleton::isClosed() const
-{
-    return mIsClosed.load(std::memory_order_relaxed);
-}
-
-inline FilterSharedPtr AppenderSkeleton::firstFilter() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return filter();
-}
-
-inline bool AppenderSkeleton::isAsSevereAsThreshold(Level level) const
-{
-    return (mThreshold <= level);
-}
 
 } // namespace Log4Qt
 

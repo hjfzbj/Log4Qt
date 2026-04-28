@@ -20,9 +20,9 @@
 
 #include "simpletimelayout.h"
 
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 #include "helpers/datetime.h"
-
 
 namespace Log4Qt
 {
@@ -33,7 +33,7 @@ QString SimpleTimeLayout::format(const LoggingEvent &event)
            + u"["_s + event.threadName() + u"]"_s
            + u" "_s + event.level().toString()
            + u" "_s + event.loggername()
-           + u" - "_s + event.message() + Layout::endOfLine();
+           + u" - "_s + event.message() + AbstractLayout::endOfLine();
 }
 
 

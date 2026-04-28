@@ -20,7 +20,6 @@
 
 #include "mainthreadappender.h"
 #include "loggingevent.h"
-#include "helpers/dispatcher.h"
 
 #include <QCoreApplication>
 #include <QReadLocker>

@@ -18,35 +18,34 @@
  *
  ******************************************************************************/
 
-#include "helpers/dispatcher.h"
-#include "loggingevent.h"
-#include "asyncappender.h"
+#ifndef LOG4QT_ONSTARTUPTRIGGERINGPOLICY_H
+#define LOG4QT_ONSTARTUPTRIGGERINGPOLICY_H
 
-#include <QCoreApplication>
+#include "triggeringpolicy.h"
 
 namespace Log4Qt
 {
 
-Dispatcher::Dispatcher(QObject *parent) : QObject(parent)
-    , mAsyncAppender(nullptr)
-{}
-
-void Dispatcher::customEvent(QEvent *event)
+/*!
+ * \brief The class OnStartupTriggeringPolicy triggers a rollover once at
+ *        application startup if the log file already exists and is non-empty.
+ */
+class LOG4QT_EXPORT OnStartupTriggeringPolicy : public TriggeringPolicy
 {
-    if (event->type() == LoggingEvent::eventId)
-    {
-        auto *logEvent = static_cast<LoggingEvent *>(event);
-        if (mAsyncAppender != nullptr)
-            mAsyncAppender->callAppenders(*logEvent);
-    }
-    QObject::customEvent(event);
-}
+    Q_OBJECT
 
-void Dispatcher::setAsyncAppender(AsyncAppender *asyncAppender)
-{
-    mAsyncAppender = asyncAppender;
-}
+public:
+    explicit OnStartupTriggeringPolicy(QObject *parent = nullptr);
+
+    bool isTriggeringEvent(QIODevice *activeDevice,
+                           const LoggingEvent &event) override;
+
+    bool isStartupTrigger(const QString &fileName, qint64 fileSize) override;
+
+private:
+    Q_DISABLE_COPY_MOVE(OnStartupTriggeringPolicy)
+};
 
 } // namespace Log4Qt
 
-#include "moc_dispatcher.cpp"
+#endif // LOG4QT_ONSTARTUPTRIGGERINGPOLICY_H

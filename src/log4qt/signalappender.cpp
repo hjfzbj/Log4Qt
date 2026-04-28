@@ -20,8 +20,7 @@
 
 #include "signalappender.h"
 
-#include "layout.h"
-
+#include "abstractlayout.h"
 
 namespace Log4Qt
 {

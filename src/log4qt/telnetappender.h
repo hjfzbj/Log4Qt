@@ -100,11 +100,11 @@ public:
     /*!
      * Set the property immediate flush (default: false)
      */
-    void setImmediateFlush(bool immediateFlush);
+    void setImmediateFlush(bool immediateFlush) { mImmediateFlush = immediateFlush; }
     /*!
      *  Returns <true> immediate flush is enabled
      */
-    bool immediateFlush() const;
+    bool immediateFlush() const { return mImmediateFlush; }
 
     /*!
      * Sets the listenning address of the telnet server (default QHostAddress::Any)
@@ -131,7 +131,7 @@ protected:
      * AppenderSkeleton::checkEntryConditions() is returned.
      *
      * The checked conditions are:
-     * - A writer has been set (APPENDER_USE_MISSING_WRITER_ERROR)
+     * - A writer has been set (AppenderUseMissingWriterError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().
@@ -172,16 +172,6 @@ private:
 
     void sendWelcomeMessage(QTcpSocket *clientConnection);
 };
-
-inline bool TelnetAppender::immediateFlush() const
-{
-    return mImmediateFlush;
-}
-
-inline void TelnetAppender::setImmediateFlush(bool immediateFlush)
-{
-    mImmediateFlush = immediateFlush;
-}
 
 } // namespace Log4Qt
 

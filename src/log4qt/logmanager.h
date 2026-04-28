@@ -75,30 +75,45 @@ public:
      *
      * \sa setHandleQtMessages()
      */
-    [[nodiscard]] static bool handleQtMessages();
+    [[nodiscard]] static bool handleQtMessages()
+    {
+        return instance()->mHandleQtMessages;
+    }
 
     /*!
      * Returns true, if the current properties file is watched with a QFileWatcher
      *
      * \sa setWatchThisFile()
      */
-    [[nodiscard]] static bool watchThisFile();
+    [[nodiscard]] static bool watchThisFile()
+    {
+        return instance()->mWatchThisFile;
+    }
 
     /*!
      * Returns the filter rules for qc[Info|Debug|Warning|Critical]
      *
      * \sa setFilterRules()
      */
-    [[nodiscard]] static QString filterRules();
+    [[nodiscard]] static QString filterRules()
+    {
+        return instance()->mFilterRules;
+    }
 
     /*!
      * Returns the message pattern for qc[Info|Debug|Warning|Critical]
      *
      * \sa setMessagePattern()
      */
-    [[nodiscard]] static QString messagePattern();
+    [[nodiscard]] static QString messagePattern()
+    {
+        return instance()->mMessagePattern;
+    }
 
-    [[nodiscard]] static LoggerRepository *loggerRepository();
+    [[nodiscard]] static LoggerRepository *loggerRepository()
+    {
+        return instance()->mLoggerRepository;
+    }
 
     /*!
      * Returns the logger used for logging internal messages. See
@@ -106,7 +121,10 @@ public:
      *
      * Calling this function is equivalent to calling logger("Log4Qt").
      */
-    [[nodiscard]] static Logger *logLogger();
+    [[nodiscard]] static Logger *logLogger()
+    {
+        return logger(QStringLiteral("Log4Qt"));
+    }
 
     /*!
      * Returns a pointer to the logger used for logging messages created by
@@ -116,7 +134,10 @@ public:
      *
      * \sa setHandleQtMessages()
      */
-    [[nodiscard]] static Logger *qtLogger();
+    [[nodiscard]] static Logger *qtLogger()
+    {
+        return logger(QStringLiteral("Qt"));
+    }
 
     [[nodiscard]] static Logger *rootLogger();
     [[nodiscard]] static QList<Logger *> loggers();
@@ -159,7 +180,10 @@ public:
      *
      * \sa handleQtMessages(), qInstallMsgHandler(), qFatal()
      */
-    static void setHandleQtMessages(bool handleQtMessages);
+    static void setHandleQtMessages(bool handleQtMessages)
+    {
+        instance()->doSetHandleQtMessages(handleQtMessages);
+    }
 
     /*!
      * Enables/disables watching of the current properties file
@@ -168,21 +192,30 @@ public:
      *
      * \sa watchThisFile()
      */
-    static void setWatchThisFile(bool watchThisFile);
+    static void setWatchThisFile(bool watchThisFile)
+    {
+        instance()->doSetWatchThisFile(watchThisFile);
+    }
 
     /*!
      * Set a message pattern for qc[Debug|Info|Warn|Critical]
      *
      * \sa messagePattern()
      */
-    static void setMessagePattern(const QString &pattern);
+    static void setMessagePattern(const QString &pattern)
+    {
+        instance()->doSetMessagePattern(pattern);
+    }
 
     /*!
      * Set the filter rules for qc[Debug|Info|Warn|Critical]
      *
      * \sa filterRules()
      */
-    static void setFilterRules(const QString &rules);
+    static void setFilterRules(const QString &rules)
+    {
+        instance()->doSetFilterRules(rules);
+    }
 
     /*!
      * Configures the logging for the package to its default behaviour.
@@ -204,7 +237,10 @@ public:
      *     \ref Env "Environment Variables",
      *     resetConfiguration(), InitialisationHelper::setting()
      */
-    static void configureLogLogger();
+    static void configureLogLogger()
+    {
+        instance()->doConfigureLogLogger();
+    }
 
     [[nodiscard]] static bool exists(const char *pName);
 
@@ -264,7 +300,10 @@ public:
      *     \ref Env "Environment Variables",
      *     InitialisationHelper::setting()
      */
-    static void startup();
+    static void startup()
+    {
+        instance()->doStartup();
+    }
 
     /*!
      * Returns the version number of Log4Qt at run-time. This may be a
@@ -290,11 +329,7 @@ private:
     static void qtMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &message);
 
 private:
-#if QT_VERSION < 0x050E00
-    mutable QMutex mObjectGuard;
-#else
     mutable QRecursiveMutex mObjectGuard;
-#endif
 
     LoggerRepository *mLoggerRepository;
     bool mHandleQtMessages, mWatchThisFile;
@@ -302,71 +337,6 @@ private:
     QtMessageHandler mQtMsgHandler;
     static LogManager *mInstance;
 };
-
-inline LoggerRepository *LogManager::loggerRepository()
-{
-    return instance()->mLoggerRepository;
-}
-
-inline bool LogManager::handleQtMessages()
-{
-    return instance()->mHandleQtMessages;
-}
-
-inline bool LogManager::watchThisFile()
-{
-    return instance()->mWatchThisFile;
-}
-
-inline QString LogManager::filterRules()
-{
-    return instance()->mFilterRules;
-}
-
-inline QString LogManager::messagePattern()
-{
-    return instance()->mMessagePattern;
-}
-
-inline Logger *LogManager::logLogger()
-{
-    return logger(QStringLiteral("Log4Qt"));
-}
-
-inline Logger *LogManager::qtLogger()
-{
-    return logger(QStringLiteral("Qt"));
-}
-
-inline void LogManager::setHandleQtMessages(bool handleQtMessages)
-{
-    instance()->doSetHandleQtMessages(handleQtMessages);
-}
-
-inline void LogManager::setWatchThisFile(bool watchThisFile)
-{
-    instance()->doSetWatchThisFile(watchThisFile);
-}
-
-inline void LogManager::setFilterRules(const QString &rules)
-{
-    instance()->doSetFilterRules(rules);
-}
-
-inline void LogManager::setMessagePattern(const QString &pattern)
-{
-    instance()->doSetMessagePattern(pattern);
-}
-
-inline void LogManager::configureLogLogger()
-{
-    instance()->doConfigureLogLogger();
-}
-
-inline void LogManager::startup()
-{
-    instance()->doStartup();
-}
 
 } // namespace Log4Qt
 

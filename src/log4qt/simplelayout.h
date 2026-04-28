@@ -21,7 +21,7 @@
 #ifndef LOG4QT_SIMPLELAYOUT_H
 #define LOG4QT_SIMPLELAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 
 namespace Log4Qt
 {
@@ -33,41 +33,28 @@ namespace Log4Qt
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT SimpleLayout : public Layout
+class LOG4QT_EXPORT SimpleLayout : public AbstractStringLayout
 {
     Q_OBJECT
     Q_PROPERTY(bool showLevel READ showLevel WRITE setShowLevel)
 
 public:
-    SimpleLayout(QObject *parent = nullptr);
+    SimpleLayout(QObject *parent = nullptr)
+        : AbstractStringLayout(parent)
+        , mShowLevel{true}
+    {}
 
 private:
     Q_DISABLE_COPY_MOVE(SimpleLayout)
     bool mShowLevel;
 
 public:
-    bool showLevel() const;
-    void setShowLevel(bool show);
+    [[nodiscard]] bool showLevel() const { return mShowLevel; }
+    void setShowLevel(bool show) { mShowLevel = show; }
 
     QString format(const LoggingEvent &event) override;
 
 };
-
-inline SimpleLayout::SimpleLayout(QObject *parent)
-    : Layout(parent)
-    , mShowLevel{true}
-{
-}
-
-inline bool SimpleLayout::showLevel() const
-{
-    return mShowLevel;
-}
-
-inline void SimpleLayout::setShowLevel(bool show)
-{
-    mShowLevel = show;
-}
 
 } // namespace Log4Qt
 

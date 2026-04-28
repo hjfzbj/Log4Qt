@@ -37,16 +37,21 @@ namespace Log4Qt
 class LOG4QT_EXPORT Properties : public QHash<QString, QString>
 {
 public:
-    explicit Properties(Properties *pDefaultProperties = nullptr);
+    explicit Properties(Properties *pDefaultProperties = nullptr) :
+        mpDefaultProperties(pDefaultProperties)
+    {}
 
 public:
-    Properties *defaultProperties() const;
+    Properties *defaultProperties() const { return mpDefaultProperties; }
     QString property(const QString &key) const;
     QString property(const QString &key,
                      const QString &defaultValue) const;
-    void setDefaultProperties(Properties *defaultProperties);
+    void setDefaultProperties(Properties *defaultProperties) { mpDefaultProperties = defaultProperties; }
     void setProperty(const QString &key,
-                     const QString &value);
+                     const QString &value)
+    {
+        insert(key, value);
+    }
 
     void load(QIODevice *pDevice);
 
@@ -81,32 +86,12 @@ private:
 
 private:
     Properties *mpDefaultProperties;
-    static const char msEscapeChar;
-    static const char *msValueEscapeCodes;
-    static const char *msValueEscapeChars;
-    static const char *msKeyEscapeCodes;
-    static const char *msKeyEscapeChars;
+    static constexpr char msEscapeChar = '\\';
+    static constexpr char msValueEscapeCodes[] = R"(tnr\"' )";
+    static constexpr char msValueEscapeChars[] = "\t\n\r\\\"\' ";
+    static constexpr char msKeyEscapeCodes[] = " :=";
+    static constexpr char msKeyEscapeChars[] = " :=";
 };
-
-inline Properties::Properties(Properties *pDefaultProperties) :
-    mpDefaultProperties(pDefaultProperties)
-{}
-
-inline Properties *Properties::defaultProperties() const
-{
-    return mpDefaultProperties;
-}
-
-inline void Properties::setDefaultProperties(Properties *defaultProperties)
-{
-    mpDefaultProperties = defaultProperties;
-}
-
-inline void Properties::setProperty(const QString &key,
-                                    const QString &value)
-{
-    insert(key, value);
-}
 
 } // namespace Log4Qt
 

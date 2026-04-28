@@ -18,39 +18,44 @@
  *
  ******************************************************************************/
 
-#ifndef LOG4QTDISPATCHER_H
-#define LOG4QTDISPATCHER_H
+#ifndef LOG4QT_HELPERS_ASYNCWORKER_H
+#define LOG4QT_HELPERS_ASYNCWORKER_H
 
-#include <QObject>
+#include <QThread>
 
 namespace Log4Qt
 {
 
 class AsyncAppender;
+class LoggingEvent;
+template<typename T> class BoundedBlockingQueue;
 
 /*!
- * \brief The class Dispatcher does the actual logging to the attached appanders.
+ * \brief Worker thread that drains events from a BoundedBlockingQueue
+ *        and dispatches them to the AsyncAppender's attached appenders.
  *
- * The Dispatcher is the worker object which class the attached apperders in the
- * the context of the DispatcherThread.
- *
- * \note All the functions declared in this class are thread-safe.
+ * Replaces the event-loop-based Dispatcher for AsyncAppender with an
+ * explicit queue-draining loop for bounded backpressure support.
  */
-class Dispatcher : public QObject
+class AsyncWorker : public QThread
 {
     Q_OBJECT
-public:
-    explicit Dispatcher(QObject *parent = nullptr);
 
-    void setAsyncAppender(AsyncAppender *asyncAppender);
+public:
+    AsyncWorker(AsyncAppender *appender,
+                BoundedBlockingQueue<LoggingEvent> *queue,
+                QObject *parent = nullptr);
 
 protected:
-    void customEvent(QEvent *event) override;
+    void run() override;
 
 private:
-    AsyncAppender *mAsyncAppender;
+    Q_DISABLE_COPY_MOVE(AsyncWorker)
+
+    AsyncAppender *mAppender;
+    BoundedBlockingQueue<LoggingEvent> *mQueue;
 };
 
 } // namespace Log4Qt
 
-#endif // DISPATCHER_H
+#endif // LOG4QT_HELPERS_ASYNCWORKER_H

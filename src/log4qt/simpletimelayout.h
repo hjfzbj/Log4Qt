@@ -21,7 +21,7 @@
 #ifndef LOG4QT_SIMPLETIMELAYOUT_H
 #define LOG4QT_SIMPLETIMELAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 
 namespace Log4Qt
 {
@@ -33,12 +33,14 @@ namespace Log4Qt
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT SimpleTimeLayout : public Layout
+class LOG4QT_EXPORT SimpleTimeLayout : public AbstractStringLayout
 {
     Q_OBJECT
 
 public:
-    SimpleTimeLayout(QObject *parent = nullptr);
+    SimpleTimeLayout(QObject *parent = nullptr) :
+        AbstractStringLayout(parent)
+    {}
 
 private:
     Q_DISABLE_COPY_MOVE(SimpleTimeLayout)
@@ -46,10 +48,6 @@ private:
 public:
     QString format(const LoggingEvent &event) override;
 };
-
-inline SimpleTimeLayout::SimpleTimeLayout(QObject *parent) :
-    Layout(parent)
-{}
 
 } // namespace Log4Qt
 

@@ -70,10 +70,10 @@ public:
      *
      * \sa setConfiguratorList()
      */
-    bool configuratorList() const;
+    bool configuratorList() const { return mConfiguratorList; }
 
     QList<LoggingEvent> list() const;
-    int maxCount() const;
+    int maxCount() const { return mMaxCount; }
 
     /*!
      * Sets that the appender is used by a configurator. If set to true, the appender
@@ -83,12 +83,12 @@ public:
      * \sa configuratorList(), BasicConfigurator, PropertyConfigurator,
      *     ConfiguratorHelper::configureError()
      */
-    void setConfiguratorList(bool isConfiguratorList);
+    void setConfiguratorList(bool isConfiguratorList) { mConfiguratorList = isConfiguratorList; }
 
     void setMaxCount(int n);
 
     QList<LoggingEvent> clearList();
-    bool requiresLayout() const override;
+    bool requiresLayout() const override { return false; }
 
 protected:
     void append(const LoggingEvent &event) override;
@@ -106,26 +106,6 @@ private:
     QList<LoggingEvent> mList;
     std::atomic<int> mMaxCount;
 };
-
-inline bool ListAppender::configuratorList() const
-{
-    return mConfiguratorList;
-}
-
-inline int ListAppender::maxCount() const
-{
-    return mMaxCount;
-}
-
-inline void ListAppender::setConfiguratorList(bool isConfiguratorList)
-{
-    mConfiguratorList = isConfiguratorList;
-}
-
-inline bool ListAppender::requiresLayout() const
-{
-    return false;
-}
 
 } // namespace Log4Qt
 

@@ -22,15 +22,27 @@
 #define LOG4QT_ROLINGFILEAPPENDER_H
 
 #include "fileappender.h"
+#include "spi/triggeringpolicy.h"
+#include "spi/rolloverstrategy.h"
 
 namespace Log4Qt
 {
 
 /*!
- * \brief The class RollingFileAppender extends FileAppender to backup
- *        the log files when they reach a certain size.
- *        On application restart the existing log files are rolled
- *        if appendFile is set to false to avoid data loss.
+ * \brief The class RollingFileAppender extends FileAppender to roll over
+ *        the log file based on configurable triggering policies and
+ *        rollover strategies.
+ *
+ * A TriggeringPolicy determines WHEN a rollover should occur
+ * (e.g. when the file exceeds a certain size, at a time interval,
+ * or on application startup).
+ *
+ * A RolloverStrategy determines HOW the rollover is performed
+ * (e.g. numbered backup file rotation).
+ *
+ * Multiple triggering policies can be combined (OR logic) using
+ * addTriggeringPolicy(). If no strategy is set, a
+ * DefaultRolloverStrategy is used.
  *
  * \note All the functions declared in this class are thread-safe.
  *
@@ -42,29 +54,20 @@ class LOG4QT_EXPORT RollingFileAppender : public FileAppender
     Q_OBJECT
 
     /*!
-     * The property holds the maximum backup count used by the appender.
+     * The property controls whether the layout footer is suppressed when a
+     * startup rollover occurs.
      *
-     * The default is 1.
+     * When true and a triggering policy fires on startup (e.g.
+     * OnStartupTriggeringPolicy), the footer is not written to the previous
+     * log file before rolling over. This is useful when the footer is a
+     * structural delimiter (such as \c "]" for JsonLayout) that should only
+     * appear in normally-closed files.
      *
-     * \sa maxBackupIndex(), setMaxBackupIndex()
+     * The default is false (footer is always written).
+     *
+     * \sa skipFooterOnStartup(), setSkipFooterOnStartup()
      */
-    Q_PROPERTY(int maxBackupIndex READ maxBackupIndex WRITE setMaxBackupIndex)
-
-    /*!
-     * The property holds the maximum file size used by the appender.
-     *
-     * The default is 10 MB (10 * 1024 * 1024).
-     *
-     * \sa maximumFileSize(), setMaximumFileSize()
-     */
-    Q_PROPERTY(qint64 maximumFileSize READ maximumFileSize WRITE setMaximumFileSize)
-
-    /*!
-     * The property sets the maximum file size from a string value.
-     *
-     * \sa setMaxFileSize(), maximumFileSize()
-     */
-    Q_PROPERTY(QString maxFileSize READ maxFileSize WRITE setMaxFileSize)
+    Q_PROPERTY(bool skipFooterOnStartup READ skipFooterOnStartup WRITE setSkipFooterOnStartup)
 
 public:
     RollingFileAppender(QObject *parent = nullptr);
@@ -80,54 +83,36 @@ private:
     Q_DISABLE_COPY_MOVE(RollingFileAppender)
 
 public:
-    int maxBackupIndex() const;
-    qint64 maximumFileSize() const;
-    QString maxFileSize() const;
-    void setMaxBackupIndex(int maxBackupIndex);
-    void setMaximumFileSize(qint64 maximumFileSize);
-    void setMaxFileSize(const QString &maxFileSize);
+    void setTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
+    void addTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
+    TriggeringPolicySharedPtr triggeringPolicy() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mTriggeringPolicy;
+    }
+
+    void setRolloverStrategy(const RolloverStrategySharedPtr &strategy);
+    RolloverStrategySharedPtr rolloverStrategy() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mRolloverStrategy;
+    }
+
+    [[nodiscard]] bool skipFooterOnStartup() const { return mSkipFooterOnStartup; }
+    void setSkipFooterOnStartup(bool skip) { mSkipFooterOnStartup = skip; }
+
+    void activateOptions() override;
 
 protected:
     void append(const LoggingEvent &event) override;
-    void openFile() override;
+    virtual void rollOver();
 
 private:
-    void rollOver();
-
-private:
-    int mMaxBackupIndex;
-    qint64 mMaximumFileSize;
+    TriggeringPolicySharedPtr mTriggeringPolicy;
+    RolloverStrategySharedPtr mRolloverStrategy;
+    QString mBaseFileName;
+    bool mSkipFooterOnStartup = false;
 };
-
-inline int RollingFileAppender::maxBackupIndex() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mMaxBackupIndex;
-}
-
-inline qint64 RollingFileAppender::maximumFileSize() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mMaximumFileSize;
-}
-
-inline QString RollingFileAppender::maxFileSize() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return QString::number(mMaximumFileSize);
-}
-
-inline void RollingFileAppender::setMaxBackupIndex(int maxBackupIndex)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mMaxBackupIndex = maxBackupIndex;
-}
-
-inline void RollingFileAppender::setMaximumFileSize(qint64 maximumFileSize)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mMaximumFileSize = maximumFileSize;
-}
 
 } // namespace Log4Qt
 

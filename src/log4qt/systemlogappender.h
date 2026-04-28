@@ -54,7 +54,7 @@ public:
     explicit SystemLogAppender(QObject *parent = nullptr);
     ~SystemLogAppender() override;
 
-    bool requiresLayout() const override;
+    bool requiresLayout() const override { return true; }
     QString serviceName() const;
     void setServiceName(const QString &serviceName);
 
@@ -64,11 +64,6 @@ protected:
     QString mServiceName;
     std::string mIdent;
 };
-
-inline bool SystemLogAppender::requiresLayout() const
-{
-    return true;
-}
 
 }
 

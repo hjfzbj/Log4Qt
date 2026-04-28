@@ -20,9 +20,8 @@
 
 #include "loggingevent.h"
 
-#include "helpers/datetime.h"
 #include "helpers/initialisationhelper.h"
-#include "helpers/timestampprovider.h"
+#include "helpers/datetime.h"
 #include "logger.h"
 #include "mdc.h"
 #include "ndc.h"
@@ -46,7 +45,7 @@ LoggingEvent::Data::Data() :
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch())
+    mTimeStamp(DateTime::currentMSecsSinceEpoch())
 {
 }
 
@@ -60,7 +59,7 @@ LoggingEvent::Data::Data(const Logger *logger,
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch())
+    mTimeStamp(DateTime::currentMSecsSinceEpoch())
 {
 }
 
@@ -76,7 +75,7 @@ LoggingEvent::Data::Data(const Logger *logger,
     mProperties(MDC::context()),
     mSequenceNumber(nextSequenceNumber()),
     mThreadName(),
-    mTimeStamp(TimestampProvider::currentMSecsSinceEpoch()),
+    mTimeStamp(DateTime::currentMSecsSinceEpoch()),
     mContext(context),
     mCategoryName(std::move(categoryName))
 {
@@ -229,7 +228,7 @@ QString LoggingEvent::loggername() const
 {
     if (d->mLogger)
         return d->mLogger->name();
-    return QString();
+    return {};
 }
 
 QString LoggingEvent::toString() const

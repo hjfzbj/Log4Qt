@@ -42,6 +42,12 @@ private slots:
     
     void testFileAppenderPerformance();
     void testFileAppenderPerformance_data();
+
+    void testAppenderComparison();
+    void testAppenderComparison_data();
+
+    void testAppenderComparisonMultiThreaded();
+    void testAppenderComparisonMultiThreaded_data();
     
     void testMultiThreadedLoggingPerformance();
     void testMultiThreadedLoggingPerformance_data();
@@ -54,6 +60,9 @@ private slots:
     
     void testTimestampCacheWindowPerformance();
     void testTimestampCacheWindowPerformance_data();
+
+    void testISO8601FormattingPerformance();
+    void testISO8601FormattingPerformance_data();
 
     // LoggingEvent performance tests
     void testLoggingEventPerformance();

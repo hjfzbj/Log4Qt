@@ -19,7 +19,7 @@
  ******************************************************************************/
 
 #include "fileappender.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
 
 #include <QDir>
@@ -96,7 +96,7 @@ void FileAppender::activateOptions()
     if (mFileName.isEmpty())
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Activation of Appender '%1' that requires file and has no file set"),
-                                         APPENDER_ACTIVATE_MISSING_FILE_ERROR);
+                                         AppenderActivateMissingFileError);
         e << name();
         logger()->error(e);
         return;
@@ -128,7 +128,7 @@ bool FileAppender::checkEntryConditions() const
     if (!mFile || !mTextStream)
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without open file"),
-                                         APPENDER_NO_OPEN_FILE_ERROR);
+                                         AppenderNoOpenFileError);
         e << name();
         logger()->error(e);
         return false;
@@ -153,7 +153,7 @@ bool FileAppender::handleIoErrors() const
         return false;
 
     LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Unable to write to file '%1' for appender '%2'"),
-                                     APPENDER_WRITING_FILE_ERROR);
+                                     AppenderWritingFileError);
     e << mFileName << name();
     e.addCausingError(LogError(mFile->errorString(), mFile->error()));
     logger()->error(e);
@@ -193,17 +193,30 @@ void FileAppender::openFile()
     if (!mFile->open(mode))
     {
         LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Unable to open file '%1' for appender '%2'"),
-                                         APPENDER_OPENING_FILE_ERROR);
+                                         AppenderOpeningFileError);
         e << mFileName << name();
         e.addCausingError(LogError(mFile->errorString(), mFile->error()));
         logger()->error(e);
         return;
     }
+    // Skip the header when appending to a non-empty existing file —
+    // the header is already present from the previous run.
+    if (mAppendFile.load(std::memory_order_relaxed) && mFile->size() > 0)
+        mSuppressNextHeader = true;
     mTextStream = std::make_unique<QTextStream>(mFile.get());
     setWriter(mTextStream.get());
     logger()->debug(u"Opened file '%1' for appender '%2'"_s, mFile->fileName(), name());
 }
 
+
+void FileAppender::writeHeader() const
+{
+    if (mSuppressNextHeader) {
+        mSuppressNextHeader = false;
+        return;
+    }
+    WriterAppender::writeHeader();
+}
 
 bool FileAppender::removeFile(QFile &file) const
 {
@@ -211,7 +224,7 @@ bool FileAppender::removeFile(QFile &file) const
         return true;
 
     LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Unable to remove file '%1' for appender '%2'"),
-                                     APPENDER_REMOVE_FILE_ERROR);
+                                     AppenderRemoveFileError);
     e << file.fileName() << name();
     e.addCausingError(LogError(file.errorString(), file.error()));
     logger()->error(e);
@@ -226,7 +239,7 @@ bool FileAppender::renameFile(QFile &file,
         return true;
 
     LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Unable to rename file '%1' to '%2' for appender '%3'"),
-                                     APPENDER_RENAMING_FILE_ERROR);
+                                     AppenderRenamingFileError);
     e << file.fileName() << fileName << name();
     e.addCausingError(LogError(file.errorString(), file.error()));
     logger()->error(e);

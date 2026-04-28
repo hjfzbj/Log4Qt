@@ -50,7 +50,7 @@ public:
     virtual void setThreshold(Level level) = 0;
     virtual void setThreshold(const QString &threshold) = 0;
 
-    virtual bool isDisabled(Level level) = 0;
+    virtual bool isDisabled(Level level) const = 0;
     virtual void resetConfiguration() = 0;
     virtual void shutdown() = 0;
 };

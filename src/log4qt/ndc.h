@@ -42,7 +42,7 @@ namespace Log4Qt
 class LOG4QT_EXPORT NDC
 {
 private:
-    NDC();
+    NDC() {}
     Q_DISABLE_COPY_MOVE(NDC)
 
 public:
@@ -62,9 +62,6 @@ public:
 private:
     QThreadStorage<QStack<QString> *> mStack;
 };
-
-inline NDC::NDC()
-{}
 
 } // namespace Log4Qt
 

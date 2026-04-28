@@ -33,3 +33,7 @@ Makefile*
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+
+.qtcreator/
+.claude/
+build/

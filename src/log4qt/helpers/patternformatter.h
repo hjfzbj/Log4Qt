@@ -30,6 +30,8 @@
 #include <memory>
 #include <vector>
 
+class QObject;
+
 namespace Log4Qt
 {
 
@@ -76,61 +78,57 @@ public:
      */
     QString format(const LoggingEvent &loggingEvent) const;
 
-private:
     /*!
-     * If the character \a digit is a digit the digit is added to the
-     * integer \a value and the function returns true. Otherwise the
-     * function returns false.
+     * Returns true if the pattern contains at least one location-sensitive
+     * conversion character (\c %F, \c %L, \c %M, \c %l).
      *
-     * The function adds the digit by multiplying the existing value
-     * with ten and adding the numerical value of the digit. If the
-     * maximum integer value would be exceeded by the operation
-     * \a value is set to INT_MAX.
+     * Layouts that use a PatternFormatter delegate their \c requiresLocation()
+     * implementation to this method so that appenders can make informed
+     * decisions about location capture cost.
      */
-    bool addDigit(QChar digit,
-                  int &value);
+    bool requiresLocation() const;
 
     /*!
-     * Creates a PatternConverter based on the specified conversion
-     * character \a rChar, the formatting information
-     * \a formattingInfo and the option \a option.
+     * Sets the QObject whose properties are read by \c %P{key} converters.
      *
-     * The PatternConverter converter is appended to the list of
-     * PatternConverters.
+     * The \c %P{key} conversion specifier calls
+     * \c source->property(key.toLatin1()).toString() at format time, so it
+     * resolves both static Q_PROPERTY members and dynamic properties set via
+     * \c QObject::setProperty(). Passing \c nullptr disables \c %P{key}
+     * (converters produce empty strings).
+     *
+     * Because converters hold a pointer-to-pointer into the formatter's
+     * \c mPropertySource member (which is stable thanks to
+     * \c Q_DISABLE_COPY_MOVE), this method can be called at any time —
+     * including after the pattern was parsed — and the change takes effect
+     * immediately on the next \c format() call.
+     *
+     * \sa PatternHeaderFooterProvider::setHeaderPattern()
      */
+    void setPropertySource(const QObject *source);
+
+private:
+    bool addDigit(QChar digit,
+                  int &value) const;
+
     void createConverter(QChar character,
                          Log4Qt::FormattingInfo formattingInfo,
                          const QString &option = QString());
 
-    /*!
-     * Creates a LiteralPatternConverter with the string literal
-     * \a literal.
-     *
-     * The PatternConverter converter is appended to the list of
-     * PatternConverters.
-     */
     void createLiteralConverter(const QString &literal);
 
-    /*!
-     * Parses the pattern string specified on construction and creates
-     * PatternConverter according to it.
-     */
     void parse();
 
-    /*!
-     * Parses an integer option from an option string. If the string is
-     * not a valid integer or the integer value is less then zero, zero
-     * is returned. Returns the end of line seperator for the operating
-     * system.
-     */
-    int parseIntegeoption(QStringView option);
+    int parseIntegerOption(QStringView option);
 
 private:
     const QString mIgnoreCharacters;
     const QString mConversionCharacters;
     const QString mOptionCharacters;
     QString mPattern;
+    const QObject *mPropertySource = nullptr;
     std::vector<std::unique_ptr<PatternConverter>> mPatternConverters;
+    bool mRequiresLocation = false;
 };
 
 

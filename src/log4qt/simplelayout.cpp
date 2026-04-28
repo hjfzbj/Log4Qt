@@ -20,6 +20,7 @@
 
 #include "simplelayout.h"
 
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 
 namespace Log4Qt
@@ -28,9 +29,9 @@ namespace Log4Qt
 QString SimpleLayout::format(const LoggingEvent &event)
 {
     if (mShowLevel)
-        return event.level().toString() + u" - "_s + event.message() + Layout::endOfLine();
+        return event.level().toString() + u" - "_s + event.message() + AbstractLayout::endOfLine();
 
-    return event.message() + Layout::endOfLine();
+    return event.message() + AbstractLayout::endOfLine();
 }
 
 

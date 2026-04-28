@@ -21,7 +21,7 @@
 #ifndef LOG4QT_XMLCONFIGURATOR_H
 #define LOG4QT_XMLCONFIGURATOR_H
 
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 class QXmlStreamReader;
 
@@ -92,7 +92,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT XmlConfigurator
 {
 public:
-    XmlConfigurator();
+    XmlConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(XmlConfigurator)
@@ -131,9 +131,6 @@ private:
                                   const QString &prefix,
                                   Properties &properties);
 };
-
-inline XmlConfigurator::XmlConfigurator()
-{}
 
 } // namespace Log4Qt
 

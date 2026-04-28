@@ -82,9 +82,8 @@ arbitrary identifier used to reference the appender from loggers.
 |------------|-------|-------------|
 | `Console` | ConsoleAppender | Writes to stdout/stderr. |
 | `File` | FileAppender | Writes to a single file. |
-| `RollingFile` | RollingFileAppender | File with size-based rotation. |
-| `DailyRollingFile` | DailyRollingFileAppender | File with date-based rotation. |
-| `DailyFile` | DailyFileAppender | Daily file with configurable retention. |
+| `RollingFile` | RollingFileAppender | File with policy/strategy-based rotation. |
+| `DailyFile` | DailyRollingFileAppender | Daily file with configurable retention. |
 | `Async` | AsyncAppender | Asynchronous wrapper appender. |
 | `MainThread` | MainThreadAppender | Dispatches to the main thread. |
 | `Signal` | SignalAppender | Emits a Qt signal per log event. |
@@ -106,6 +105,7 @@ arbitrary identifier used to reference the appender from loggers.
 | `SimpleTimeLayout` | SimpleTimeLayout | Adds a timestamp to SimpleLayout. |
 | `TTCCLayout` | TTCCLayout | Time, thread, category, context layout. |
 | `XMLLayout` | XMLLayout | XML-formatted log events. |
+| `JsonLayout` | JsonLayout | NDJSON output (one JSON object per line). |
 | `DatabaseLayout` | DatabaseLayout | Layout for database appender (optional). |
 
 ### Built-in Filter Types
@@ -116,6 +116,275 @@ arbitrary identifier used to reference the appender from loggers.
 | `LevelMatch` | LevelMatchFilter | Matches a specific level. Properties: `levelToMatch`, `acceptOnMatch`. |
 | `LevelRange` | LevelRangeFilter | Matches a range of levels. Properties: `levelMin`, `levelMax`, `acceptOnMatch`. |
 | `StringMatch` | StringMatchFilter | Matches a substring. Properties: `stringToMatch`, `acceptOnMatch`. |
+
+### Triggering Policies (RollingFileAppender)
+
+`RollingFileAppender` uses pluggable **triggering policies** to decide WHEN to
+roll over and a **rollover strategy** to decide HOW. Multiple policies can be
+attached (OR-combined automatically via `CompositeTriggeringPolicy`).
+
+| Key | Description |
+|-----|-------------|
+| `appender.<alias>.policy.<palias>.type` | Triggering policy class name. |
+| `appender.<alias>.policy.<palias>.<property>` | Policy properties. |
+| `appender.<alias>.strategy.type` | Rollover strategy class name. |
+| `appender.<alias>.strategy.<property>` | Strategy properties. |
+
+If no strategy is specified, `DefaultRolloverStrategy` is used automatically.
+
+### Built-in Triggering Policy Types
+
+| Short Name | Class | Properties | Description |
+|------------|-------|------------|-------------|
+| `SizeBased` | SizeBasedTriggeringPolicy | `maxFileSize` (string, e.g. `10MB`), `maximumFileSize` (qint64) | Triggers when file size exceeds a threshold. Default: 10 MB. |
+| `TimeBased` | TimeBasedTriggeringPolicy | `datePattern` (QString), `interval` (int, default 1), `modulate` (bool, default false), `maxRandomDelay` (int, default 0) | Triggers based on a date/time pattern. The rollover frequency (minutely through monthly) is automatically inferred from the pattern. `interval` multiplies the base frequency (e.g. interval=4 with hourly = every 4 hours). `modulate` aligns rollovers to calendar boundaries. `maxRandomDelay` adds random jitter in seconds to prevent thundering herd. Default pattern: `'.'yyyy-MM-dd` (daily). |
+| `Cron` | CronTriggeringPolicy | `schedule` (QString) | Triggers on a Quartz-style cron schedule. 6-field format: `seconds minutes hours day-of-month month day-of-week`. Supports `*`, `?`, `,`, `-`, `/` specifiers and month/day-of-week names (JAN-DEC, SUN-SAT). Default: `0 0 0 * * ?` (midnight daily). |
+| `OnStartup` | OnStartupTriggeringPolicy | _(none)_ | Triggers once at application startup if the log file already exists and is non-empty. |
+
+### Built-in Rollover Strategy Types
+
+| Short Name | Class | Properties | Description |
+|------------|-------|------------|-------------|
+| `Default` | DefaultRolloverStrategy | `minIndex` (int, default 1), `maxIndex` (int, default 7) | Fixed-window numbered rotation: deletes the oldest backup at `maxIndex`, shifts existing backups up by one, and renames the active file to `.minIndex`. |
+| `Date` | DateRolloverStrategy | `datePattern` (QString, default `'.'yyyy-MM-dd`), `mode` (QString: `Suffix` or `Embedded`, default `Suffix`), `datedActiveFile` (bool, default `false`), `maxBackups` (int, default 0), `keepDays` (int, default 0) | Date-based rotation. In `Suffix` mode, renames the active file by appending a date suffix (e.g. `app.log.2026-03-28`). In `Embedded` mode, renames the active file to a date-embedded backup on rollover (e.g. `app_2026-03-28.log`). When `datedActiveFile=true`, the active file itself carries the date from the very first startup (built using `mode` — usually pair with `Embedded`), so each period writes directly to its own dated file and no rename happens on rollover. `maxBackups` limits retained backups (0 = unlimited); `keepDays` deletes backups older than N days (0 = disabled). |
+
+### RollingFileAppender Examples
+
+```properties
+# Size-based rolling with 5 numbered backups
+appender.rolling.type=RollingFile
+appender.rolling.file=logs/app.log
+appender.rolling.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.rolling.policy.SIZE.maxFileSize=10MB
+appender.rolling.strategy.type=DefaultRolloverStrategy
+appender.rolling.strategy.maxIndex=5
+appender.rolling.layout.type=PatternLayout
+appender.rolling.layout.conversionPattern=%d %p %c - %m%n
+
+# Cron-based rolling (midnight daily)
+appender.cron.type=RollingFile
+appender.cron.file=logs/app.log
+appender.cron.policy.CRON.type=CronTriggeringPolicy
+appender.cron.policy.CRON.schedule=0 0 0 * * ?
+appender.cron.strategy.type=DefaultRolloverStrategy
+appender.cron.strategy.maxIndex=30
+appender.cron.layout.type=SimpleLayout
+
+# Time-based rolling every 4 hours, aligned to clock boundaries, with jitter
+appender.time4h.type=RollingFile
+appender.time4h.file=logs/app.log
+appender.time4h.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.time4h.policy.TIME.datePattern='.'yyyy-MM-dd-HH
+appender.time4h.policy.TIME.interval=4
+appender.time4h.policy.TIME.modulate=true
+appender.time4h.policy.TIME.maxRandomDelay=30
+appender.time4h.strategy.type=DefaultRolloverStrategy
+appender.time4h.strategy.maxIndex=30
+appender.time4h.layout.type=SimpleLayout
+
+# Time-based rolling with date-suffix naming (replaces DailyRollingFileAppender)
+appender.daily.type=RollingFile
+appender.daily.file=logs/app.log
+appender.daily.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.daily.policy.TIME.datePattern='.'yyyy-MM-dd
+appender.daily.strategy.type=Date
+appender.daily.strategy.datePattern='.'yyyy-MM-dd
+appender.daily.strategy.maxBackups=30
+appender.daily.layout.type=SimpleLayout
+
+# Time-based rolling with date-in-filename naming (replaces DailyRollingFileAppender)
+appender.embed.type=RollingFile
+appender.embed.file=logs/app.log
+appender.embed.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.embed.policy.TIME.datePattern=_yyyy_MM_dd
+appender.embed.policy.STARTUP.type=OnStartupTriggeringPolicy
+appender.embed.strategy.type=Date
+appender.embed.strategy.datePattern=_yyyy_MM_dd
+appender.embed.strategy.mode=Embedded
+appender.embed.strategy.maxBackups=90
+appender.embed.layout.type=SimpleLayout
+
+# Dated active file: each day writes directly to its own file from startup
+# (no rename on rollover). The configured `file` acts as a template; with
+# mode=Embedded the date is inserted before the extension, so `logs/app.log`
+# becomes `logs/app_2026-04-20.log` on 2026-04-20.
+appender.dated.type=RollingFile
+appender.dated.file=logs/app.log
+appender.dated.policy.TIME.type=TimeBasedTriggeringPolicy
+appender.dated.policy.TIME.datePattern=_yyyy_MM_dd
+appender.dated.strategy.type=Date
+appender.dated.strategy.datePattern=_yyyy_MM_dd
+appender.dated.strategy.mode=Embedded
+appender.dated.strategy.datedActiveFile=true
+appender.dated.strategy.keepDays=30
+appender.dated.layout.type=SimpleLayout
+
+# Multiple policies (size + startup, OR-combined automatically)
+appender.multi.type=RollingFile
+appender.multi.file=logs/app.log
+appender.multi.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.multi.policy.SIZE.maxFileSize=50MB
+appender.multi.policy.STARTUP.type=OnStartupTriggeringPolicy
+appender.multi.strategy.type=DefaultRolloverStrategy
+appender.multi.strategy.maxIndex=10
+appender.multi.layout.type=SimpleLayout
+```
+
+---
+
+## Header/Footer Providers
+
+A `HeaderFooterProvider` supplies a **header** string written when a log file is
+opened and a **footer** string written when it is closed. This is useful for
+embedding session metadata — timestamps, software version, device serial number
+— in every log file without hardcoding text in the layout.
+
+### Priority Chain
+
+For each `header()` or `footer()` call on a layout, sources are checked in order
+and the first non-empty result wins:
+
+1. **Per-layout provider** (`appender.X.layout.headerFooterProvider.*`)
+2. **PatternLayout `headerPattern` / `footerPattern`** (PatternLayout only)
+3. **Static `header` / `footer` string** on the layout
+4. **Global provider** (`headerFooterProvider.*`)
+
+### Global Provider
+
+The global provider acts as a fallback for every layout that has no other
+header/footer configured.
+
+```properties
+headerFooterProvider.type=Pattern
+headerFooterProvider.headerPattern=--- Started %d{yyyy-MM-dd HH:mm:ss} ---
+headerFooterProvider.footerPattern=--- Stopped %d{yyyy-MM-dd HH:mm:ss} ---
+```
+
+### Per-Layout Provider
+
+A per-layout provider is attached to one specific appender's layout. It takes
+precedence over the global provider and over `PatternLayout` patterns.
+
+```properties
+appender.json.layout.headerFooterProvider.type=Pattern
+appender.json.layout.headerFooterProvider.headerPattern={"start":"%d{yyyy-MM-ddTHH:mm:ss}"}
+appender.json.layout.headerFooterProvider.footerPattern={"end":"%d{yyyy-MM-ddTHH:mm:ss}"}
+```
+
+### Built-in Provider Types
+
+| Alias | Class | Properties | Description |
+|-------|-------|------------|-------------|
+| `PatternHeaderFooterProvider`, `Pattern` | PatternHeaderFooterProvider | `headerPattern`, `footerPattern` | Formats header/footer with conversion patterns evaluated at file-open/close time. Supports all `PatternLayout` specifiers plus `%P{key}`. |
+
+### Conversion Specifiers in Patterns
+
+`PatternHeaderFooterProvider` accepts the same conversion specifiers as
+`PatternLayout`. Patterns are evaluated at file-open / file-close time so `%d`
+reflects the actual timestamp:
+
+| Specifier | Description |
+|-----------|-------------|
+| `%d{format}` | Current date/time at file open/close. Uses the same format strings as `PatternLayout` (`ISO8601`, `yyyy-MM-dd HH:mm:ss`, etc.). |
+| `%P{key}` | Value of the named property on the provider object (see below). |
+| `%r`, `%t`, `%%`, `%n`, … | All standard `PatternLayout` specifiers. |
+
+### Injecting Runtime Values with `%P{key}`
+
+`%P{key}` resolves the named key through Qt's property system
+(`QObject::property(key)`) on the provider at format time. Both static
+`Q_PROPERTY` members and dynamic properties set via `QObject::setProperty()`
+are supported.
+
+**Option 1 — Subclass with `Q_PROPERTY` (recommended for factory-created providers)**
+
+Define a provider subclass with the data you want to expose:
+
+```cpp
+class MyProvider : public Log4Qt::PatternHeaderFooterProvider {
+    Q_OBJECT
+    Q_PROPERTY(QString serialNumber READ serialNumber WRITE setSerialNumber)
+public:
+    QString serialNumber() const { return mSn; }
+    void setSerialNumber(const QString &v) { mSn = v; }
+private:
+    QString mSn;
+};
+```
+
+Register with the Factory before loading the config, capturing the runtime
+value in the lambda so it is available before `activateOptions()` writes the
+header:
+
+```cpp
+const QString sn = readSerialFromHardware();
+Log4Qt::Factory::registerHeaderFooterProvider(
+    "MyProvider",
+    [sn]() -> Log4Qt::HeaderFooterProvider * {
+        auto *p = new MyProvider;
+        p->setSerialNumber(sn);
+        return p;
+    });
+Log4Qt::PropertyConfigurator::configureAndWatch(configFile);
+```
+
+Config file — the pattern and any other `Q_PROPERTY` values are declared here;
+the serial number is injected by the application:
+
+```properties
+headerFooterProvider.type=MyProvider
+headerFooterProvider.headerPattern=S/N: %P{serialNumber} — started %d{yyyy-MM-dd HH:mm:ss}
+headerFooterProvider.footerPattern=S/N: %P{serialNumber} — stopped %d{yyyy-MM-dd HH:mm:ss}
+```
+
+**Option 2 — Dynamic property (no subclass)**
+
+```cpp
+auto *p = new Log4Qt::PatternHeaderFooterProvider;
+p->setHeaderPattern(u"S/N: %P{serialNumber}"_s);
+p->setProperty("serialNumber", u"SN-001"_s);   // QObject::setProperty
+Log4Qt::AbstractLayout::setGlobalHeaderFooterProvider(
+    Log4Qt::HeaderFooterProviderSharedPtr(p));
+```
+
+### Custom Provider
+
+Implement `HeaderFooterProvider` (or `PatternHeaderFooterProvider`) and register
+it with the Factory before the configuration file is loaded:
+
+```cpp
+Log4Qt::Factory::registerHeaderFooterProvider(
+    "MyCustomProvider",
+    []() -> Log4Qt::HeaderFooterProvider * {
+        return new MyCustomProvider;
+    });
+```
+
+Then reference it by name in the config file. All `Q_PROPERTY` members are set
+automatically from matching configuration keys — the same mechanism used for
+appenders and layouts:
+
+```properties
+headerFooterProvider.type=MyCustomProvider
+headerFooterProvider.myProperty=value
+```
+
+### Complete Example
+
+```properties
+# Global provider: plain text header/footer for all log files
+headerFooterProvider.type=Pattern
+headerFooterProvider.headerPattern=### Session started %d{yyyy-MM-dd HH:mm:ss} ###
+headerFooterProvider.footerPattern=### Session stopped %d{yyyy-MM-dd HH:mm:ss} ###
+
+# JSON appender with a per-layout provider for machine-readable records
+appender.json.type=File
+appender.json.file=${logpath}/app.json
+appender.json.layout.type=JsonLayout
+appender.json.layout.headerFooterProvider.type=Pattern
+appender.json.layout.headerFooterProvider.headerPattern={"event":"start","time":"%d{yyyy-MM-ddTHH:mm:ss}"}
+appender.json.layout.headerFooterProvider.footerPattern={"event":"end","time":"%d{yyyy-MM-ddTHH:mm:ss}"}
+```
 
 ---
 
@@ -201,11 +470,13 @@ appender.daily.layout.type=TTCCLayout
 appender.daily.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz
 appender.daily.layout.contextPrinting=true
 
-# Rolling file with filter
+# Rolling file with size-based policy and filter
 appender.rolling.type=RollingFile
 appender.rolling.file=${logpath}/errors.log
-appender.rolling.maxFileSize=10MB
-appender.rolling.maxBackupIndex=5
+appender.rolling.policy.SIZE.type=SizeBasedTriggeringPolicy
+appender.rolling.policy.SIZE.maxFileSize=10MB
+appender.rolling.strategy.type=DefaultRolloverStrategy
+appender.rolling.strategy.maxIndex=5
 appender.rolling.layout.type=PatternLayout
 appender.rolling.layout.conversionPattern=%-5p %d{ISO8601} [%t] %c - %m%n
 appender.rolling.filter.level.type=LevelMatch
@@ -271,8 +542,16 @@ stringified.
         "rolling": {
             "type": "RollingFile",
             "file": "${logpath}/errors.log",
-            "maxFileSize": "10MB",
-            "maxBackupIndex": 5,
+            "policy": {
+                "SIZE": {
+                    "type": "SizeBasedTriggeringPolicy",
+                    "maxFileSize": "10MB"
+                }
+            },
+            "strategy": {
+                "type": "DefaultRolloverStrategy",
+                "maxIndex": 5
+            },
             "layout": {
                 "type": "PatternLayout",
                 "conversionPattern": "%-5p %d{ISO8601} [%t] %c - %m%n"
@@ -356,8 +635,16 @@ attributes on an element are flattened as child properties.
         <rolling>
             <type>RollingFile</type>
             <file>${logpath}/errors.log</file>
-            <maxFileSize>10MB</maxFileSize>
-            <maxBackupIndex>5</maxBackupIndex>
+            <policy>
+                <SIZE>
+                    <type>SizeBasedTriggeringPolicy</type>
+                    <maxFileSize>10MB</maxFileSize>
+                </SIZE>
+            </policy>
+            <strategy>
+                <type>DefaultRolloverStrategy</type>
+                <maxIndex>5</maxIndex>
+            </strategy>
             <layout>
                 <type>PatternLayout</type>
                 <conversionPattern>%-5p %d{ISO8601} [%t] %c - %m%n</conversionPattern>
@@ -452,7 +739,7 @@ log4j.appender.console.target=STDOUT_TARGET
 log4j.appender.console.layout=org.apache.log4j.TTCCLayout
 log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz
 
-log4j.appender.daily=Log4Qt::DailyFileAppender
+log4j.appender.daily=Log4Qt::DailyRollingFileAppender
 log4j.appender.daily.file=${logpath}/app.log
 log4j.appender.daily.appendFile=true
 log4j.appender.daily.datePattern=_yyyy_MM_dd
@@ -490,12 +777,18 @@ s.setValue("rootLogger.appenderRef.0.ref", "A1");
 
 ## Custom Components
 
-Register custom appenders, layouts, or filters with the Factory before
-configuration:
+Register custom appenders, layouts, filters, triggering policies, or rollover
+strategies with the Factory before configuration:
 
 ```cpp
 Factory::registerAppender("MyAppender", []() -> Appender* {
     return new MyAppender;
+});
+Factory::registerTriggeringPolicy("MyPolicy", []() -> TriggeringPolicy* {
+    return new MyTriggeringPolicy;
+});
+Factory::registerRolloverStrategy("MyStrategy", []() -> RolloverStrategy* {
+    return new MyRolloverStrategy;
 });
 ```
 
@@ -504,6 +797,8 @@ Then use the registered name in any configuration file:
 ```properties
 appender.custom.type=MyAppender
 appender.custom.myProperty=value
+appender.custom.policy.P.type=MyPolicy
+appender.custom.strategy.type=MyStrategy
 ```
 
 Properties are set via Qt's meta-object system, so any `Q_PROPERTY` declared

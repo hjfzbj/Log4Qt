@@ -40,7 +40,7 @@ The library follows the Log4j architecture:
 
 - **Logger** (`logger.h`) — Named loggers arranged in a dot-separated hierarchy (e.g., `com.example.myapp` is a child of `com.example`). Entry point for all logging calls.
 - **LogManager** (`logmanager.h`) — Singleton registry; holds the root logger and all named loggers. Also manages the `LoggerRepository`.
-- **Appenders** — Output destinations. All inherit from `AppenderSkeleton` (which implements `Appender`). Examples: `ConsoleAppender`, `FileAppender`, `RollingFileAppender`, `DailyFileAppender`, `AsyncAppender`, `DatabaseAppender`, `TelnetAppender`, `SignalAppender`.
+- **Appenders** — Output destinations. All inherit from `AppenderSkeleton` (which implements `Appender`). Examples: `ConsoleAppender`, `FileAppender`, `RollingFileAppender`, `DailyRollingFileAppender`, `AsyncAppender`, `DatabaseAppender`, `TelnetAppender`, `SignalAppender`.
 - **Layouts** — Format `LoggingEvent` objects into strings. Examples: `PatternLayout`, `TTCCLayout`, `SimpleLayout`, `XMLLayout`.
 - **Filters** (`spi/filter.h`, `varia/`) — Chain of responsibility applied to events before an appender writes them.
 - **LoggingEvent** (`loggingevent.h`) — Immutable value object passed through the pipeline.

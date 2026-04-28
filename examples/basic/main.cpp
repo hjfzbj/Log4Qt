@@ -29,13 +29,69 @@
 #include "log4qt/ttcclayout.h"
 #include "log4qt/logmanager.h"
 #include "log4qt/fileappender.h"
+#include "log4qt/abstractlayout.h"
+#include "log4qt/jsonlayout.h"
+#include "log4qt/spi/headerfooterprovider.h"
 
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QScopedPointer>
 #include <QStringBuilder>
 #include <QString>
 #include <QFile>
 #include <QLoggingCategory>
+
+// Custom provider that writes the device serial number into every log file
+// header. The serial number is typically read from hardware at application
+// startup and injected once via setSerialNumber().
+class SerialNumberHeaderProvider : public Log4Qt::HeaderFooterProvider
+{
+public:
+    using Log4Qt::HeaderFooterProvider::HeaderFooterProvider;
+
+    void setSerialNumber(const QString &serialNumber)
+    {
+        mSerialNumber = serialNumber;
+    }
+
+    QString header() const override
+    {
+        return QStringLiteral("Device S/N: ") + mSerialNumber;
+    }
+
+private:
+    QString mSerialNumber;
+};
+
+// Provider for JSON log files: emits header and footer as JSON objects so
+// the serial number and session timestamps are machine-readable.
+class JsonSerialNumberHeaderProvider : public Log4Qt::HeaderFooterProvider
+{
+public:
+    using Log4Qt::HeaderFooterProvider::HeaderFooterProvider;
+
+    void setSerialNumber(const QString &serialNumber)
+    {
+        mSerialNumber = serialNumber;
+    }
+
+    QString header() const override
+    {
+        return QStringLiteral(R"({"event":"start","serialNumber":"%1","time":"%2"})")
+            .arg(mSerialNumber,
+                 QDateTime::currentDateTime().toString(Qt::ISODate));
+    }
+
+    QString footer() const override
+    {
+        return QStringLiteral(R"({"event":"end","serialNumber":"%1","time":"%2"})")
+            .arg(mSerialNumber,
+                 QDateTime::currentDateTime().toString(Qt::ISODate));
+    }
+
+private:
+    QString mSerialNumber;
+};
 
 static void initializeRootLogger();
 static void shutdownRootLogger();
@@ -102,13 +158,21 @@ void logShutdown()
 
 void setupRootLogger(const QString &introMessage)
 {
+    // Register the serial number provider before any appender is activated.
+    // Every file opened after this point will have the serial number in its
+    // header line.
+    auto *provider = new SerialNumberHeaderProvider;
+    provider->setSerialNumber(QStringLiteral("SN-20260001"));   // read from hardware in a real application
+    Log4Qt::AbstractLayout::setGlobalHeaderFooterProvider(
+        Log4Qt::HeaderFooterProviderSharedPtr(provider));
+
     // Create a layout
     auto logger = Log4Qt::Logger::rootLogger();
     auto *layout = new Log4Qt::TTCCLayout();
     layout->setName(QStringLiteral("My Layout"));
     layout->activateOptions();
     // Create a console appender
-    Log4Qt::ConsoleAppender *consoleAppender = new Log4Qt::ConsoleAppender(layout, Log4Qt::ConsoleAppender::STDOUT_TARGET);
+    Log4Qt::ConsoleAppender *consoleAppender = new Log4Qt::ConsoleAppender(layout, Log4Qt::ConsoleAppender::StdOut);
     consoleAppender->setName(QStringLiteral("My Appender"));
     consoleAppender->activateOptions();
     // Add appender on root logger
@@ -119,6 +183,18 @@ void setupRootLogger(const QString &introMessage)
     fileAppender->activateOptions();
     // Add appender on root logger
     logger->addAppender(fileAppender);
+    // Create a JSON file appender — serial number and session timestamps
+    // are written as JSON objects in the header and footer lines.
+    auto *jsonSerialProvider = new JsonSerialNumberHeaderProvider;
+    jsonSerialProvider->setSerialNumber(QStringLiteral("SN-20260001"));
+    auto *jsonLayout = new Log4Qt::JsonLayout();
+    jsonLayout->setName(QStringLiteral("My JSON Layout"));
+    jsonLayout->setHeaderFooterProvider(Log4Qt::HeaderFooterProviderSharedPtr(jsonSerialProvider));
+    jsonLayout->activateOptions();
+    auto *jsonFileAppender = new Log4Qt::FileAppender(jsonLayout, QCoreApplication::applicationDirPath() + "/basic.json", true);
+    jsonFileAppender->setName(QStringLiteral("My JSON file appender"));
+    jsonFileAppender->activateOptions();
+    logger->addAppender(jsonFileAppender);
 
     // Set level to info
     logger->setLevel(Log4Qt::Level::INFO_INT);
@@ -139,4 +215,5 @@ void shutDownRootLogger(const QString &extroMessage)
         logger->info(extroMessage);
     logger->removeAllAppenders();
     logger->loggerRepository()->shutdown();
+    Log4Qt::AbstractLayout::setGlobalHeaderFooterProvider({});
 }

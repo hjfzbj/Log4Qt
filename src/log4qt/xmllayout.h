@@ -21,17 +21,18 @@
 #ifndef LOG4QT_XMLLAYOUT_H
 #define LOG4QT_XMLLAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 
 namespace Log4Qt
 {
 
-class LOG4QT_EXPORT XMLLayout : public Layout
+class LOG4QT_EXPORT XMLLayout : public AbstractStringLayout
 {
     Q_OBJECT
 public:
     explicit XMLLayout(QObject *parent = nullptr);
 
+    QString contentType() const override;
     QString format(const LoggingEvent &event) override;
 
 private:

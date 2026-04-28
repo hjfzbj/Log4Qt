@@ -25,10 +25,14 @@
 #include "helpers/optionconverter.h"
 #include "helpers/properties.h"
 #include "appenderskeleton.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "logger.h"
 #include "logmanager.h"
 #include "loggerrepository.h"
+#include "rollingfileappender.h"
+#include "spi/triggeringpolicy.h"
+#include "spi/rolloverstrategy.h"
+#include "spi/headerfooterprovider.h"
 #include "varia/listappender.h"
 
 #include <QFile>
@@ -108,7 +112,7 @@ void PropertyConfigurator::configureFromFile(const QString &configFileName,
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to open property file '%1'"),
-                                  CONFIGURATOR_OPENING_FILE_ERROR,
+                                  ConfiguratorOpeningFileError,
                                   "Log4Qt::PropertyConfigurator");
         e << configFileName;
         e.addCausingError(LogError(file.errorString(), file.error()));
@@ -120,7 +124,7 @@ void PropertyConfigurator::configureFromFile(const QString &configFileName,
     if (file.error())
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to read property file '%1'"),
-                                  CONFIGURATOR_READING_FILE_ERROR,
+                                  ConfiguratorReadingFileError,
                                   "Log4Qt::PropertyConfigurator");
         e << configFileName;
         e.addCausingError(LogError(file.errorString(), file.error()));
@@ -224,6 +228,25 @@ void PropertyConfigurator::configureGlobalSettings(const Properties &properties,
         LogManager::setMessagePattern(value);
         staticLogger()->debug(u"Set message pattern to %1"_s, LogManager::messagePattern());
     }
+
+    // Global HeaderFooterProvider
+    value = OptionConverter::findAndSubst(properties, u"headerFooterProvider.type"_s);
+    if (!value.isNull())
+    {
+        auto provider = HeaderFooterProviderSharedPtr(Factory::createHeaderFooterProvider(value));
+        if (provider)
+        {
+            QStringList providerExclusions = {u"type"_s};
+            setProperties(properties, u"headerFooterProvider."_s, providerExclusions, provider.get());
+            provider->activateOptions();
+            AbstractLayout::setGlobalHeaderFooterProvider(std::move(provider));
+            staticLogger()->debug(u"Set global HeaderFooterProvider of type '%1'"_s, value);
+        }
+        else
+        {
+            staticLogger()->warn(u"Unable to create global HeaderFooterProvider of class '%1'"_s, value);
+        }
+    }
 }
 
 
@@ -242,7 +265,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
         if (typeName.isNull())
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing appender type for appender alias '%1'"),
-                                      CONFIGURATOR_MISSING_APPENDER_ERROR,
+                                      ConfiguratorMissingAppenderError,
                                       "Log4Qt::PropertyConfigurator");
             e << alias;
             staticLogger()->error(e);
@@ -261,7 +284,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
         if (!appender)
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create appender of class '%1' named '%2'"),
-                                      CONFIGURATOR_UNKNOWN_APPENDER_CLASS_ERROR,
+                                      ConfiguratorUnknownAppenderClassError,
                                       "Log4Qt::PropertyConfigurator");
             e << typeName << appenderName;
             staticLogger()->error(e);
@@ -277,7 +300,7 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
             if (!layout)
             {
                 LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to create layout of class '%1' requested by appender '%2'"),
-                                          CONFIGURATOR_UNKNOWN_LAYOUT_CLASS_ERROR,
+                                          ConfiguratorUnknownLayoutClassError,
                                           "Log4Qt::PropertyConfigurator");
                 e << layoutType << appenderName;
                 staticLogger()->error(e);
@@ -287,15 +310,34 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
             // Set layout properties
             const QString layoutPrefix = prefix + u"layout."_s;
             QStringList layoutExclusions;
-            layoutExclusions << u"type"_s;
+            layoutExclusions << u"type"_s << u"headerFooterProvider"_s;
             setProperties(properties, layoutPrefix, layoutExclusions, layout.data());
+
+            // Per-layout HeaderFooterProvider
+            QString providerType = OptionConverter::findAndSubst(properties, layoutPrefix + u"headerFooterProvider.type"_s);
+            if (!providerType.isNull())
+            {
+                auto provider = HeaderFooterProviderSharedPtr(Factory::createHeaderFooterProvider(providerType));
+                if (provider)
+                {
+                    QStringList providerExclusions = {u"type"_s};
+                    setProperties(properties, layoutPrefix + u"headerFooterProvider."_s, providerExclusions, provider.get());
+                    provider->activateOptions();
+                    layout->setHeaderFooterProvider(std::move(provider));
+                }
+                else
+                {
+                    staticLogger()->warn(u"Unable to create layout HeaderFooterProvider of class '%1' for appender '%2'"_s, providerType, appenderName);
+                }
+            }
+
             layout->activateOptions();
             appender->setLayout(layout);
         }
         else if (appender->requiresLayout())
         {
             LogError e = LOG4QT_ERROR(QT_TR_NOOP("Missing layout definition for appender '%1'"),
-                                      CONFIGURATOR_MISSING_LAYOUT_ERROR,
+                                      ConfiguratorMissingLayoutError,
                                       "Log4Qt::PropertyConfigurator");
             e << appenderName;
             staticLogger()->error(e);
@@ -330,9 +372,61 @@ void PropertyConfigurator::configureAppenders(const Properties &properties)
                 staticLogger()->warn(u"Appender '%1' does not support filters (not an AppenderSkeleton)"_s, appenderName);
         }
 
+        // Triggering policies (multiple, like filters)
+        const QString policyPrefix = prefix + u"policy."_s;
+        QStringList policyAliases = extractAliases(properties, policyPrefix);
+        for (const auto &policyAlias : policyAliases)
+        {
+            const QString pPrefix = policyPrefix + policyAlias + u"."_s;
+            QString policyType = OptionConverter::findAndSubst(properties, pPrefix + u"type"_s);
+            if (policyType.isNull())
+                continue;
+
+            TriggeringPolicy *policy = Factory::createTriggeringPolicy(policyType);
+            if (!policy)
+            {
+                staticLogger()->warn(u"Unable to create triggering policy of class '%1' for appender '%2'"_s, policyType, appenderName);
+                continue;
+            }
+
+            QStringList policyExclusions;
+            policyExclusions << u"type"_s;
+            setProperties(properties, pPrefix, policyExclusions, policy);
+            policy->activateOptions();
+
+            if (auto *rolling = qobject_cast<RollingFileAppender *>(appender.data()))
+                rolling->addTriggeringPolicy(TriggeringPolicySharedPtr(policy));
+            else
+                staticLogger()->warn(u"Triggering policy specified for non-RollingFileAppender '%1'"_s, appenderName);
+        }
+
+        // Rollover strategy (single, like layout)
+        QString strategyType = OptionConverter::findAndSubst(properties, prefix + u"strategy.type"_s);
+        if (!strategyType.isNull())
+        {
+            RolloverStrategy *strategy = Factory::createRolloverStrategy(strategyType);
+            if (!strategy)
+            {
+                staticLogger()->warn(u"Unable to create rollover strategy of class '%1' for appender '%2'"_s, strategyType, appenderName);
+            }
+            else
+            {
+                const QString strategyPrefix = prefix + u"strategy."_s;
+                QStringList strategyExclusions;
+                strategyExclusions << u"type"_s;
+                setProperties(properties, strategyPrefix, strategyExclusions, strategy);
+                strategy->activateOptions();
+
+                if (auto *rolling = qobject_cast<RollingFileAppender *>(appender.data()))
+                    rolling->setRolloverStrategy(RolloverStrategySharedPtr(strategy));
+                else
+                    staticLogger()->warn(u"Rollover strategy specified for non-RollingFileAppender '%1'"_s, appenderName);
+            }
+        }
+
         // Set remaining appender properties
         QStringList exclusions;
-        exclusions << u"type"_s << u"name"_s << u"layout"_s << u"filter"_s;
+        exclusions << u"type"_s << u"name"_s << u"layout"_s << u"filter"_s << u"policy"_s << u"strategy"_s;
         setProperties(properties, prefix, exclusions, appender.data());
 
         if (auto *skeleton = qobject_cast<AppenderSkeleton *>(appender.data()))
@@ -457,7 +551,7 @@ void PropertyConfigurator::configureLoggers(const Properties &properties,
 void PropertyConfigurator::setProperties(const Properties &properties,
         const QString &prefix,
         const QStringList &exclusion,
-        QObject *object)
+        QObject *object) const
 {
     Q_ASSERT_X(!prefix.isEmpty(), "PropertyConfigurator::setProperties()", "rPrefix must not be empty.");
     Q_ASSERT_X(object, "PropertyConfigurator::setProperties()", "pObject must not be null.");
@@ -548,6 +642,17 @@ Properties PropertyConfigurator::translateLegacyProperties(const Properties &pro
         QString value = properties.property(oldKey);
         if (!value.isNull())
             result.setProperty(newKey, value);
+    }
+
+    // Pass 3a: Global HeaderFooterProvider (log4j.headerFooterProvider.*)
+    const QString providerOldPrefix = u"log4j.headerFooterProvider."_s;
+    const QString providerNewPrefix = u"headerFooterProvider."_s;
+    for (const auto &key : allKeys)
+    {
+        if (!key.startsWith(providerOldPrefix))
+            continue;
+        result.setProperty(providerNewPrefix + key.mid(providerOldPrefix.length()),
+                           properties.property(key));
     }
 
     // Pass 3: Appenders (log4j.appender.*)

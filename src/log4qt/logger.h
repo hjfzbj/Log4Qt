@@ -150,7 +150,7 @@ namespace Log4Qt
             private:                                                              \
                     mutable Log4Qt::ClassLogger mLog4QtClassLogger;                   \
             public:                                                               \
-                    inline Log4Qt::Logger *logger() const                             \
+                    Log4Qt::Logger *logger() const                             \
                     {   return mLog4QtClassLogger.logger(this);    }                  \
             private:
 

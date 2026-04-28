@@ -23,8 +23,9 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
+#include "log4qt/abstractlayout.h"
 #include "log4qt/consoleappender.h"
-#include "log4qt/dailyfileappender.h"
+#include "log4qt/dailyrollingfileappender.h"
 #include "log4qt/helpers/configuratorhelper.h"
 #include "log4qt/helpers/properties.h"
 #include "log4qt/logger.h"
@@ -32,6 +33,7 @@
 #include "log4qt/patternlayout.h"
 #include "log4qt/propertyconfigurator.h"
 #include "log4qt/simplelayout.h"
+#include "log4qt/spi/headerfooterprovider.h"
 #include "log4qt/ttcclayout.h"
 #include "log4qt/varia/levelmatchfilter.h"
 #include "log4qt/loggerrepository.h"
@@ -75,6 +77,11 @@ private Q_SLOTS:
     void testLegacyRealWorldConfig();
     void testLegacyVariableSubstitution();
     void testLegacyCrossReferenceSubstitution();
+    // HeaderFooterProvider configuration tests
+    void testGlobalHeaderFooterProvider();
+    void testPerLayoutHeaderFooterProvider();
+    void testLegacyGlobalHeaderFooterProvider();
+    void testPerLayoutProviderOverridesGlobal();
 
 private:
     void writePropertiesFile(const QString &path, const QByteArray &content);
@@ -82,6 +89,7 @@ private:
 
 void PropertyConfiguratorTest::cleanup()
 {
+    AbstractLayout::setGlobalHeaderFooterProvider({});
     LogManager::resetConfiguration();
 }
 
@@ -288,7 +296,7 @@ void PropertyConfiguratorTest::testVariableSubstitution()
     QVERIFY(PropertyConfigurator::configure(props));
 
     Logger *root = LogManager::rootLogger();
-    auto *dailyApp = qobject_cast<DailyFileAppender *>(root->appenders().first().data());
+    auto *dailyApp = qobject_cast<DailyRollingFileAppender *>(root->appenders().first().data());
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"myapp"_s));
     QCOMPARE(dailyApp->appendFile(), true);
@@ -457,13 +465,13 @@ void PropertyConfiguratorTest::testRealWorldConfig()
     // Verify both appenders exist
     auto appenders = root->appenders();
     ConsoleAppender *consoleApp = nullptr;
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : appenders)
     {
         if (a->name() == u"console"_s)
             consoleApp = qobject_cast<ConsoleAppender *>(a.data());
         else if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
 
     // Console appender
@@ -612,7 +620,7 @@ void PropertyConfiguratorTest::testLegacyRealWorldConfig()
         "log4j.appender.console.layout.dateFormat=dd.MM.yyyy hh:mm:ss.zzz\n"
         "log4j.appender.console.layout.contextPrinting=true\n"
         "\n"
-        "log4j.appender.daily=Log4Qt::DailyFileAppender\n"
+        "log4j.appender.daily=Log4Qt::DailyRollingFileAppender\n"
         "log4j.appender.daily.file=${logpath}/myapp.log\n"
         "log4j.appender.daily.appendFile=true\n"
         "log4j.appender.daily.datePattern=_yyyy_MM_dd\n"
@@ -636,13 +644,13 @@ void PropertyConfiguratorTest::testLegacyRealWorldConfig()
     // Verify both appenders exist
     auto appenders = root->appenders();
     ConsoleAppender *consoleApp = nullptr;
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : appenders)
     {
         if (a->name() == u"console"_s)
             consoleApp = qobject_cast<ConsoleAppender *>(a.data());
         else if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
 
     // Console appender
@@ -674,7 +682,7 @@ void PropertyConfiguratorTest::testLegacyVariableSubstitution()
     // Variable defined without log4j. prefix, used in log4j. keys
     Properties props;
     props.setProperty(u"logpath"_s, logDir);
-    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyRollingFileAppender"_s);
     props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
     props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
     props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
@@ -684,7 +692,7 @@ void PropertyConfiguratorTest::testLegacyVariableSubstitution()
     QVERIFY(PropertyConfigurator::configure(props));
 
     Logger *root = LogManager::rootLogger();
-    auto *dailyApp = qobject_cast<DailyFileAppender *>(root->appenders().first().data());
+    auto *dailyApp = qobject_cast<DailyRollingFileAppender *>(root->appenders().first().data());
     QVERIFY(dailyApp);
     QVERIFY(dailyApp->file().contains(u"app"_s));
     QVERIFY(dailyApp->file().contains(logDir));
@@ -704,7 +712,7 @@ void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
     props.setProperty(u"log4j.appender.console"_s, u"org.apache.log4j.ConsoleAppender"_s);
     props.setProperty(u"log4j.appender.console.layout"_s, u"org.apache.log4j.TTCCLayout"_s);
     props.setProperty(u"log4j.appender.console.layout.dateFormat"_s, u"ISO8601"_s);
-    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyFileAppender"_s);
+    props.setProperty(u"log4j.appender.daily"_s, u"Log4Qt::DailyRollingFileAppender"_s);
     props.setProperty(u"log4j.appender.daily.file"_s, u"${logpath}/app.log"_s);
     props.setProperty(u"log4j.appender.daily.appendFile"_s, u"true"_s);
     props.setProperty(u"log4j.appender.daily.datePattern"_s, u"_yyyy_MM_dd"_s);
@@ -717,16 +725,100 @@ void PropertyConfiguratorTest::testLegacyCrossReferenceSubstitution()
     Logger *root = LogManager::rootLogger();
     QCOMPARE(root->appenders().count(), 2);
 
-    DailyFileAppender *dailyApp = nullptr;
+    DailyRollingFileAppender *dailyApp = nullptr;
     for (const auto &a : root->appenders())
     {
         if (a->name() == u"daily"_s)
-            dailyApp = qobject_cast<DailyFileAppender *>(a.data());
+            dailyApp = qobject_cast<DailyRollingFileAppender *>(a.data());
     }
     QVERIFY(dailyApp);
     auto *ttcc = qobject_cast<TTCCLayout *>(dailyApp->layout().data());
     QVERIFY(ttcc);
     QCOMPARE(ttcc->dateFormat(), u"ISO8601"_s);
+}
+
+// --- HeaderFooterProvider configuration ---
+
+void PropertyConfiguratorTest::testGlobalHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"headerFooterProvider.type"_s,          u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"headerFooterProvider.headerPattern"_s, u"Session start"_s);
+    props.setProperty(u"headerFooterProvider.footerPattern"_s, u"Session end"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto provider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"Session start"_s);
+    QCOMPARE(provider->footer(), u"Session end"_s);
+}
+
+void PropertyConfiguratorTest::testPerLayoutHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"appender.console.type"_s,                                          u"Console"_s);
+    props.setProperty(u"appender.console.layout.type"_s,                                   u"PatternLayout"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.type"_s,              u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.headerPattern"_s,     u"File opened"_s);
+    props.setProperty(u"rootLogger.level"_s,                                               u"INFO"_s);
+    props.setProperty(u"rootLogger.appenderRef.0.ref"_s,                                   u"console"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(
+        LogManager::rootLogger()->appenders().first().data());
+    QVERIFY(consoleApp);
+
+    auto *layout = qobject_cast<PatternLayout *>(consoleApp->layout().data());
+    QVERIFY(layout);
+
+    auto provider = layout->headerFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"File opened"_s);
+    // Global provider is not set — only the per-layout one
+    QVERIFY(!AbstractLayout::globalHeaderFooterProvider());
+}
+
+void PropertyConfiguratorTest::testLegacyGlobalHeaderFooterProvider()
+{
+    Properties props;
+    props.setProperty(u"log4j.headerFooterProvider.type"_s,          u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"log4j.headerFooterProvider.headerPattern"_s, u"Legacy header"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    auto provider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(provider);
+    QCOMPARE(provider->header(), u"Legacy header"_s);
+}
+
+void PropertyConfiguratorTest::testPerLayoutProviderOverridesGlobal()
+{
+    Properties props;
+    props.setProperty(u"headerFooterProvider.type"_s,                                      u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"headerFooterProvider.headerPattern"_s,                             u"Global header"_s);
+    props.setProperty(u"appender.console.type"_s,                                          u"Console"_s);
+    props.setProperty(u"appender.console.layout.type"_s,                                   u"PatternLayout"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.type"_s,              u"PatternHeaderFooterProvider"_s);
+    props.setProperty(u"appender.console.layout.headerFooterProvider.headerPattern"_s,     u"Per-layout header"_s);
+    props.setProperty(u"rootLogger.level"_s,                                               u"INFO"_s);
+    props.setProperty(u"rootLogger.appenderRef.0.ref"_s,                                   u"console"_s);
+
+    QVERIFY(PropertyConfigurator::configure(props));
+
+    // Global provider is set
+    auto globalProvider = AbstractLayout::globalHeaderFooterProvider();
+    QVERIFY(globalProvider);
+    QCOMPARE(globalProvider->header(), u"Global header"_s);
+
+    // Per-layout provider wins over global
+    auto *consoleApp = qobject_cast<ConsoleAppender *>(
+        LogManager::rootLogger()->appenders().first().data());
+    QVERIFY(consoleApp);
+    auto *layout = qobject_cast<PatternLayout *>(consoleApp->layout().data());
+    QVERIFY(layout);
+    QCOMPARE(layout->header(), u"Per-layout header"_s);
 }
 
 QTEST_GUILESS_MAIN(PropertyConfiguratorTest)

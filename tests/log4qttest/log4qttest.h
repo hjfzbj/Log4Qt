@@ -60,6 +60,7 @@ private Q_SLOTS:
     void DateTime_milliseconds();
     void PatternFormatter_data();
     void PatternFormatter();
+    void PatternFormatter_propertySource();
     void Properties_default_data();
     void Properties_default();
     void Properties_names();
@@ -109,7 +110,7 @@ private Q_SLOTS:
     void AppenderSkeleton_filter();
     void BasicConfigurator();
     void FileAppender();
-    void DailyRollingFileAppender();
+    void RollingFileAppender_dateSuffix();
     void LoggingEvent_stream_data();
     void LoggingEvent_stream();
     void LoggingEvent_threadName();
@@ -128,7 +129,7 @@ private Q_SLOTS:
     void RollingFileAppender();
 
 private:
-    QString dailyRollingFileAppenderSuffix(QDateTime dateTime);
+    static QString dateSuffix(const QDateTime &dateTime);
     QString enumValueToKey(QObject *pObject,
                            const char *pEnumeration,
                            int value);

@@ -20,29 +20,29 @@
 
 #include "patternlayout.h"
 
+#include "abstractstringlayout.h"
 #include "helpers/patternformatter.h"
 #include "loggingevent.h"
 
 namespace Log4Qt
 {
 
-
 PatternLayout::PatternLayout(QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
-    setConversionPattern(DEFAULT_CONVERSION_PATTERN);
+    setConversionPattern(DefaultPattern);
 }
 
 PatternLayout::PatternLayout(const QString &pattern,
                              QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
     setConversionPattern(pattern);
 }
 
 PatternLayout::PatternLayout(ConversionPattern conversionPattern,
                              QObject *parent) :
-    Layout(parent)
+    AbstractStringLayout(parent)
 {
     setConversionPattern(conversionPattern);
 }
@@ -51,10 +51,10 @@ void PatternLayout::setConversionPattern(ConversionPattern conversionPattern)
 {
     switch (conversionPattern)
     {
-    case DEFAULT_CONVERSION_PATTERN:
+    case DefaultPattern:
         setConversionPattern(u"%m%n"_s);
         break;
-    case TTCC_CONVERSION_PATTERN:
+    case TtccPattern:
         setConversionPattern(u"%r [%t] %p %c %x - %m%n"_s);
         break;
     default:
@@ -70,9 +70,50 @@ QString PatternLayout::format(const LoggingEvent &event)
     return mpPatternFormatter->format(event);
 }
 
+bool PatternLayout::requiresLocation() const
+{
+    return mpPatternFormatter && mpPatternFormatter->requiresLocation();
+}
+
 void PatternLayout::updatePatternFormatter()
 {
     mpPatternFormatter = std::make_unique<PatternFormatter>(mPattern);
+}
+
+void PatternLayout::setHeaderPattern(const QString &pattern)
+{
+    mHeaderPattern = pattern;
+    mHeaderFormatter = pattern.isEmpty() ? nullptr
+                                         : std::make_unique<PatternFormatter>(pattern);
+}
+
+void PatternLayout::setFooterPattern(const QString &pattern)
+{
+    mFooterPattern = pattern;
+    mFooterFormatter = pattern.isEmpty() ? nullptr
+                                         : std::make_unique<PatternFormatter>(pattern);
+}
+
+QString PatternLayout::header() const
+{
+    if (auto p = headerFooterProvider()) {
+        QString h = p->header();
+        if (!h.isEmpty()) return h;
+    }
+    if (mHeaderFormatter)
+        return mHeaderFormatter->format(LoggingEvent{});
+    return AbstractStringLayout::header();
+}
+
+QString PatternLayout::footer() const
+{
+    if (auto p = headerFooterProvider()) {
+        QString f = p->footer();
+        if (!f.isEmpty()) return f;
+    }
+    if (mFooterFormatter)
+        return mFooterFormatter->format(LoggingEvent{});
+    return AbstractStringLayout::footer();
 }
 
 } // namespace Log4Qt

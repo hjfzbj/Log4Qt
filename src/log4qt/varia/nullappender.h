@@ -43,7 +43,7 @@ public:
     ~NullAppender() override;
 
 public:
-    bool requiresLayout() const override;
+    bool requiresLayout() const override { return false; }
 
 protected:
     void append(const LoggingEvent &event) override;
@@ -51,11 +51,6 @@ protected:
 private:
     Q_DISABLE_COPY_MOVE(NullAppender)
 };
-
-inline bool NullAppender::requiresLayout() const
-{
-    return false;
-}
 
 } // namespace Log4Qt
 

@@ -21,7 +21,7 @@
 #ifndef LOG4QT_APPENDER_H
 #define LOG4QT_APPENDER_H
 
-#include "layout.h"
+#include "abstractlayout.h"
 #include "log4qtdefs.h"
 #include "log4qtsharedptr.h"
 #include "spi/filter.h"

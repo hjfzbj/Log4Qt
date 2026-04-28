@@ -21,128 +21,57 @@
 #ifndef LOG4QT_DAILYROLLINGFILEAPPENDER_H
 #define LOG4QT_DAILYROLLINGFILEAPPENDER_H
 
-#include "fileappender.h"
+#include "rollingfileappender.h"
 
-#include <QDateTime>
+#include <QDate>
+#include <QString>
 
 namespace Log4Qt
 {
 
 /*!
  * \brief The class DailyRollingFileAppender extends FileAppender so that the
- *        underlying file is rolled over at a specified frequency.
- *
- * \note All the functions declared in this class are thread-safe.
- *
- * \note The ownership and lifetime of objects of this class are managed. See
- *       \ref Ownership "Object ownership" for more details.
+ * a log file is created for each day
  */
-class LOG4QT_EXPORT DailyRollingFileAppender : public FileAppender
+class LOG4QT_EXPORT DailyRollingFileAppender : public RollingFileAppender
 {
     Q_OBJECT
 
-    /*!
-     * The property holds the date pattern used by the appender.
-     *
-     * The default is DAILY_ROLLOVER for rollover at midnight each day.
-     *
-     * \sa datePattern(), setDatePattern()
-     */
+    //! The property holds the date pattern used by the appender.
     Q_PROPERTY(QString datePattern READ datePattern WRITE setDatePattern)
 
-public:
-    /*!
-     * The enum DatePattern defines constants for date patterns.
-     *
-     * \sa setDatePattern(DatePattern)
+    /**
+     * Number of days that old log files will be kept on disk.
+     * Set to a positive value to enable automatic deletion. Per default, all files are kept. Check
+     * for obsolete files happens once a day.
      */
-    enum DatePattern
-    {
-        /*! The minutely date pattern string is "'.'yyyy-MM-dd-hh-mm". */
-        MINUTELY_ROLLOVER = 0,
-        /*! The hourly date pattern string is "'.'yyyy-MM-dd-hh". */
-        HOURLY_ROLLOVER,
-        /*! The half-daily date pattern string is "'.'yyyy-MM-dd-a". */
-        HALFDAILY_ROLLOVER,
-        /*! The daily date pattern string is "'.'yyyy-MM-dd". */
-        DAILY_ROLLOVER,
-        /*! The weekly date pattern string is "'.'yyyy-ww". */
-        WEEKLY_ROLLOVER,
-        /*! The monthly date pattern string is "'.'yyyy-MM". */
-        MONTHLY_ROLLOVER
-    };
-    Q_ENUM(DatePattern)
+    Q_PROPERTY(int keepDays READ keepDays WRITE setKeepDays)
 
-    DailyRollingFileAppender(QObject *parent = nullptr);
-    DailyRollingFileAppender(const LayoutSharedPtr &layout,
-                             const QString &fileName,
-                             const QString &datePattern,
-                             QObject *parent = nullptr);
-
-private:
-    Q_DISABLE_COPY_MOVE(DailyRollingFileAppender)
 public:
-    QString datePattern() const;
+    explicit DailyRollingFileAppender(QObject *parent = nullptr);
+    DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern = QString(), int keepDays = 0, QObject *parent = nullptr);
+    ~DailyRollingFileAppender() override;
 
-    /*!
-    * Sets the datePattern to the value specified by the \a datePattern
-    * constant.
-    */
-    void setDatePattern(DatePattern datePattern);
-
+    [[nodiscard]] QString datePattern() const;
     void setDatePattern(const QString &datePattern);
+
+    [[nodiscard]] int keepDays() const;
+    void setKeepDays(int keepDays);
 
     void activateOptions() override;
 
 protected:
     void append(const LoggingEvent &event) override;
 
-    /*!
-     * Tests if all entry conditions for using append() in this class are
-     * met.
-     *
-     * If a conditions is not met, an error is logged and the function
-     * returns false. Otherwise the result of
-     * FileAppender::checkEntryConditions() is returned.
-     *
-     * The checked conditions are:
-     * - A valid pattern has been set (APPENDER_USE_INVALID_PATTERN_ERROR)
-     *
-     * The function is called as part of the checkEntryConditions() chain
-     * started by AppenderSkeleton::doAppend().
-     *
-     * \sa AppenderSkeleton::doAppend(),
-     *     AppenderSkeleton::checkEntryConditions()
-     */
-    bool checkEntryConditions() const override;
-
 private:
-    void computeFrequency();
-    void computeRollOvetime();
-    QString frequencyToString() const;
-    void rollOver();
+    Q_DISABLE_COPY_MOVE(DailyRollingFileAppender)
 
-private:
     QString mDatePattern;
-    DatePattern mFrequency;
-    QString mActiveDatePattern;
-    QDateTime mRollOvetime;
-    QString mRollOverSuffix;
+    QDate mLastDate;
+    int mKeepDays;
+    QString mOriginalFilename;
 };
 
-inline QString DailyRollingFileAppender::datePattern() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mDatePattern;
 }
-
-inline void DailyRollingFileAppender::setDatePattern(const QString &datePattern)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mDatePattern = datePattern;
-}
-
-
-} // namespace Log4Qt
 
 #endif // LOG4QT_DAILYROLLINGFILEAPPENDER_H

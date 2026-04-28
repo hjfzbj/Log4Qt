@@ -22,7 +22,7 @@
 #define LOG4QT_MDC_H
 
 #include "log4qtdefs.h"
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 #include <QString>
 #include <QHash>
@@ -39,7 +39,7 @@ namespace Log4Qt
 class LOG4QT_EXPORT MDC
 {
 private:
-    MDC();
+    MDC() {}
     Q_DISABLE_COPY_MOVE(MDC)
 
 public:
@@ -51,8 +51,14 @@ public:
      */
     static MDC *instance();
 
-    static void put(const QString &key, const QString &value);
-    static void remove(const QString &key);
+    static void put(const QString &key, const QString &value)
+    {
+        localData()->insert(key, value);
+    }
+    static void remove(const QString &key)
+    {
+        localData()->remove(key);
+    }
 
 private:
     static QHash<QString, QString> *localData();
@@ -60,20 +66,6 @@ private:
 private:
     QThreadStorage<QHash<QString, QString> *> mHash;
 };
-
-inline MDC::MDC()
-{}
-
-inline void MDC::put(const QString &key, const QString &value)
-{
-    localData()->insert(key, value);
-}
-
-inline void MDC::remove(const QString &key)
-{
-    localData()->remove(key);
-}
-
 
 } // namespace Log4Qt
 

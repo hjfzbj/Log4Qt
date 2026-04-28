@@ -21,15 +21,17 @@
  ******************************************************************************/
 
 #include "performancetest.h"
+#include "log4qt/helpers/datetime.h"
 #include "log4qt/loggingevent.h"
 #include "log4qt/logger.h"
 #include "log4qt/logmanager.h"
 #include "log4qt/fileappender.h"
+#include "log4qt/randomaccessfileappender.h"
 #include "log4qt/patternlayout.h"
 #include "log4qt/simplelayout.h"
 #include "log4qt/varia/nullappender.h"
 #include "log4qt/varia/levelmatchfilter.h"
-#include "log4qt/helpers/timestampprovider.h"
+#include "log4qt/helpers/datetime.h"
 #include <QDir>
 #include <QFile>
 #include <QTemporaryDir>
@@ -369,7 +371,7 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     QFETCH(int, messageCount);
     
     // Configure timestamp cache window
-    Log4Qt::TimestampProvider::setCacheWindow(cacheWindowMs);
+    Log4Qt::DateTime::setCacheWindow(cacheWindowMs);
     
     // Create a null appender (discards all output - pure LoggingEvent creation benchmark)
     auto logger = Log4Qt::Logger::rootLogger();
@@ -393,7 +395,7 @@ void PerformanceTest::testTimestampCacheWindowPerformance()
     logger->removeAllAppenders();
     
     // Reset to default
-    Log4Qt::TimestampProvider::setCacheWindow(1);
+    Log4Qt::DateTime::setCacheWindow(1);
 }
 
 void PerformanceTest::testLoggerTemplateDisabled_data()
@@ -542,6 +544,182 @@ void PerformanceTest::testLogStreamLazyInit()
     logger->removeAllAppenders();
 }
 
+void PerformanceTest::testAppenderComparison_data()
+{
+    QTest::addColumn<int>("iterations");
+    QTest::addColumn<QString>("appenderType");
+
+    QTest::newRow("FileAppender 1000 msgs")               << 1000   << "file";
+    QTest::newRow("RandomAccessFileAppender 1000 msgs")   << 1000   << "raf";
+    QTest::newRow("FileAppender 10000 msgs")              << 10000  << "file";
+    QTest::newRow("RandomAccessFileAppender 10000 msgs")  << 10000  << "raf";
+    QTest::newRow("FileAppender 100000 msgs")             << 100000 << "file";
+    QTest::newRow("RandomAccessFileAppender 100000 msgs") << 100000 << "raf";
+}
+
+void PerformanceTest::testAppenderComparison()
+{
+    QFETCH(int, iterations);
+    QFETCH(QString, appenderType);
+
+    const QString testFile = mTestDir + QString("/comparison_%1_%2.log").arg(appenderType).arg(iterations);
+
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->setLevel(Log4Qt::Level::INFO_INT);
+
+    auto layout = new Log4Qt::PatternLayout();
+    layout->setConversionPattern("%d{ISO8601} [%t] %-5p %c - %m%n");
+    layout->activateOptions();
+
+    Log4Qt::Appender *appenderPtr = nullptr;
+
+    if (appenderType == "file")
+    {
+        auto appender = new Log4Qt::FileAppender();
+        appender->setName("FileAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+    else
+    {
+        auto appender = new Log4Qt::RandomAccessFileAppender();
+        appender->setName("RAFAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+            logger->info("Comparison benchmark message number %1", i);
+    }
+
+    // Explicitly close before removeAllAppenders() to guarantee all buffered
+    // data is flushed to disk (removeAllAppenders does not call close).
+    if (appenderPtr)
+        appenderPtr->close();
+    logger->removeAllAppenders();
+
+    // Correctness: verify the log file was written with the expected number of lines
+    QFile result(testFile);
+    QVERIFY2(result.exists(), "Log file must exist after benchmark");
+    QVERIFY2(result.open(QIODevice::ReadOnly), "Log file must be readable");
+    const QByteArray content = result.readAll();
+    result.close();
+
+    const int lineCount = content.count('\n');
+    QVERIFY2(lineCount >= iterations,
+             qPrintable(QString("Expected at least %1 lines, got %2").arg(iterations).arg(lineCount)));
+
+    QFile::remove(testFile);
+}
+
+void PerformanceTest::testAppenderComparisonMultiThreaded_data()
+{
+    QTest::addColumn<int>("threadCount");
+    QTest::addColumn<int>("messagesPerThread");
+    QTest::addColumn<QString>("appenderType");
+
+    // Fewer messages per thread than the single-threaded test: the total work
+    // (threadCount * messagesPerThread) is what matters, and we want the
+    // benchmark to complete in a reasonable time in CI.
+    QTest::newRow("FileAppender             2 threads x 5000")  << 2 << 5000  << "file";
+    QTest::newRow("RandomAccessFileAppender 2 threads x 5000")  << 2 << 5000  << "raf";
+    QTest::newRow("FileAppender             4 threads x 5000")  << 4 << 5000  << "file";
+    QTest::newRow("RandomAccessFileAppender 4 threads x 5000")  << 4 << 5000  << "raf";
+    QTest::newRow("FileAppender             8 threads x 5000")  << 8 << 5000  << "file";
+    QTest::newRow("RandomAccessFileAppender 8 threads x 5000")  << 8 << 5000  << "raf";
+}
+
+void PerformanceTest::testAppenderComparisonMultiThreaded()
+{
+    QFETCH(int, threadCount);
+    QFETCH(int, messagesPerThread);
+    QFETCH(QString, appenderType);
+
+    const QString testFile = mTestDir
+        + QString("/mt_comparison_%1_%2x%3.log")
+              .arg(appenderType).arg(threadCount).arg(messagesPerThread);
+
+    auto logger = Log4Qt::Logger::rootLogger();
+    logger->setLevel(Log4Qt::Level::INFO_INT);
+
+    // Use the same expensive pattern as the single-threaded test so that the
+    // split-lock benefit (concurrent formatting) is clearly visible.
+    auto layout = new Log4Qt::PatternLayout();
+    layout->setConversionPattern("%d{ISO8601} [%t] %-5p %c - %m%n");
+    layout->activateOptions();
+
+    Log4Qt::Appender *appenderPtr = nullptr;
+
+    if (appenderType == "file")
+    {
+        auto appender = new Log4Qt::FileAppender();
+        appender->setName("FileAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+    else
+    {
+        auto appender = new Log4Qt::RandomAccessFileAppender();
+        appender->setName("RAFAppender");
+        appender->setFile(testFile);
+        appender->setImmediateFlush(false);
+        appender->setLayout(layout);
+        appender->activateOptions();
+        appenderPtr = appender;
+        logger->addAppender(appender);
+    }
+
+    QBENCHMARK
+    {
+        QThreadPool pool;
+        pool.setMaxThreadCount(threadCount);
+
+        for (int i = 0; i < threadCount; ++i)
+        {
+            auto worker = new LoggingWorker(logger, messagesPerThread, i);
+            worker->setAutoDelete(true);
+            pool.start(worker);
+        }
+
+        pool.waitForDone();
+    }
+
+    if (appenderPtr)
+        appenderPtr->close();
+    logger->removeAllAppenders();
+
+    // Correctness: every message from every thread must appear in the file.
+    // QBENCHMARK may run the block N times, so we check >= one full round.
+    QFile result(testFile);
+    QVERIFY2(result.exists(), "Log file must exist after benchmark");
+    QVERIFY2(result.open(QIODevice::ReadOnly), "Log file must be readable");
+    const QByteArray content = result.readAll();
+    result.close();
+
+    const int expectedMinLines = threadCount * messagesPerThread;
+    const int lineCount = content.count('\n');
+    QVERIFY2(lineCount >= expectedMinLines,
+             qPrintable(QString("Expected at least %1 lines (%2 threads x %3 msgs), got %4")
+                            .arg(expectedMinLines).arg(threadCount)
+                            .arg(messagesPerThread).arg(lineCount)));
+
+    QFile::remove(testFile);
+}
+
 QTEST_MAIN(PerformanceTest)
 
 struct OldLoggingEvent
@@ -620,6 +798,41 @@ void PerformanceTest::testLoggingEventComparison()
                 OldLoggingEvent copy = event;
                 Q_UNUSED(copy);
             }
+        }
+    }
+}
+
+void PerformanceTest::testISO8601FormattingPerformance_data()
+{
+    QTest::addColumn<QString>("format");
+    QTest::addColumn<int>("iterations");
+
+    QTest::newRow("ISO8601, same ms (cache hit), 100000")    << "ISO8601"        << 100000;
+    QTest::newRow("ISO8601, unique ms (cache miss), 100000") << "ISO8601_unique" << 100000;
+    QTest::newRow("ABSOLUTE, same ms (cache hit), 100000")   << "ABSOLUTE"       << 100000;
+    QTest::newRow("custom format, 10000")                    << "hh:mm:ss"       << 10000;
+}
+
+void PerformanceTest::testISO8601FormattingPerformance()
+{
+    QFETCH(QString, format);
+    QFETCH(int, iterations);
+
+    const bool uniqueMs = format.endsWith(u"_unique"_s);
+    const QString actualFormat = uniqueMs ? format.chopped(7) : format;
+
+    // Use DateTime::formatMsecs() directly — this is the hot path called by
+    // DatePatternConverter::convert() and avoids QDateTime construction overhead
+    // so the benchmark isolates the formatting cost alone.
+    const qint64 baseMs = QDateTime::currentMSecsSinceEpoch();
+
+    QBENCHMARK
+    {
+        for (int i = 0; i < iterations; ++i)
+        {
+            const qint64 ms = uniqueMs ? (baseMs + i) : baseMs;
+            const QString result = Log4Qt::DateTime::formatMsecs(ms, actualFormat);
+            Q_UNUSED(result)
         }
     }
 }

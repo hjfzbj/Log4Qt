@@ -19,6 +19,8 @@
  ******************************************************************************/
 
 #include "xmllayout.h"
+
+#include "log4qtdefs.h"
 #include "loggingevent.h"
 
 #include <QXmlStreamWriter>
@@ -27,9 +29,13 @@ namespace Log4Qt
 {
 
 XMLLayout::XMLLayout(QObject *parent)
-    : Layout(parent)
-
+    : AbstractStringLayout(parent)
 {
+}
+
+QString XMLLayout::contentType() const
+{
+    return u"application/xml; charset=UTF-8"_s;
 }
 
 QString XMLLayout::format(const LoggingEvent &event)

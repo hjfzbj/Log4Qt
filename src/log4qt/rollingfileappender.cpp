@@ -20,28 +20,25 @@
 
 #include "rollingfileappender.h"
 
-#include "helpers/optionconverter.h"
-#include "layout.h"
+#include "abstractlayout.h"
 #include "loggingevent.h"
+#include "spi/compositetriggeringpolicy.h"
+#include "spi/defaultrolloverstrategy.h"
 
-#include <QFile>
+#include <QFileInfo>
 
 namespace Log4Qt
 {
 
 RollingFileAppender::RollingFileAppender(QObject *parent) :
-    FileAppender(parent),
-    mMaxBackupIndex(1),
-    mMaximumFileSize(10 * 1024 * 1024)
+    FileAppender(parent)
 {
 }
 
 RollingFileAppender::RollingFileAppender(const LayoutSharedPtr &layout,
         const QString &fileName,
         QObject *parent) :
-    FileAppender(layout, fileName, parent),
-    mMaxBackupIndex(1),
-    mMaximumFileSize(10 * 1024 * 1024)
+    FileAppender(layout, fileName, parent)
 {
 }
 
@@ -49,67 +46,105 @@ RollingFileAppender::RollingFileAppender(const LayoutSharedPtr &layout,
         const QString &fileName,
         bool append,
         QObject *parent) :
-    FileAppender(layout, fileName, append, parent),
-    mMaxBackupIndex(1),
-    mMaximumFileSize(10 * 1024 * 1024)
+    FileAppender(layout, fileName, append, parent)
 {
 }
 
-void RollingFileAppender::setMaxFileSize(const QString &maxFileSize)
+void RollingFileAppender::setTriggeringPolicy(const TriggeringPolicySharedPtr &policy)
 {
-    bool ok;
-    qint64 max_file_size = OptionConverter::toFileSize(maxFileSize, &ok);
-    if (ok)
-        setMaximumFileSize(max_file_size);
+    QMutexLocker locker(&mObjectGuard);
+    mTriggeringPolicy = policy;
+}
+
+void RollingFileAppender::addTriggeringPolicy(const TriggeringPolicySharedPtr &policy)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mTriggeringPolicy)
+    {
+        mTriggeringPolicy = policy;
+    }
+    else if (auto *composite = qobject_cast<CompositeTriggeringPolicy *>(mTriggeringPolicy.data()))
+    {
+        composite->addPolicy(policy);
+    }
+    else
+    {
+        auto *comp = new CompositeTriggeringPolicy;
+        comp->addPolicy(mTriggeringPolicy);
+        comp->addPolicy(policy);
+        mTriggeringPolicy = TriggeringPolicySharedPtr(comp);
+    }
+}
+
+void RollingFileAppender::setRolloverStrategy(const RolloverStrategySharedPtr &strategy)
+{
+    QMutexLocker locker(&mObjectGuard);
+    mRolloverStrategy = strategy;
+}
+
+void RollingFileAppender::activateOptions()
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    // Default strategy if none set
+    if (!mRolloverStrategy)
+        mRolloverStrategy = RolloverStrategySharedPtr(new DefaultRolloverStrategy);
+
+    if (mTriggeringPolicy)
+        mTriggeringPolicy->activateOptions();
+    mRolloverStrategy->activateOptions();
+
+    // Remember the configured base filename. Rollovers always operate on the
+    // base name so that strategies never see an already-transformed filename.
+    mBaseFileName = file();
+
+    // Allow the strategy to set the initial active filename (e.g. date-embedded name)
+    // before the file is opened, so the correct name is used from the very first startup.
+    const QString initial = mRolloverStrategy->initialFileName(mBaseFileName);
+    if (initial != file())
+        setFile(initial);
+
+    // Check startup trigger BEFORE opening the file — openFile() may truncate
+    bool startupRollover = false;
+    if (mTriggeringPolicy)
+    {
+        qint64 fileSize = 0;
+        QFileInfo fi(file());
+        if (fi.exists())
+            fileSize = fi.size();
+        startupRollover = mTriggeringPolicy->isStartupTrigger(file(), fileSize);
+    }
+
+    FileAppender::activateOptions();
+
+    if (startupRollover) {
+        if (mSkipFooterOnStartup)
+            suppressNextFooter();
+        rollOver();
+    }
 }
 
 void RollingFileAppender::append(const LoggingEvent &event)
 {
     FileAppender::append(event);
-    if (writer()->device()->size() > this->mMaximumFileSize)
-        rollOver();
-}
-
-void RollingFileAppender::openFile()
-{
-    // if we do not append, we roll the file to avoid data loss
-    if (appendFile())
-        FileAppender::openFile();
-    else
-        rollOver();
+    if (mTriggeringPolicy)
+    {
+        if (mTriggeringPolicy->isTriggeringEvent(writer()->device(), event))
+            rollOver();
+    }
 }
 
 void RollingFileAppender::rollOver()
 {
-    logger()->debug(u"Rolling over with maxBackupIndex = %1"_s, mMaxBackupIndex);
+    logger()->debug(u"Rolling over with strategy %1"_s,
+                    QLatin1String(mRolloverStrategy->metaObject()->className()));
 
     closeFile();
-
-    QFile f;
-    f.setFileName(file() + QLatin1Char('.') + QString::number(mMaxBackupIndex));
-    if (f.exists() && !removeFile(f))
-        return;
-
-    for (int i = mMaxBackupIndex - 1; i >= 1; i--)
-    {
-        f.setFileName(file() + QLatin1Char('.') + QString::number(i));
-        if (f.exists())
-        {
-            const QString target_file_name = file() + QLatin1Char('.') + QString::number(i + 1);
-            if (!renameFile(f, target_file_name))
-                return;
-        }
-    }
-
-    f.setFileName(file());
-    // it may not exist on first startup, don't output a warning in this case
-    if (f.exists())
-    {
-        const QString target_file_name = file() + u".1"_s;
-        if (!renameFile(f, target_file_name))
-            return;
-    }
-
+    const QString baseName = mBaseFileName.isEmpty() ? file() : mBaseFileName;
+    QString nextFile = mRolloverStrategy->rollover(baseName);
+    if (nextFile != file())
+        setFile(nextFile);
     FileAppender::openFile();
 }
 

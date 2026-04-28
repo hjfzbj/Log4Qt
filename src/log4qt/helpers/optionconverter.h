@@ -27,12 +27,7 @@
 
 #include <QString>
 
-#if QT_VERSION >= 0x060000
 #include <QStringConverter>
-#else
-#include <QTextCodec>
-Q_DECLARE_METATYPE(QTextCodec*)
-#endif
 
 namespace Log4Qt
 {
@@ -113,22 +108,11 @@ public:
      * "System.err" and "STDERR_TARGET". If the conversion is successful,
      * the target is returned and \a ok is set to true. Otherwise an
      * error is written to the log, \a ok is set to false and
-     * ConsoleAppender::STDOUT_TARGET is returned.
+     * ConsoleAppender::StdOut is returned.
      */
     static int toTarget(const QString &option,
                         bool *ok = nullptr);
 
-#if QT_VERSION < 0x060000
-    /*!
-     * Converts the option \a option to a QTextCodec* value using
-     * QTextCodec::codecForName(). If the conversion is successful,
-     * the codec is returned and \a ok is set to true. Otherwise an
-     * error is written to the log, \a ok is set to false and
-     * 0 is returned.
-     */
-    static QTextCodec* toEncoding(const QString &option,
-                                  bool *ok = nullptr);
-#else
     /*!
      * Converts the option \a option to a QStringConverter::Encoding value using
      * QStringConverter::encodingForName(). If the conversion is successful,
@@ -138,7 +122,6 @@ public:
      */
     static QStringConverter::Encoding toEncoding(const QString &option,
                                   bool *ok = nullptr);
-#endif
 };
 
 } // namespace Log4Qt

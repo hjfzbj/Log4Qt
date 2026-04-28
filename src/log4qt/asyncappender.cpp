@@ -19,19 +19,19 @@
  ******************************************************************************/
 
 #include "asyncappender.h"
+#include "helpers/asyncworker.h"
+#include "helpers/boundedblockingqueue.h"
 #include "loggingevent.h"
-#include "helpers/dispatcher.h"
 
-#include <QCoreApplication>
 #include <QReadLocker>
-#include <QThread>
 
 namespace Log4Qt
 {
 
-AsyncAppender::AsyncAppender(QObject *parent) 
+AsyncAppender::AsyncAppender(QObject *parent)
     : AppenderSkeleton(parent)
-{}
+{
+}
 
 AsyncAppender::~AsyncAppender()
 {
@@ -43,17 +43,54 @@ bool AsyncAppender::requiresLayout() const
     return false;
 }
 
+// --- Property accessors ------------------------------------------------------
+
+void AsyncAppender::setQueueFullPolicy(QueueFullPolicy policy)
+{
+    mQueueFullPolicy = policy;
+}
+
+QString AsyncAppender::queueFullPolicyString() const
+{
+    switch (mQueueFullPolicy)
+    {
+    case QueueFullPolicy::Discard:      return QStringLiteral("Discard");
+    case QueueFullPolicy::Synchronous:  return QStringLiteral("Synchronous");
+    default:                            return QStringLiteral("Block");
+    }
+}
+
+void AsyncAppender::setQueueFullPolicyString(const QString &policy)
+{
+    if (policy.compare(u"Discard", Qt::CaseInsensitive) == 0)
+        mQueueFullPolicy = QueueFullPolicy::Discard;
+    else if (policy.compare(u"Synchronous", Qt::CaseInsensitive) == 0)
+        mQueueFullPolicy = QueueFullPolicy::Synchronous;
+    else
+        mQueueFullPolicy = QueueFullPolicy::Block;
+}
+
+void AsyncAppender::setErrorAppender(const AppenderSharedPtr &appender)
+{
+    mErrorAppender = appender;
+}
+
+// --- Lifecycle ---------------------------------------------------------------
+
 void AsyncAppender::activateOptions()
 {
-    if (mpThread)
+    QMutexLocker locker(&mObjectGuard);
+
+    if (mWorker)
         return;
 
-    mpThread = std::make_unique<QThread>();
-    mpDispatcher = std::make_unique<Dispatcher>();
-    mpDispatcher->setAsyncAppender(this);
+    mQueue = std::make_unique<BoundedBlockingQueue<LoggingEvent>>(mBufferSize);
 
-    mpDispatcher->moveToThread(mpThread.get());
-    mpThread->start();
+    mWorker = std::make_unique<AsyncWorker>(this, mQueue.get());
+    mWorker->setObjectName(QStringLiteral("Log4Qt-Async-%1").arg(name()));
+    mWorker->start();
+
+    AppenderSkeleton::activateOptions();
 }
 
 void AsyncAppender::close()
@@ -69,41 +106,107 @@ void AsyncAppender::closeInternal()
     if (isClosed())
         return;
 
-    if (mpThread)
+    if (mQueue)
+        mQueue->shutdown();
+
+    if (mWorker)
     {
-        if (mpDispatcher)
-            mpDispatcher->setAsyncAppender(nullptr);
-        
-        mpThread->quit();
-        mpThread->wait();
-        
-        // Automatic cleanup via unique_ptr destructors
-        mpDispatcher.reset();
-        mpThread.reset();
+        const unsigned long timeout = (mShutdownTimeout > 0)
+            ? static_cast<unsigned long>(mShutdownTimeout)
+            : ULONG_MAX;
+
+        if (!mWorker->wait(timeout))
+        {
+            LogError e = LOG4QT_QCLASS_ERROR(
+                QT_TR_NOOP("Shutdown timeout expired for async appender '%1' with events still in queue"),
+                AppenderAsyncShutdownTimeout);
+            e << name();
+            logger()->warn(e);
+
+            mWorker->terminate();
+            mWorker->wait();
+        }
+
+        mWorker.reset();
     }
+
+    mQueue.reset();
 }
+
+// --- Appending ---------------------------------------------------------------
 
 void AsyncAppender::callAppenders(const LoggingEvent &event) const
 {
     QReadLocker locker(&mAppenderGuard);
 
-    for (const auto& appender : mAppenders)
-        appender->doAppend(event);
+    for (const auto &appender : mAppenders)
+        forwardEvent(appender, event);
 }
 
 void AsyncAppender::append(const LoggingEvent &event)
 {
-    if (mpDispatcher)
-        qApp->postEvent(mpDispatcher.get(), new LoggingEvent(event));
+    if (!mQueue)
+        return;
+
+    switch (mQueueFullPolicy)
+    {
+    case QueueFullPolicy::Block:
+        if (mBlocking)
+        {
+            mQueue->enqueue(event);
+        }
+        else
+        {
+            if (!mQueue->tryEnqueue(event))
+                handleQueueFull(event);
+        }
+        break;
+
+    case QueueFullPolicy::Discard:
+        if (!mQueue->tryEnqueue(event))
+        {
+            if (event.level() <= mDiscardThreshold)
+            {
+                mDiscardedCount.fetch_add(1, std::memory_order_relaxed);
+            }
+            else
+            {
+                // Events above the discard threshold still block
+                mQueue->enqueue(event);
+            }
+        }
+        break;
+
+    case QueueFullPolicy::Synchronous:
+        if (!mQueue->tryEnqueue(event))
+            callAppenders(event);
+        break;
+    }
+}
+
+void AsyncAppender::handleQueueFull(const LoggingEvent &event)
+{
+    if (mErrorAppender)
+    {
+        forwardEvent(mErrorAppender, event);
+    }
+    else
+    {
+        LogError e = LOG4QT_QCLASS_ERROR(
+            QT_TR_NOOP("Async appender '%1' queue is full, event dropped"),
+            AppenderAsyncQueueFull);
+        e << name();
+        logger()->warn(e);
+    }
 }
 
 bool AsyncAppender::checkEntryConditions() const
 {
-    if (mpThread && !mpThread->isRunning())
+    if (mWorker && !mWorker->isRunning())
     {
-        LogError e =
-            LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without a running dispatcher thread"),
-                                APPENDER_ASNC_DISPATCHER_NOT_RUNNING);
+        LogError e = LOG4QT_QCLASS_ERROR(
+            QT_TR_NOOP("Use of appender '%1' without a running dispatcher thread"),
+            AppenderAsncDispatcherNotRunning);
         e << name();
         logger()->error(e);
         return false;

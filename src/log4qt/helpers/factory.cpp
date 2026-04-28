@@ -21,11 +21,11 @@
 #include "helpers/factory.h"
 
 #include "consoleappender.h"
-#include "dailyrollingfileappender.h"
 #include "fileappender.h"
 #include "helpers/logerror.h"
 #include "helpers/initialisationhelper.h"
 #include "helpers/optionconverter.h"
+#include "jsonlayout.h"
 #include "patternlayout.h"
 #include "rollingfileappender.h"
 #include "signalappender.h"
@@ -46,12 +46,19 @@
 #include "asyncappender.h"
 #include "mainthreadappender.h"
 #include "systemlogappender.h"
-#include "dailyfileappender.h"
+#include "dailyrollingfileappender.h"
 #ifdef Q_OS_WIN
 #include "colorconsoleappender.h"
 #include "wdcappender.h"
 #endif
 
+#include "spi/sizebasedtriggeringpolicy.h"
+#include "spi/timebasedtriggeringpolicy.h"
+#include "spi/crontriggeringpolicy.h"
+#include "spi/onstartuptriggeringpolicy.h"
+#include "spi/daterolloverstrategy.h"
+#include "spi/defaultrolloverstrategy.h"
+#include "spi/headerfooterprovider.h"
 #include "varia/debugappender.h"
 #include "varia/denyallfilter.h"
 #include "varia/levelmatchfilter.h"
@@ -73,11 +80,6 @@ LOG4QT_DECLARE_STATIC_LOGGER(logger, Log4Qt::Factory)
 Appender *console_file_appender()
 {
     return new ConsoleAppender;
-}
-
-Appender *create_daily_rolling_file_appender()
-{
-    return new DailyRollingFileAppender;
 }
 
 Appender *create_debug_appender()
@@ -141,7 +143,7 @@ Appender *create_systemlog_appender()
 
 Appender *create_dailyrollingfile_appender()
 {
-    return new DailyFileAppender;
+    return new DailyRollingFileAppender;
 }
 
 #ifdef Q_OS_WIN
@@ -180,17 +182,17 @@ Filter *create_string_match_filter()
 
 // Layouts
 
-Layout *create_pattern_layout()
+AbstractLayout *create_pattern_layout()
 {
     return new PatternLayout;
 }
 
-Layout *create_simple_layout()
+AbstractLayout *create_simple_layout()
 {
     return new SimpleLayout;
 }
 
-Layout *create_simple_time_layout()
+AbstractLayout *create_simple_time_layout()
 {
     return new SimpleTimeLayout;
 }
@@ -202,14 +204,60 @@ Layout *create_database_layout()
 }
 #endif
 
-Layout *create_ttcc_layout()
+AbstractLayout *create_ttcc_layout()
 {
     return new TTCCLayout;
 }
 
-Layout *create_xml_layout()
+AbstractLayout *create_xml_layout()
 {
     return new XMLLayout;
+}
+
+AbstractLayout *create_json_layout()
+{
+    return new JsonLayout;
+}
+
+// TriggeringPolicies
+
+TriggeringPolicy *create_size_based_triggering_policy()
+{
+    return new SizeBasedTriggeringPolicy;
+}
+
+TriggeringPolicy *create_time_based_triggering_policy()
+{
+    return new TimeBasedTriggeringPolicy;
+}
+
+TriggeringPolicy *create_cron_triggering_policy()
+{
+    return new CronTriggeringPolicy;
+}
+
+TriggeringPolicy *create_on_startup_triggering_policy()
+{
+    return new OnStartupTriggeringPolicy;
+}
+
+// HeaderFooterProviders
+
+HeaderFooterProvider *create_pattern_header_footer_provider()
+{
+    return new PatternHeaderFooterProvider;
+}
+
+// RolloverStrategies
+
+RolloverStrategy *create_default_rollover_strategy()
+{
+    return new DefaultRolloverStrategy;
+}
+
+RolloverStrategy *create_date_rollover_strategy()
+{
+    return new DateRolloverStrategy;
 }
 
 Factory::Factory()
@@ -217,6 +265,9 @@ Factory::Factory()
     registerDefaultAppenders();
     registerDefaultFilters();
     registerDefaultLayouts();
+    registerDefaultTriggeringPolicies();
+    registerDefaultRolloverStrategies();
+    registerDefaultHeaderFooterProviders();
 }
 
 LOG4QT_IMPLEMENT_INSTANCE(Factory)
@@ -247,7 +298,7 @@ Filter *Factory::doCreateFilter(const QString &filterClassName)
 }
 
 
-Layout *Factory::doCreateLayout(const QString &layoutClassName)
+AbstractLayout *Factory::doCreateLayout(const QString &layoutClassName)
 {
     QMutexLocker locker(&mObjectGuard);
 
@@ -334,17 +385,12 @@ void Factory::doSetObjectProperty(QObject *object,
         variant = QVariant::fromValue(OptionConverter::toLevel(value, &ok));
     else if (type == u"QString"_s)
         variant = value;
-#if QT_VERSION < 0x060000
-    else if (type == u"QTextCodec*"_s)
-        variant = QVariant::fromValue(OptionConverter::toEncoding(value, &ok));
-#else
     else if (type == u"QStringConverter::Encoding"_s)
         variant = QVariant::fromValue(OptionConverter::toEncoding(value, &ok));
-#endif
     else
     {
         LogError e = LOG4QT_ERROR(QT_TR_NOOP("Cannot convert to type '%1' for property '%2' on object of class '%3'"),
-                                  CONFIGURATOR_UNKNOWN_TYPE_ERROR,
+                                  ConfiguratorUnknownTypeError,
                                   "Log4Qt::Factory");
         e << type
           << property
@@ -358,7 +404,7 @@ void Factory::doSetObjectProperty(QObject *object,
     // Everything is checked and the type is the one of the property.
     // Write should never return false
     if (!meta_property.write(object, variant))
-        logger()->warn(u"Unxpected error result from QMetaProperty.write()"_s);
+        logger()->warn(u"Unexpected error result from QMetaProperty.write()"_s);
 }
 
 
@@ -388,6 +434,86 @@ void Factory::doUnregisterFilter(const QString &filterClassName)
 }
 
 
+TriggeringPolicy *Factory::doCreateTriggeringPolicy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mTriggeringPolicyRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of TriggeringPolicy with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mTriggeringPolicyRegistry.value(className)();
+}
+
+
+void Factory::doRegisterTriggeringPolicy(const QString &className,
+                                          TriggeringPolicyFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering TriggeringPolicy factory function with empty class name"_s);
+        return;
+    }
+    mTriggeringPolicyRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterTriggeringPolicy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mTriggeringPolicyRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered TriggeringPolicy factory function for class '%1'"_s, className);
+        return;
+    }
+    mTriggeringPolicyRegistry.remove(className);
+}
+
+
+RolloverStrategy *Factory::doCreateRolloverStrategy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mRolloverStrategyRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of RolloverStrategy with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mRolloverStrategyRegistry.value(className)();
+}
+
+
+void Factory::doRegisterRolloverStrategy(const QString &className,
+                                          RolloverStrategyFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering RolloverStrategy factory function with empty class name"_s);
+        return;
+    }
+    mRolloverStrategyRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterRolloverStrategy(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mRolloverStrategyRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered RolloverStrategy factory function for class '%1'"_s, className);
+        return;
+    }
+    mRolloverStrategyRegistry.remove(className);
+}
+
+
 void Factory::doUnregisterLayout(const QString &layoutClassName)
 {
     QMutexLocker locker(&mObjectGuard);
@@ -406,9 +532,6 @@ void Factory::registerDefaultAppenders()
     mAppenderRegistry.insert(u"org.apache.log4j.ConsoleAppender"_s, console_file_appender);
     mAppenderRegistry.insert(u"Log4Qt::ConsoleAppender"_s, console_file_appender);
     mAppenderRegistry.insert(u"Console"_s, console_file_appender);
-    mAppenderRegistry.insert(u"org.apache.log4j.DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
-    mAppenderRegistry.insert(u"Log4Qt::DailyRollingFileAppender"_s, create_daily_rolling_file_appender);
-    mAppenderRegistry.insert(u"DailyRollingFile"_s, create_daily_rolling_file_appender);
     mAppenderRegistry.insert(u"org.apache.log4j.varia.DebugAppender"_s, create_debug_appender);
     mAppenderRegistry.insert(u"Log4Qt::DebugAppender"_s, create_debug_appender);
     mAppenderRegistry.insert(u"Debug"_s, create_debug_appender);
@@ -457,8 +580,8 @@ void Factory::registerDefaultAppenders()
     mAppenderRegistry.insert(u"Log4Qt::SystemLogAppender"_s, create_systemlog_appender);
     mAppenderRegistry.insert(u"SystemLog"_s, create_systemlog_appender);
 
-    mAppenderRegistry.insert(u"org.apache.log4j.DailyFileAppender"_s, create_dailyrollingfile_appender);
-    mAppenderRegistry.insert(u"Log4Qt::DailyFileAppender"_s, create_dailyrollingfile_appender);
+    mAppenderRegistry.insert(u"org.apache.log4j.DailyRollingFileAppender"_s, create_dailyrollingfile_appender);
+    mAppenderRegistry.insert(u"Log4Qt::DailyRollingFileAppender"_s, create_dailyrollingfile_appender);
     mAppenderRegistry.insert(u"DailyFile"_s, create_dailyrollingfile_appender);
 #ifdef Q_OS_WIN
     mAppenderRegistry.insert(u"org.apache.log4j.WDCAppender"_s, create_wdc_appender);
@@ -510,6 +633,89 @@ void Factory::registerDefaultLayouts()
     mLayoutRegistry.insert(u"org.apache.log4j.XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"Log4Qt::XMLLayout"_s, create_xml_layout);
     mLayoutRegistry.insert(u"XMLLayout"_s, create_xml_layout);
+
+    mLayoutRegistry.insert(u"Log4Qt::JsonLayout"_s, create_json_layout);
+    mLayoutRegistry.insert(u"JsonLayout"_s, create_json_layout);
+}
+
+
+void Factory::registerDefaultTriggeringPolicies()
+{
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::SizeBasedTriggeringPolicy"_s, create_size_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"SizeBasedTriggeringPolicy"_s, create_size_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"SizeBased"_s, create_size_based_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"TimeBasedTriggeringPolicy"_s, create_time_based_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"TimeBased"_s, create_time_based_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::CronTriggeringPolicy"_s, create_cron_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"CronTriggeringPolicy"_s, create_cron_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"Cron"_s, create_cron_triggering_policy);
+
+    mTriggeringPolicyRegistry.insert(u"Log4Qt::OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"OnStartupTriggeringPolicy"_s, create_on_startup_triggering_policy);
+    mTriggeringPolicyRegistry.insert(u"OnStartup"_s, create_on_startup_triggering_policy);
+}
+
+
+void Factory::registerDefaultRolloverStrategies()
+{
+    mRolloverStrategyRegistry.insert(u"Log4Qt::DefaultRolloverStrategy"_s, create_default_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"DefaultRolloverStrategy"_s, create_default_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"Default"_s, create_default_rollover_strategy);
+
+    mRolloverStrategyRegistry.insert(u"Log4Qt::DateRolloverStrategy"_s, create_date_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"DateRolloverStrategy"_s, create_date_rollover_strategy);
+    mRolloverStrategyRegistry.insert(u"Date"_s, create_date_rollover_strategy);
+}
+
+
+HeaderFooterProvider *Factory::doCreateHeaderFooterProvider(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mHeaderFooterProviderRegistry.contains(className))
+    {
+        logger()->warn(u"Request for the creation of HeaderFooterProvider with class '%1', which is not registered"_s, className);
+        return nullptr;
+    }
+    return mHeaderFooterProviderRegistry.value(className)();
+}
+
+
+void Factory::doRegisterHeaderFooterProvider(const QString &className,
+                                              HeaderFooterProviderFactoryFunc func)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (className.isEmpty())
+    {
+        logger()->warn(u"Registering HeaderFooterProvider factory function with empty class name"_s);
+        return;
+    }
+    mHeaderFooterProviderRegistry.insert(className, func);
+}
+
+
+void Factory::doUnregisterHeaderFooterProvider(const QString &className)
+{
+    QMutexLocker locker(&mObjectGuard);
+
+    if (!mHeaderFooterProviderRegistry.contains(className))
+    {
+        logger()->warn(u"Request to unregister not registered HeaderFooterProvider factory function for class '%1'"_s, className);
+        return;
+    }
+    mHeaderFooterProviderRegistry.remove(className);
+}
+
+
+void Factory::registerDefaultHeaderFooterProviders()
+{
+    mHeaderFooterProviderRegistry.insert(u"Log4Qt::PatternHeaderFooterProvider"_s, create_pattern_header_footer_provider);
+    mHeaderFooterProviderRegistry.insert(u"PatternHeaderFooterProvider"_s, create_pattern_header_footer_provider);
+    mHeaderFooterProviderRegistry.insert(u"Pattern"_s, create_pattern_header_footer_provider);
 }
 
 
@@ -526,7 +732,7 @@ bool Factory::validateObjectProperty(QMetaProperty &metaProperty,
 
     const char *context = "Log4Qt::Factory";
     LogError e = LOG4QT_ERROR(QT_TR_NOOP("Unable to set property value on object"),
-                              CONFIGURATOR_PROPERTY_ERROR,
+                              ConfiguratorPropertyError,
                               context);
 
     if (object == nullptr)

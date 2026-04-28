@@ -74,8 +74,16 @@ private:
 public:
     bool requiresLayout() const override;
 
-    QString connection() const;
-    QString table() const;
+    QString connection() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return connectionName;
+    }
+    QString table() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return tableName;
+    }
 
     void setConnection(const QString &connection);
     void setTable(const QString &table);
@@ -94,7 +102,7 @@ protected:
      * AppenderSkeleton::checkEntryConditions() is returned.
      *
      * The checked conditions are:
-     * - A writer has been set (APPENDER_USE_MISSING_WRITER_ERROR)
+     * - A writer has been set (AppenderUseMissingWriterError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().
@@ -110,18 +118,6 @@ private:
     QString connectionName;
     QString tableName;
 };
-
-inline QString DatabaseAppender::connection() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return connectionName;
-}
-
-inline QString DatabaseAppender::table() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return tableName;
-}
 
 } // namespace Log4Qt
 

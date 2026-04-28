@@ -44,12 +44,12 @@ public:
     bool exists(const QString &name) const override;
     Logger *logger(const QString &name) override;
     QList<Logger *> loggers() const override;
-    Logger *rootLogger() const override;
-    Level threshold() const override;
-    void setThreshold(Level level) override;
+    Logger *rootLogger() const override { return mRootLogger; }
+    Level threshold() const override { return mThreshold; }
+    void setThreshold(Level level) override { mThreshold = level; }
     void setThreshold(const QString &threshold) override;
 
-    bool isDisabled(Level level) override;
+    bool isDisabled(Level level) const override { return level < mThreshold; }
     void resetConfiguration() override;
     void shutdown() override;
 
@@ -63,26 +63,6 @@ private:
     Level mThreshold;
     Logger *mRootLogger;
 };
-
-inline Logger *Hierarchy::rootLogger() const
-{
-    return mRootLogger;
-}
-
-inline Level Hierarchy::threshold() const
-{
-    return mThreshold;
-}
-
-inline void Hierarchy::setThreshold(Level level)
-{
-    mThreshold = level;
-}
-
-inline bool Hierarchy::isDisabled(Level level)
-{
-    return level < mThreshold;
-}
 
 } // namespace Log4Qt
 

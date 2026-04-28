@@ -81,14 +81,22 @@ public:
      * \sa setConfigureError(), PropertyConfigurator::configure(),
      *     setConfigurationFile()
      */
-    static QList<LoggingEvent> configureError();
+    static QList<LoggingEvent> configureError()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mConfigureError;
+    }
 
     /*!
      * Returns the current configuration file.
      *
      * \sa setConfigurationFile()
      */
-    static QString configurationFile();
+    static QString configurationFile()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mConfigurationFile.absoluteFilePath();
+    }
 
     /*!
          * Returns the ConfiguratorHelper instance.
@@ -101,7 +109,11 @@ public:
      *
      * \sa configureError()
      */
-    static void setConfigureError(const QList<LoggingEvent> &configureError);
+    static void setConfigureError(const QList<LoggingEvent> &configureError)
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        instance()->mConfigureError = configureError;
+    }
 
     /*!
      * Sets the configuration file to \a fileName. The file is watched for
@@ -114,7 +126,10 @@ public:
      *     configureError()
      */
     static void setConfigurationFile(const QString &fileName = QString(),
-                                     ConfigureFunc pConfigureFunc = nullptr);
+                                     ConfigureFunc pConfigureFunc = nullptr)
+    {
+        instance()->doSetConfigurationFile(fileName, pConfigureFunc);
+    }
 
 Q_SIGNALS:
     /*!
@@ -142,30 +157,6 @@ private:
     std::unique_ptr<QFileSystemWatcher> mConfigurationFileWatch;
     QList<LoggingEvent> mConfigureError;
 };
-
-inline QList<LoggingEvent> ConfiguratorHelper::configureError()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mConfigureError;
-}
-
-inline QString ConfiguratorHelper::configurationFile()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mConfigurationFile.absoluteFilePath();
-}
-
-inline void ConfiguratorHelper::setConfigureError(const QList<LoggingEvent> &configureError)
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    instance()->mConfigureError = configureError;
-}
-
-inline void ConfiguratorHelper::setConfigurationFile(const QString &fileName,
-        ConfigureFunc pConfigureFunc)
-{
-    instance()->doSetConfigurationFile(fileName, pConfigureFunc);
-}
 
 } // namespace Log4Qt
 

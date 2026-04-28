@@ -24,7 +24,9 @@
 #include "log4qt/log4qtshared.h"
 
 #include <QDateTime>
+#include <QElapsedTimer>
 #include <QTimeZone>
+#include <functional>
 
 namespace Log4Qt
 {
@@ -39,6 +41,18 @@ class LOG4QT_EXPORT DateTime : public QDateTime
 {
 public:
     /*!
+     * Callable type used as an injectable time source.
+     *
+     * Components that need testable wall-clock access (e.g.
+     * \c DailyRollingFileAppender, \c DateRolloverStrategy) accept a
+     * \c Provider so tests can substitute a lambda that returns a
+     * controlled \c QDateTime without touching global state.
+     *
+     * The default value for such components is always
+     * \c []{ return QDateTime::currentDateTime(); }.
+     */
+    using Provider = std::function<QDateTime()>;
+    /*!
      * Constructs a null date time.
      *
      * \sa QDateTime::QDateTime()
@@ -52,22 +66,11 @@ public:
      *
      * \sa QDateTime::QDateTime(const QDateTime &other)
      */
-    DateTime(const QDateTime &other);
+    DateTime(const QDateTime &other) : QDateTime(other)
+    {}
 
     DateTime(const DateTime &other);
 
-#if QT_VERSION < 0x060500
-    /*!
-     * Constructs a datetime with the given \a date and \a time, using
-     * the time specification defined by \a timeSpec.
-     *
-     * \sa QDateTime::QDateTime(const QDate &date, const QTime &time,
-     *     Qt::TimeSpec timeSpec = Qt::LocalTime)
-     */
-    DateTime(QDate date,
-             QTime time,
-             Qt::TimeSpec timeSpec = Qt::LocalTime);
-#else
     /*!
      * Constructs a datetime with the given \a date and \a time, using
      * the time zone defined by \a QTimeZone.
@@ -77,13 +80,18 @@ public:
      */
     DateTime(QDate date,
              QTime time,
-             QTimeZone = QTimeZone(QTimeZone::LocalTime));
-#endif
+             QTimeZone timeZone = QTimeZone(QTimeZone::LocalTime)) :
+        QDateTime(date, time, timeZone)
+    {}
 
     /*!
      * Assigns \a other to this DateTime and returns a reference to it.
      */
-    DateTime &operator=(const DateTime &other);
+    DateTime &operator=(const DateTime &other)
+    {
+        QDateTime::operator=(other);
+        return *this;
+    }
 
     /*!
      * Returns the datetime as a string. The \a format parameter
@@ -120,68 +128,82 @@ public:
     QString toString(const QString &format) const;
 
     /*!
+     * Formats an epoch millisecond timestamp to a string using \a format.
+     *
+     * This is the preferred fast path for callers that already hold a raw
+     * \c qint64 timestamp (e.g. \c LoggingEvent::timeStamp()), because it avoids
+     * the redundant \c toMSecsSinceEpoch() round-trip of the instance overload.
+     * Results for the named formats ISO8601, ABSOLUTE, and DATE are cached
+     * per calling thread (thread-local, keyed by epoch millisecond): repeated
+     * calls within the same millisecond cost only a \c qint64 comparison and a
+     * string copy (~1 ns). On a cache miss, formatting delegates to
+     * \c QDateTime::toString() as usual.
+     *
+     * For custom (non-named) format strings the method always calls
+     * \c QDateTime::toString(), equivalent to the instance overload.
+     *
+     * \sa toString(const QString &format)
+     */
+    static QString formatMsecs(qint64 msecs, const QString &format);
+
+    /*!
      * Returns the current datetime, as reported by the system clock, in
      * the local time zone.
      *
      * \sa QDateTime::currentDateTime()
      */
     static DateTime currentDateTime();
-#if QT_VERSION < 0x060500
-    static DateTime fromMSecsSinceEpoch(qint64 msecs, Qt::TimeSpec spec, int offsetSeconds = 0);
-#else
-    static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone);
-#endif
 
-    static DateTime fromMSecsSinceEpoch(qint64 msecs);
+    /*!
+     * Returns the current time as milliseconds since the Unix epoch.
+     *
+     * Uses a thread-local cache keyed by a monotonic \c QElapsedTimer so
+     * that repeated calls within the same cache window (default 1 ms) cost
+     * only a \c qint64 comparison and avoid a system call.
+     *
+     * \sa setCacheWindow(), cacheWindow()
+     */
+    static qint64 currentMSecsSinceEpoch();
+
+    /*!
+     * Sets the cache window for \c currentMSecsSinceEpoch() in milliseconds.
+     *
+     * \a cacheWindowMs == 0 disables caching (maximum precision).
+     * Values of 1–100 give the best balance of performance and precision.
+     * The default is 1 ms.
+     */
+    static void setCacheWindow(qint64 cacheWindowMs);
+
+    /*!
+     * Returns the current cache window in milliseconds.
+     */
+    static qint64 cacheWindow();
+
+    /*!
+     * Sets the global date/time provider used by \c currentDateTime() and
+     * \c currentMSecsSinceEpoch().
+     *
+     * Passing a null (default-constructed) \c Provider resets to the built-in
+     * default of \c QDateTime::currentDateTime().
+     *
+     * Thread-safe. Intended for use in tests — set once before any threads
+     * start logging, reset in cleanup.
+     */
+    static void setProvider(Provider provider);
+
+    static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone)
+    {
+        return DateTime(QDateTime::fromMSecsSinceEpoch(msecs, timeZone));
+    }
+
+    static DateTime fromMSecsSinceEpoch(qint64 msecs)
+    {
+        return DateTime(QDateTime::fromMSecsSinceEpoch(msecs));
+    }
 
 private:
     QString formatDateTime(const QString &format) const;
 };
-
-inline DateTime::DateTime(const QDateTime &other) : QDateTime(other)
-{}
-
-#if QT_VERSION < 0x060500
-inline DateTime::DateTime(QDate date,
-                          QTime time,
-                          Qt::TimeSpec timeSpec) :
-    QDateTime(date, time, timeSpec)
-{}
-#else
-inline DateTime::DateTime(QDate date,
-                          QTime time,
-                          QTimeZone timeZone) :
-    QDateTime(date, time, timeZone)
-{}
-#endif
-
-inline DateTime &DateTime::operator=(const DateTime &other)
-{
-    QDateTime::operator=(other);
-    return *this;
-}
-
-inline DateTime DateTime::currentDateTime()
-{
-    return DateTime(QDateTime::currentDateTime());
-}
-
-inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs)
-{
-    return DateTime(QDateTime::fromMSecsSinceEpoch(msecs));
-}
-
-#if QT_VERSION < 0x060500
-inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs, Qt::TimeSpec spec, int offsetSeconds)
-{
-    return DateTime(QDateTime::fromMSecsSinceEpoch(msecs, spec, offsetSeconds));
-}
-#else
-inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone)
-{
-    return DateTime(QDateTime::fromMSecsSinceEpoch(msecs, timeZone));
-}
-#endif
 
 } // namespace Log4Qt
 

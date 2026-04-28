@@ -46,7 +46,9 @@ public:
     /*!
      * Creates a DebugAppender.
      */
-    DebugAppender(QObject *parent = nullptr);
+    DebugAppender(QObject *parent = nullptr) :
+        AppenderSkeleton(parent)
+    {}
 
     /*!
      * Creates a DebugAppender with the specified layout \a pLayout
@@ -79,11 +81,6 @@ protected:
     void append(const LoggingEvent &event) override;
 
 };
-
-inline DebugAppender::DebugAppender(QObject *parent) :
-    AppenderSkeleton(parent)
-{}
-
 
 } // namespace Log4Qt
 

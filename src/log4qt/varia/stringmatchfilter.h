@@ -56,10 +56,14 @@ class LOG4QT_EXPORT StringMatchFilter : public Filter
 public:
     StringMatchFilter(QObject *parent = nullptr);
 
-    bool acceptOnMatch() const;
-    QString stringToMatch() const;
-    void setAcceptOnMatch(bool accept);
-    void setStringToMatch(const QString &string, Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    [[nodiscard]] bool acceptOnMatch() const { return mAcceptOnMatch; }
+    [[nodiscard]] QString stringToMatch() const { return mStringToMatch; }
+    void setAcceptOnMatch(bool accept) { mAcceptOnMatch = accept; }
+    void setStringToMatch(const QString &string, Qt::CaseSensitivity cs = Qt::CaseSensitive)
+    {
+        mStringToMatch = string;
+        mCaseSensitivity = cs;
+    }
 
     Decision decide(const LoggingEvent &event) const override;
 
@@ -68,27 +72,6 @@ private:
     QString mStringToMatch;
     Qt::CaseSensitivity mCaseSensitivity;
 };
-
-inline bool StringMatchFilter::acceptOnMatch() const
-{
-    return mAcceptOnMatch;
-}
-
-inline QString StringMatchFilter::stringToMatch() const
-{
-    return mStringToMatch;
-}
-
-inline void StringMatchFilter::setAcceptOnMatch(bool accept)
-{
-    mAcceptOnMatch = accept;
-}
-
-inline void StringMatchFilter::setStringToMatch(const QString &string, Qt::CaseSensitivity cs)
-{
-    mStringToMatch = string;
-    mCaseSensitivity = cs;
-}
 
 } // namespace Log4Qt
 

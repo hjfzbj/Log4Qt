@@ -20,9 +20,7 @@
 
 #include "ttcclayout.h"
 
-#include "helpers/datetime.h"
 #include "helpers/patternformatter.h"
-#include "logger.h"
 #include "loggingevent.h"
 
 #include <QDateTime>
@@ -31,17 +29,17 @@ namespace Log4Qt
 {
 
 TTCCLayout::TTCCLayout(QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)
 {
-    setDateFormat(RELATIVE);
+    setDateFormat(Relative);
 }
 
 TTCCLayout::TTCCLayout(const QString &dateFormat,
                        QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)
@@ -51,7 +49,7 @@ TTCCLayout::TTCCLayout(const QString &dateFormat,
 
 TTCCLayout::TTCCLayout(DateFormat dateFormat,
                        QObject *parent) :
-    Layout(parent),
+    AbstractStringLayout(parent),
     mCategoryPrefixing(true),
     mContextPrinting(true),
     mThreadPrinting(true)
@@ -63,19 +61,19 @@ void TTCCLayout::setDateFormat(DateFormat dateFormat)
 {
     switch (dateFormat)
     {
-    case NONE:
+    case None:
         setDateFormat(u"NONE"_s);
         break;
-    case ISO8601:
+    case Iso8601:
         setDateFormat(u"ISO8601"_s);
         break;
-    case ABSOLUTE:
+    case Absolute:
         setDateFormat(u"ABSOLUTE"_s);
         break;
-    case DATE:
+    case Date:
         setDateFormat(u"DATE"_s);
         break;
-    case RELATIVE:
+    case Relative:
         setDateFormat(u"RELATIVE"_s);
         break;
     default:

@@ -21,7 +21,7 @@
 #ifndef LOG4QT_JSONCONFIGURATOR_H
 #define LOG4QT_JSONCONFIGURATOR_H
 
-#include "log4qt.h"
+#include "log4qtshared.h"
 
 class QJsonObject;
 
@@ -96,7 +96,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT JsonConfigurator
 {
 public:
-    JsonConfigurator();
+    JsonConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(JsonConfigurator)
@@ -135,9 +135,6 @@ private:
                                   const QString &prefix,
                                   Properties &properties);
 };
-
-inline JsonConfigurator::JsonConfigurator()
-{}
 
 } // namespace Log4Qt
 

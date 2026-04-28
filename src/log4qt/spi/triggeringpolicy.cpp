@@ -18,35 +18,27 @@
  *
  ******************************************************************************/
 
-#include "layout.h"
-
-#include "loggingevent.h"
-#include "logmanager.h"
+#include "spi/triggeringpolicy.h"
 
 namespace Log4Qt
 {
 
-Layout::Layout(QObject *parent) :
+TriggeringPolicy::TriggeringPolicy(QObject *parent) :
     QObject(parent)
 {}
 
-Layout::~Layout() = default;
+TriggeringPolicy::~TriggeringPolicy() = default;
 
-QString Layout::contentType() const
-{
-    return u"text/plain"_s;
-}
+void TriggeringPolicy::activateOptions()
+{}
 
-void Layout::activateOptions()
+bool TriggeringPolicy::isStartupTrigger(const QString &fileName, qint64 fileSize)
 {
-}
-
-QString Layout::endOfLine()
-{
-    // There seams to be no function in Qt for this. MinGW enter '\r\n' automatically
-    return u"\n"_s;
+    Q_UNUSED(fileName)
+    Q_UNUSED(fileSize)
+    return false;
 }
 
 } // namespace Log4Qt
 
-#include "moc_layout.cpp"
+#include "moc_triggeringpolicy.cpp"

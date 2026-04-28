@@ -21,7 +21,7 @@
 #ifndef LOG4QT_TTCCLAYOUT_H
 #define LOG4QT_TTCCLAYOUT_H
 
-#include "layout.h"
+#include "abstractstringlayout.h"
 #include "helpers/patternformatter.h"
 
 #include <memory>
@@ -38,7 +38,7 @@ class LoggingEvent;
  * \note The ownership and lifetime of objects of this class are managed.
  *       See \ref Ownership "Object ownership" for more details.
  */
-class LOG4QT_EXPORT TTCCLayout : public Layout
+class LOG4QT_EXPORT TTCCLayout : public AbstractStringLayout
 {
     Q_OBJECT
 
@@ -88,27 +88,27 @@ public:
     enum DateFormat
     {
         /*! The none date format string is "NONE".  */
-        NONE,
+        None,
         /*!
          * The iso8601 date format string is "ISO8601". The date will be
          * formatted as yyyy-MM-dd hh:mm:ss.zzz.
          */
-        ISO8601,
+        Iso8601,
         /*!
          * The absolute date format string is "ABSOLUTE". The date will be
          * formatted as HH:mm:ss.zzz.
          */
-        ABSOLUTE,
+        Absolute,
         /*!
          * The date date format string is "DATE". The date will be formatted
          * as MMM YYYY HH:mm:ss.zzz.
          */
-        DATE,
+        Date,
         /*!
          * The relative date format string is "RELATIVE". The date will be
          * formatted as milliseconds since start of the program.
          */
-        RELATIVE
+        Relative
     };
     Q_ENUM(DateFormat)
 
@@ -127,13 +127,25 @@ private:
     Q_DISABLE_COPY_MOVE(TTCCLayout)
 
 public:
-    bool categoryPrefixing() const;
-    bool contextPrinting() const;
-    QString dateFormat() const;
-    bool threadPrinting() const;
-    void setCategoryPrefixing(bool categoryPrefixing);
-    void setContextPrinting(bool contextPrinting);
-    void setDateFormat(const QString &dateFormat);
+    [[nodiscard]] bool categoryPrefixing() const { return mCategoryPrefixing; }
+    [[nodiscard]] bool contextPrinting() const { return mContextPrinting; }
+    [[nodiscard]] QString dateFormat() const { return mDateFormat; }
+    [[nodiscard]] bool threadPrinting() const { return mThreadPrinting; }
+    void setCategoryPrefixing(bool categoryPrefixing)
+    {
+        mCategoryPrefixing = categoryPrefixing;
+        updatePatternFormatter();
+    }
+    void setContextPrinting(bool contextPrinting)
+    {
+        mContextPrinting = contextPrinting;
+        updatePatternFormatter();
+    }
+    void setDateFormat(const QString &dateFormat)
+    {
+        mDateFormat = dateFormat;
+        updatePatternFormatter();
+    }
 
     /*!
     * Sets the date format to the value specified by the \a dateFormat
@@ -141,7 +153,11 @@ public:
     */
     void setDateFormat(DateFormat dateFormat);
 
-    void setThreadPrinting(bool threadPrinting);
+    void setThreadPrinting(bool threadPrinting)
+    {
+        mThreadPrinting = threadPrinting;
+        updatePatternFormatter();
+    }
     virtual QString format(const LoggingEvent &event) override;
 
 private:
@@ -154,51 +170,6 @@ private:
     bool mThreadPrinting;
     std::unique_ptr<PatternFormatter> mPatternFormatter;
 };
-
-inline bool TTCCLayout::categoryPrefixing() const
-{
-    return mCategoryPrefixing;
-}
-
-inline bool TTCCLayout::contextPrinting() const
-{
-    return mContextPrinting;
-}
-
-inline QString TTCCLayout::dateFormat() const
-{
-    return mDateFormat;
-}
-
-inline bool TTCCLayout::threadPrinting() const
-{
-    return mThreadPrinting;
-}
-
-inline void TTCCLayout::setCategoryPrefixing(bool categoryPrefixing)
-{
-    mCategoryPrefixing = categoryPrefixing;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setContextPrinting(bool contextPrinting)
-{
-    mContextPrinting = contextPrinting;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setDateFormat(const QString &dateFormat)
-{
-    mDateFormat = dateFormat;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setThreadPrinting(bool threadPrinting)
-{
-    mThreadPrinting = threadPrinting;
-    updatePatternFormatter();
-}
-
 
 } // namespace Log4Qt
 

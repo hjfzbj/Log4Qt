@@ -58,11 +58,11 @@ class LOG4QT_EXPORT Filter : public QObject
 public:
     enum Decision
     {
-        ACCEPT, /*!< The log event must be logged immediately without consulting
+        Accept, /*!< The log event must be logged immediately without consulting
                      with the remaining filters, if any, in the chain. */
-        DENY, /*!< The log event must be dropped immediately without consulting
+        Deny, /*!< The log event must be dropped immediately without consulting
                    with the remaining filters, if any, in the chain. */
-        NEUTRAL /*!< This filter is neutral with respect to the log event. The
+        Neutral /*!< This filter is neutral with respect to the log event. The
                    remaining filters, if any, should be consulted for a final decision. */
     };
     Q_ENUM(Decision)

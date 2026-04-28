@@ -21,245 +21,98 @@
 #include "dailyrollingfileappender.h"
 
 #include "helpers/datetime.h"
-#include "layout.h"
 #include "loggingevent.h"
-
-#include <QFile>
-#include <QMetaEnum>
+#include "spi/daterolloverstrategy.h"
 
 namespace Log4Qt
 {
 
-DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent) :
-    FileAppender(parent),
-    mDatePattern(),
-    mFrequency(DAILY_ROLLOVER)
+constexpr char defaultDatePattern[] = "_yyyy_MM_dd";
+
+DailyRollingFileAppender::~DailyRollingFileAppender()
 {
-    setDatePattern(DAILY_ROLLOVER);
+    // deleteLater() defers QObject destruction, so the strategy's QFutureSynchronizer
+    // would not wait synchronously if we relied on the shared_ptr's deleter alone.
+    // Explicitly wait here, while the strategy is still alive.
+    if (auto *strategy = qobject_cast<DateRolloverStrategy *>(rolloverStrategy().get()))
+        strategy->waitForCleanup();
 }
 
-
-DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout,
-        const QString &fileName,
-        const QString &datePattern,
-        QObject *parent) :
-    FileAppender(layout, fileName, parent),
-    mDatePattern(),
-    mFrequency(DAILY_ROLLOVER)
+DailyRollingFileAppender::DailyRollingFileAppender(QObject *parent)
+    : RollingFileAppender(parent)
+    , mDatePattern(defaultDatePattern)
+    , mKeepDays(0)
 {
-    setDatePattern(datePattern);
 }
 
-void DailyRollingFileAppender::setDatePattern(DatePattern datePattern)
+DailyRollingFileAppender::DailyRollingFileAppender(const LayoutSharedPtr &layout, const QString &fileName, const QString &datePattern, const int keepDays, QObject *parent)
+    : RollingFileAppender(layout, fileName, parent)
+    , mDatePattern(datePattern.isEmpty() ? defaultDatePattern : datePattern)
+    , mKeepDays(keepDays)
 {
-    switch (datePattern)
-    {
-    case MINUTELY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-MM-dd-hh-mm"_s);
-        break;
-    case HOURLY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-MM-dd-hh"_s);
-        break;
-    case HALFDAILY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-MM-dd-a"_s);
-        break;
-    case DAILY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-MM-dd"_s);
-        break;
-    case WEEKLY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-ww"_s);
-        break;
-    case MONTHLY_ROLLOVER:
-        setDatePattern(u"'.'yyyy-MM"_s);
-        break;
-    default:
-        Q_ASSERT_X(false, "DailyRollingFileAppender::setDatePattern()", "Invalid datePattern constant");
-        setDatePattern(DAILY_ROLLOVER);
-    };
 }
 
+QString DailyRollingFileAppender::datePattern() const
+{
+    QMutexLocker locker(&mObjectGuard);
+    return mDatePattern;
+}
+
+void DailyRollingFileAppender::setDatePattern(const QString &datePattern)
+{
+    QMutexLocker locker(&mObjectGuard);
+    mDatePattern = datePattern;
+}
+
+int DailyRollingFileAppender::keepDays() const
+{
+    QMutexLocker locker(&mObjectGuard);
+    return mKeepDays;
+}
+
+void DailyRollingFileAppender::setKeepDays(const int keepDays)
+{
+    QMutexLocker locker(&mObjectGuard);
+    mKeepDays = keepDays;
+}
 
 void DailyRollingFileAppender::activateOptions()
 {
     QMutexLocker locker(&mObjectGuard);
 
-    computeFrequency();
-    if (!mActiveDatePattern.isEmpty())
-    {
-        computeRollOvetime();
-        FileAppender::activateOptions();
-    }
-}
+    if (mOriginalFilename.isEmpty())
+        mOriginalFilename = file();
 
+    // Set up DateRolloverStrategy in Embedded mode for filename construction.
+    auto *strategy = new DateRolloverStrategy;
+    strategy->setMode(DateRolloverStrategy::Embedded);
+    strategy->setDatePattern(mDatePattern);
+    strategy->setKeepDays(mKeepDays);
+    setRolloverStrategy(RolloverStrategySharedPtr(strategy));
+
+    mLastDate = DateTime::currentDateTime().date();
+    closeFile();
+    setFile(strategy->rollover(mOriginalFilename));
+    strategy->waitForCleanup();
+
+    FileAppender::activateOptions();
+}
 
 void DailyRollingFileAppender::append(const LoggingEvent &event)
 {
-    if (QDateTime::currentDateTime() > mRollOvetime)
+    const auto currentDate(DateTime::currentDateTime().date());
+
+    if (currentDate != mLastDate)
+    {
+        mLastDate = currentDate;
+
+        // Reset to base filename so the strategy receives the un-dated name.
+        setFile(mOriginalFilename);
         rollOver();
+    }
     FileAppender::append(event);
 }
 
-
-bool DailyRollingFileAppender::checkEntryConditions() const
-{
-    if (mActiveDatePattern.isEmpty())
-    {
-        LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("Use of appender '%1' without having a valid date pattern set"),
-                                         APPENDER_USE_INVALID_PATTERN_ERROR);
-        e << name();
-        logger()->error(e);
-        return false;
-    }
-
-    return FileAppender::checkEntryConditions();
 }
-
-void DailyRollingFileAppender::computeFrequency()
-{
-    const DateTime start_time(QDate(1999, 1, 1), QTime(0, 0));
-    const QString start_string = start_time.toString(mDatePattern);
-    mActiveDatePattern.clear();
-
-    if (start_string != static_cast<DateTime>(start_time.addSecs(60)).toString(mDatePattern))
-        mFrequency = MINUTELY_ROLLOVER;
-    else if (start_string != static_cast<DateTime>(start_time.addSecs(60 * 60)).toString(mDatePattern))
-        mFrequency = HOURLY_ROLLOVER;
-    else if (start_string != static_cast<DateTime>(start_time.addSecs(60 * 60 * 12)).toString(mDatePattern))
-        mFrequency = HALFDAILY_ROLLOVER;
-    else if (start_string != static_cast<DateTime>(start_time.addDays(1)).toString(mDatePattern))
-        mFrequency = DAILY_ROLLOVER;
-    else if (start_string != static_cast<DateTime>(start_time.addDays(7)).toString(mDatePattern))
-        mFrequency = WEEKLY_ROLLOVER;
-    else if (start_string != static_cast<DateTime>(start_time.addMonths(1)).toString(mDatePattern))
-        mFrequency = MONTHLY_ROLLOVER;
-    else
-    {
-        LogError e = LOG4QT_QCLASS_ERROR(QT_TR_NOOP("The pattern '%1' does not specify a frequency for appender '%2'"),
-                                         APPENDER_INVALID_PATTERN_ERROR);
-        e << mDatePattern << name();
-        logger()->error(e);
-        return;
-    }
-
-    mActiveDatePattern = mDatePattern;
-    logger()->trace(u"Frequency set to %2 using date pattern %1"_s,
-                    mActiveDatePattern,
-                    frequencyToString());
-}
-
-
-void DailyRollingFileAppender::computeRollOvetime()
-{
-    Q_ASSERT_X(!mActiveDatePattern.isEmpty(), "DailyRollingFileAppender::computeRollOvetime()", "No active date pattern");
-
-    QDateTime now = QDateTime::currentDateTime();
-    QDate now_date = now.date();
-    QTime now_time = now.time();
-    QDateTime start;
-
-    switch (mFrequency)
-    {
-    case MINUTELY_ROLLOVER:
-    {
-        start = QDateTime(now_date,
-                          QTime(now_time.hour(),
-                                now_time.minute(),
-                                0, 0));
-        mRollOvetime = start.addSecs(60);
-    }
-    break;
-    case HOURLY_ROLLOVER:
-    {
-        start = QDateTime(now_date,
-                          QTime(now_time.hour(),
-                                0, 0, 0));
-        mRollOvetime = start.addSecs(60 * 60);
-    }
-    break;
-    case HALFDAILY_ROLLOVER:
-    {
-        int hour = now_time.hour();
-        if (hour >=  12)
-            hour = 12;
-        else
-            hour = 0;
-        start = QDateTime(now_date,
-                          QTime(hour, 0, 0, 0));
-        mRollOvetime = start.addSecs(60 * 60 * 12);
-    }
-    break;
-    case DAILY_ROLLOVER:
-    {
-        start = QDateTime(now_date,
-                          QTime(0, 0, 0, 0));
-        mRollOvetime = start.addDays(1);
-    }
-    break;
-    case WEEKLY_ROLLOVER:
-    {
-        // QT numbers the week days 1..7. The week starts on Monday.
-        // Change it to being numbered 0..6, starting with Sunday.
-        int day = now_date.dayOfWeek();
-        if (day == Qt::Sunday)
-            day = 0;
-        start = QDateTime(now_date,
-                          QTime(0, 0, 0, 0)).addDays(-1 * day);
-        mRollOvetime = start.addDays(7);
-    }
-    break;
-    case MONTHLY_ROLLOVER:
-    {
-        start = QDateTime(QDate(now_date.year(),
-                                now_date.month(),
-                                1),
-                          QTime(0, 0, 0, 0));
-        mRollOvetime = start.addMonths(1);
-    }
-    break;
-    default:
-        Q_ASSERT_X(false, "DailyRollingFileAppender::computeInterval()", "Invalid datePattern constant");
-        mRollOvetime = QDateTime::fromSecsSinceEpoch(0);
-    }
-
-    mRollOverSuffix = static_cast<DateTime>(start).toString(mActiveDatePattern);
-    Q_ASSERT_X(static_cast<DateTime>(now).toString(mActiveDatePattern) == mRollOverSuffix,
-               "DailyRollingFileAppender::computeRollOvetime()", "File name changes within interval");
-    Q_ASSERT_X(mRollOverSuffix != static_cast<DateTime>(mRollOvetime).toString(mActiveDatePattern),
-               "DailyRollingFileAppender::computeRollOvetime()", "File name does not change with rollover");
-
-    logger()->trace(u"Computing roll over time from %1: The interval start time is %2. The roll over time is %3"_s,
-                    now.toString(),
-                    start.toString(),
-                    mRollOvetime.toString());
-}
-
-QString DailyRollingFileAppender::frequencyToString() const
-{
-    QMetaEnum meta_enum = metaObject()->enumerator(metaObject()->indexOfEnumerator("DatePattern"));
-    return QLatin1String(meta_enum.valueToKey(mFrequency));
-}
-
-void DailyRollingFileAppender::rollOver()
-{
-    Q_ASSERT_X(!mActiveDatePattern.isEmpty(), "DailyRollingFileAppender::rollOver()", "No active date pattern");
-
-    QString roll_over_suffix = mRollOverSuffix;
-    computeRollOvetime();
-    if (roll_over_suffix == mRollOverSuffix)
-        return;
-
-    closeFile();
-
-    QString target_file_name = file() + roll_over_suffix;
-    QFile f(target_file_name);
-    if (f.exists() && !removeFile(f))
-        return;
-    f.setFileName(file());
-    if (!renameFile(f, target_file_name))
-        return;
-    openFile();
-}
-
-} // namespace Log4Qt
 
 #include "moc_dailyrollingfileappender.cpp"

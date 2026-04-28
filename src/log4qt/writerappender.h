@@ -23,13 +23,7 @@
 
 #include "appenderskeleton.h"
 
-#if QT_VERSION >= 0x060000
 #include <QStringConverter>
-#endif
-
-#if QT_VERSION < 0x060000
-class QTextCodec;
-#endif
 
 class QTextStream;
 
@@ -55,11 +49,7 @@ class LOG4QT_EXPORT WriterAppender : public AppenderSkeleton
      *
      * \sa encoding(), setEncoding()
      */
-#if QT_VERSION < 0x060000
-    Q_PROPERTY(QTextCodec *encoding READ encoding WRITE setEncoding)
-#else
     Q_PROPERTY(QStringConverter::Encoding encoding READ encoding WRITE setEncoding)
-#endif
 
     /*!
      * The property holds the writer the appender uses.
@@ -91,13 +81,13 @@ private:
 
 public:
     bool requiresLayout() const override;
-#if QT_VERSION < 0x060000
-    inline QTextCodec *encoding() const;
-#else
-    inline QStringConverter::Encoding encoding() const;
-#endif
-    inline bool immediateFlush() const;
-    inline QTextStream *writer() const;
+    QStringConverter::Encoding encoding() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mEncoding;
+    }
+    bool immediateFlush() const { return mImmediateFlush; }
+    QTextStream *writer() const { return mWriter; }
 
     /*!
      * Sets the codec used by the writer to \a pTextCoded.
@@ -108,12 +98,8 @@ public:
      *
      * \sa encoding(), QTextSream::setCodec(), QTextCodec::codecForLocale()
      */
-#if QT_VERSION < 0x060000
-    void setEncoding(QTextCodec *encoding);
-#else
     void setEncoding(QStringConverter::Encoding encoding);
-#endif
-    inline void setImmediateFlush(bool immediateFlush);
+    void setImmediateFlush(bool immediateFlush) { mImmediateFlush = immediateFlush; }
     void setWriter(QTextStream *textStream);
 
     void activateOptions() override;
@@ -131,7 +117,7 @@ protected:
      * AppenderSkeleton::checkEntryConditions() is returned.
      *
      * The checked conditions are:
-     * - A writer has been set (APPENDER_USE_MISSING_WRITER_ERROR)
+     * - A writer has been set (AppenderUseMissingWriterError)
      *
      * The function is called as part of the checkEntryConditions() chain
      * started by AppenderSkeleton::doAppend().
@@ -144,49 +130,22 @@ protected:
     void closeWriter();
 
     virtual bool handleIoErrors() const;
-    void writeFooter() const;
-    void writeHeader() const;
+    virtual void writeFooter() const;
+    virtual void writeHeader() const;
+
+    /*!
+     * Suppresses the next footer write. Call before closing a file when the
+     * footer should be omitted (e.g. during a startup rollover).
+     */
+    void suppressNextFooter();
 
 private:
-#if QT_VERSION < 0x060000
-    QTextCodec *mEncoding;
-#else
     QStringConverter::Encoding mEncoding;
-#endif
     QTextStream *mWriter;
     std::atomic<bool> mImmediateFlush;
+    mutable bool mSuppressNextFooter = false;
     void closeInternal();
 };
-
-#if QT_VERSION < 0x060000
-inline QTextCodec *WriterAppender::encoding() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mEncoding;
-}
-#else
-inline QStringConverter::Encoding WriterAppender::encoding() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mEncoding;
-}
-#endif
-
-inline bool WriterAppender::immediateFlush() const
-{
-    return mImmediateFlush;
-}
-
-inline QTextStream *WriterAppender::writer() const
-{
-    return mWriter;
-}
-
-inline void WriterAppender::setImmediateFlush(bool immediateFlush)
-{
-    mImmediateFlush = immediateFlush;
-}
-
 
 } // namespace Log4Qt
 

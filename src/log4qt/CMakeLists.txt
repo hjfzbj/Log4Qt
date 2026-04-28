@@ -1,29 +1,31 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(log4qt_SOURCES
+    abstractstringlayout.cpp
     appender.cpp
     appenderskeleton.cpp
     asyncappender.cpp
     basicconfigurator.cpp
     consoleappender.cpp
-    dailyfileappender.cpp
     dailyrollingfileappender.cpp
     fileappender.cpp
     helpers/appenderattachable.cpp
     helpers/classlogger.cpp
     helpers/configuratorhelper.cpp
+    helpers/cronexpression.cpp
     helpers/datetime.cpp
-    helpers/dispatcher.cpp
+    helpers/asyncworker.cpp
+
     helpers/factory.cpp
     helpers/initialisationhelper.cpp
     helpers/logerror.cpp
     helpers/optionconverter.cpp
     helpers/patternformatter.cpp
     helpers/properties.cpp
-    helpers/timestampprovider.cpp
     hierarchy.cpp
     jsonconfigurator.cpp
-    layout.cpp
+    jsonlayout.cpp
+    abstractlayout.cpp
     level.cpp
     logger.cpp
     loggerrepository.cpp
@@ -35,11 +37,22 @@ set(log4qt_SOURCES
     ndc.cpp                                                                                                                                                           
     patternlayout.cpp                                                                                                                                                 
     propertyconfigurator.cpp                                                                                                                                          
-    rollingfileappender.cpp                                                                                                                                           
+    randomaccessfileappender.cpp
+    rollingfileappender.cpp                                              
     signalappender.cpp                                                                                                                                                
     simplelayout.cpp                                                                                                                                                  
     simpletimelayout.cpp                                                                                                                                                                                                                       
-    spi/filter.cpp                                                                                                                                                                                                                             
+    spi/compositetriggeringpolicy.cpp
+    spi/crontriggeringpolicy.cpp
+    spi/headerfooterprovider.cpp
+    spi/daterolloverstrategy.cpp
+    spi/defaultrolloverstrategy.cpp
+    spi/filter.cpp
+    spi/onstartuptriggeringpolicy.cpp
+    spi/rolloverstrategy.cpp
+    spi/sizebasedtriggeringpolicy.cpp
+    spi/timebasedtriggeringpolicy.cpp
+    spi/triggeringpolicy.cpp                                                                                                                                                                                                                             
     systemlogappender.cpp                                                                                                                                                                                                                      
     ttcclayout.cpp                                                                                                                                                                                                                             
     varia/debugappender.cpp                                                                                                                                                                                                                    
@@ -54,17 +67,18 @@ set(log4qt_SOURCES
     xmllayout.cpp
 )
 set(log4qt_HEADERS
+    abstractstringlayout.h
     appender.h
     appenderskeleton.h
     asyncappender.h
     basicconfigurator.h
     consoleappender.h
-    dailyfileappender.h
     dailyrollingfileappender.h
     fileappender.h
     hierarchy.h
     jsonconfigurator.h
-    layout.h
+    jsonlayout.h
+    abstractlayout.h
     level.h
     log4qtdefs.h
     log4qt.h
@@ -80,6 +94,7 @@ set(log4qt_HEADERS
     ndc.h
     patternlayout.h
     propertyconfigurator.h
+    randomaccessfileappender.h
     rollingfileappender.h
     signalappender.h
     simplelayout.h
@@ -92,20 +107,32 @@ set(log4qt_HEADERS
 )
 set(log4qt_HEADERS_helpers
     helpers/appenderattachable.h
+    helpers/asyncworker.h
+    helpers/boundedblockingqueue.h
     helpers/classlogger.h
     helpers/configuratorhelper.h
+    helpers/cronexpression.h
     helpers/datetime.h
-    helpers/dispatcher.h
+
     helpers/factory.h
     helpers/initialisationhelper.h
     helpers/logerror.h
     helpers/optionconverter.h
     helpers/patternformatter.h
     helpers/properties.h
-    helpers/timestampprovider.h
 )
 set(log4qt_HEADERS_spi
+    spi/compositetriggeringpolicy.h
+    spi/crontriggeringpolicy.h
+    spi/headerfooterprovider.h
+    spi/daterolloverstrategy.h
+    spi/defaultrolloverstrategy.h
     spi/filter.h
+    spi/onstartuptriggeringpolicy.h
+    spi/rolloverstrategy.h
+    spi/sizebasedtriggeringpolicy.h
+    spi/timebasedtriggeringpolicy.h
+    spi/triggeringpolicy.h
 )
 set(log4qt_HEADERS_varia
     varia/debugappender.h
@@ -178,7 +205,7 @@ if(BUILD_WITH_QML_LOGGING)
         PRIVATE
             LOG4QT_QML_LOGGING_SUPPORT
     )
-    if (QT_VERSION_MAJOR GREATER 6 OR (QT_VERSION_MAJOR EQUAL 6 AND QT_VERSION_MINOR GREATER 1))
+    if (TRUE) # Qt >= 6.5 always supports qt_add_qml_module
         qt_add_qml_module(
             log4qt
             URI org.log4qt

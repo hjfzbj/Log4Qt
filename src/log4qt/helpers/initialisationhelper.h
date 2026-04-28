@@ -133,7 +133,10 @@ public:
      * \sa \ref Env "Environment Variables",
      *     setting()
      */
-    static QHash<QString, QString> environmentSettings();
+    static QHash<QString, QString> environmentSettings()
+    {
+        return instance()->mEnvironmentSettings;
+    }
 
     /*!
     * Returns the InitialisationHelper instance.
@@ -184,7 +187,10 @@ public:
      *     LogManager::configureLogLogger(), LogManager::startup()
      */
     static QString setting(const QString &key,
-                           const QString &defaultValue = QString());
+                           const QString &defaultValue = QString())
+    {
+        return instance()->doSetting(key, defaultValue);
+    }
 
     /*!
      * Returns the start time of the program as the number of milliseconds
@@ -194,7 +200,10 @@ public:
      * \sa DateTime::fromMilliSeconds(),
      *     DateTime::toMilliSeconds()
      */
-    static qint64 startTime();
+    static qint64 startTime()
+    {
+        return instance()->mStartTime;
+    }
 
 private:
     void doInitialiseEnvironmentSettings();
@@ -210,22 +219,6 @@ private:
     static bool mStaticInitialisation;
 
 };
-
-inline QHash<QString, QString> InitialisationHelper::environmentSettings()
-{
-    return instance()->mEnvironmentSettings;
-}
-
-inline QString InitialisationHelper::setting(const QString &key,
-        const QString &defaultValue)
-{
-    return instance()->doSetting(key, defaultValue);
-}
-
-inline qint64 InitialisationHelper::startTime()
-{
-    return instance()->mStartTime;
-}
 
 } // namespace Log4Qt
 
