@@ -150,10 +150,10 @@ public:
     explicit PatternHeaderFooterProvider(QObject *parent = nullptr);
     ~PatternHeaderFooterProvider() override;
 
-    [[nodiscard]] QString headerPattern() const;
+    [[nodiscard]] QString headerPattern() const { return mHeaderPattern; }
     void setHeaderPattern(const QString &pattern);
 
-    [[nodiscard]] QString footerPattern() const;
+    [[nodiscard]] QString footerPattern() const { return mFooterPattern; }
     void setFooterPattern(const QString &pattern);
 
     [[nodiscard]] QString header() const override;
@@ -167,16 +167,6 @@ private:
     std::unique_ptr<PatternFormatter> mHeaderFormatter;
     std::unique_ptr<PatternFormatter> mFooterFormatter;
 };
-
-inline QString PatternHeaderFooterProvider::headerPattern() const
-{
-    return mHeaderPattern;
-}
-
-inline QString PatternHeaderFooterProvider::footerPattern() const
-{
-    return mFooterPattern;
-}
 
 } // namespace Log4Qt
 
