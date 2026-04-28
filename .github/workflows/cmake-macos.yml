@@ -20,7 +20,7 @@ jobs:
         qt_version: [6.5.3, 6.8.3, 6.10.2]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install ninja
       run: brew install ninja
