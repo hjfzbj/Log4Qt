@@ -88,12 +88,20 @@ private:
     Q_DISABLE_COPY_MOVE(FileAppender)
 
 public:
-    inline bool appendFile() const;
-    inline QString file() const;
-    inline bool bufferedIo() const;
-    inline void setAppendFile(bool append);
-    inline void setBufferedIo(bool buffered);
-    inline void setFile(const QString &fileName);
+    bool appendFile() const { return mAppendFile; }
+    QString file() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mFileName;
+    }
+    bool bufferedIo() const { return mBufferedIo; }
+    void setAppendFile(bool append) { mAppendFile = append; }
+    void setBufferedIo(bool buffered) { mBufferedIo = buffered; }
+    void setFile(const QString &fileName)
+    {
+        QMutexLocker locker(&mObjectGuard);
+        mFileName = fileName;
+    }
 
     void activateOptions() override;
     void close() override;
@@ -160,39 +168,6 @@ private:
     std::unique_ptr<QTextStream> mTextStream;
     void closeInternal();
 };
-
-inline bool FileAppender::appendFile() const
-{
-    return mAppendFile;
-}
-
-inline QString FileAppender::file() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mFileName;
-}
-
-inline bool FileAppender::bufferedIo() const
-{
-    return mBufferedIo;
-}
-
-inline void FileAppender::setAppendFile(bool append)
-{
-    mAppendFile = append;
-}
-
-inline void FileAppender::setBufferedIo(bool buffered)
-{
-    mBufferedIo = buffered;
-}
-
-inline void FileAppender::setFile(const QString &fileName)
-{
-    QMutexLocker locker(&mObjectGuard);
-    mFileName = fileName;
-}
-
 
 } // namespace Log4Qt
 

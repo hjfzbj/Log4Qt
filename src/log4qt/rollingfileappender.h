@@ -85,13 +85,21 @@ private:
 public:
     void setTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
     void addTriggeringPolicy(const TriggeringPolicySharedPtr &policy);
-    TriggeringPolicySharedPtr triggeringPolicy() const;
+    TriggeringPolicySharedPtr triggeringPolicy() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mTriggeringPolicy;
+    }
 
     void setRolloverStrategy(const RolloverStrategySharedPtr &strategy);
-    RolloverStrategySharedPtr rolloverStrategy() const;
+    RolloverStrategySharedPtr rolloverStrategy() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mRolloverStrategy;
+    }
 
-    [[nodiscard]] bool skipFooterOnStartup() const;
-    void setSkipFooterOnStartup(bool skip);
+    [[nodiscard]] bool skipFooterOnStartup() const { return mSkipFooterOnStartup; }
+    void setSkipFooterOnStartup(bool skip) { mSkipFooterOnStartup = skip; }
 
     void activateOptions() override;
 
@@ -105,28 +113,6 @@ private:
     QString mBaseFileName;
     bool mSkipFooterOnStartup = false;
 };
-
-inline TriggeringPolicySharedPtr RollingFileAppender::triggeringPolicy() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mTriggeringPolicy;
-}
-
-inline RolloverStrategySharedPtr RollingFileAppender::rolloverStrategy() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mRolloverStrategy;
-}
-
-inline bool RollingFileAppender::skipFooterOnStartup() const
-{
-    return mSkipFooterOnStartup;
-}
-
-inline void RollingFileAppender::setSkipFooterOnStartup(bool skip)
-{
-    mSkipFooterOnStartup = skip;
-}
 
 } // namespace Log4Qt
 

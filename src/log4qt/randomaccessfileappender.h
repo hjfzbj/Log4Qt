@@ -154,15 +154,15 @@ private:
     Q_DISABLE_COPY_MOVE(RandomAccessFileAppender)
 
 public:
-    [[nodiscard]] inline bool appendFile() const;
+    [[nodiscard]] bool appendFile() const { return mAppendFile.load(std::memory_order_relaxed); }
     [[nodiscard]] QString file() const;
-    [[nodiscard]] inline int bufferSize() const;
-    [[nodiscard]] inline bool immediateFlush() const;
+    [[nodiscard]] int bufferSize() const { return mBufferSize.load(std::memory_order_relaxed); }
+    [[nodiscard]] bool immediateFlush() const { return mImmediateFlush.load(std::memory_order_relaxed); }
 
-    inline void setAppendFile(bool append);
+    void setAppendFile(bool append) { mAppendFile.store(append, std::memory_order_relaxed); }
     void setFile(const QString &fileName);
     void setBufferSize(int bufferSize);
-    inline void setImmediateFlush(bool immediateFlush);
+    void setImmediateFlush(bool immediateFlush) { mImmediateFlush.store(immediateFlush, std::memory_order_relaxed); }
 
     bool requiresLayout() const override;
 
@@ -215,31 +215,6 @@ private:
     QByteArray        mByteBuffer;    // guarded by mObjectGuard
     std::unique_ptr<QFile> mFile;     // guarded by mObjectGuard
 };
-
-inline bool RandomAccessFileAppender::appendFile() const
-{
-    return mAppendFile.load(std::memory_order_relaxed);
-}
-
-inline int RandomAccessFileAppender::bufferSize() const
-{
-    return mBufferSize.load(std::memory_order_relaxed);
-}
-
-inline bool RandomAccessFileAppender::immediateFlush() const
-{
-    return mImmediateFlush.load(std::memory_order_relaxed);
-}
-
-inline void RandomAccessFileAppender::setAppendFile(bool append)
-{
-    mAppendFile.store(append, std::memory_order_relaxed);
-}
-
-inline void RandomAccessFileAppender::setImmediateFlush(bool immediateFlush)
-{
-    mImmediateFlush.store(immediateFlush, std::memory_order_relaxed);
-}
 
 } // namespace Log4Qt
 

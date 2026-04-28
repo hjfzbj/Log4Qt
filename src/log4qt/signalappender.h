@@ -37,7 +37,7 @@ class LOG4QT_EXPORT SignalAppender : public AppenderSkeleton
 public:
     explicit SignalAppender(QObject *parent = nullptr);
 
-    bool requiresLayout() const override;
+    bool requiresLayout() const override { return true; }
 
 protected:
     void append(const Log4Qt::LoggingEvent &event) override;
@@ -49,11 +49,6 @@ Q_SIGNALS:
     void appended(const QString &message);
 
 };
-
-inline bool SignalAppender::requiresLayout() const
-{
-    return true;
-}
 
 } // namespace Log4Qt
 

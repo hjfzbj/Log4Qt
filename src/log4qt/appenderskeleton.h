@@ -81,15 +81,27 @@ protected:
     ~AppenderSkeleton() override;
 
 public:
-    [[nodiscard]] inline FilterSharedPtr filter() const override;
+    [[nodiscard]] FilterSharedPtr filter() const override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mpHeadFilter;
+    }
     [[nodiscard]] LayoutSharedPtr layout() const override;
-    [[nodiscard]] inline bool isActive() const;
-    [[nodiscard]] inline bool isClosed() const;
-    [[nodiscard]] inline QString name() const override;
-    [[nodiscard]] inline Level threshold() const;
+    [[nodiscard]] bool isActive() const { return mIsActive.load(std::memory_order_relaxed); }
+    [[nodiscard]] bool isClosed() const { return mIsClosed.load(std::memory_order_relaxed); }
+    [[nodiscard]] QString name() const override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return objectName();
+    }
+    [[nodiscard]] Level threshold() const { return mThreshold; }
     void setLayout(const LayoutSharedPtr &layout) override;
-    inline void setName(const QString &name) override;
-    inline void setThreshold(Level level);
+    void setName(const QString &name) override
+    {
+        QMutexLocker locker(&mObjectGuard);
+        setObjectName(name);
+    }
+    void setThreshold(Level level) { mThreshold = level; }
 
     virtual void activateOptions();
     void addFilter(const FilterSharedPtr &filter) override;
@@ -119,8 +131,12 @@ public:
      */
     void doAppend(const LoggingEvent &event) override;
 
-    inline FilterSharedPtr firstFilter() const;
-    inline bool isAsSevereAsThreshold(Level level) const;
+    FilterSharedPtr firstFilter() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return filter();
+    }
+    bool isAsSevereAsThreshold(Level level) const { return (mThreshold <= level); }
 
 protected:
     virtual void append(const LoggingEvent &event) = 0;
@@ -208,55 +224,6 @@ private:
     FilterSharedPtr mpTailFilter;
     void closeInternal();
 };
-
-inline FilterSharedPtr AppenderSkeleton::filter() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mpHeadFilter;
-}
-
-inline QString AppenderSkeleton::name() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return objectName();
-}
-
-inline Level AppenderSkeleton::threshold() const
-{
-    return mThreshold;
-}
-
-inline void AppenderSkeleton::setName(const QString &name)
-{
-    QMutexLocker locker(&mObjectGuard);
-    setObjectName(name);
-}
-
-inline void AppenderSkeleton::setThreshold(Level level)
-{
-    mThreshold = level;
-}
-
-[[nodiscard]] inline bool AppenderSkeleton::isActive() const
-{
-    return mIsActive.load(std::memory_order_relaxed);
-}
-
-[[nodiscard]] inline bool AppenderSkeleton::isClosed() const
-{
-    return mIsClosed.load(std::memory_order_relaxed);
-}
-
-inline FilterSharedPtr AppenderSkeleton::firstFilter() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return filter();
-}
-
-inline bool AppenderSkeleton::isAsSevereAsThreshold(Level level) const
-{
-    return (mThreshold <= level);
-}
 
 } // namespace Log4Qt
 

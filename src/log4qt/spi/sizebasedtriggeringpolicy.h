@@ -53,10 +53,10 @@ public:
 
     explicit SizeBasedTriggeringPolicy(QObject *parent = nullptr);
 
-    [[nodiscard]] qint64 maximumFileSize() const;
-    void setMaximumFileSize(qint64 maximumFileSize);
+    [[nodiscard]] qint64 maximumFileSize() const { return mMaximumFileSize; }
+    void setMaximumFileSize(qint64 maximumFileSize) { mMaximumFileSize = maximumFileSize; }
 
-    [[nodiscard]] QString maxFileSize() const;
+    [[nodiscard]] QString maxFileSize() const { return QString::number(mMaximumFileSize); }
     void setMaxFileSize(const QString &maxFileSize);
 
     bool isTriggeringEvent(QIODevice *activeDevice,
@@ -66,21 +66,6 @@ private:
     Q_DISABLE_COPY_MOVE(SizeBasedTriggeringPolicy)
     qint64 mMaximumFileSize;
 };
-
-inline qint64 SizeBasedTriggeringPolicy::maximumFileSize() const
-{
-    return mMaximumFileSize;
-}
-
-inline void SizeBasedTriggeringPolicy::setMaximumFileSize(qint64 maximumFileSize)
-{
-    mMaximumFileSize = maximumFileSize;
-}
-
-inline QString SizeBasedTriggeringPolicy::maxFileSize() const
-{
-    return QString::number(mMaximumFileSize);
-}
 
 } // namespace Log4Qt
 

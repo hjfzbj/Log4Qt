@@ -100,23 +100,23 @@ public:
 
     explicit DateRolloverStrategy(QObject *parent = nullptr);
 
-    [[nodiscard]] QString datePattern() const;
-    void setDatePattern(const QString &datePattern);
+    [[nodiscard]] QString datePattern() const { return mDatePattern; }
+    void setDatePattern(const QString &datePattern) { mDatePattern = datePattern; }
 
-    [[nodiscard]] NamingMode mode() const;
-    void setMode(NamingMode mode);
+    [[nodiscard]] NamingMode mode() const { return mMode; }
+    void setMode(NamingMode mode) { mMode = mode; }
 
     [[nodiscard]] QString modeString() const;
     void setModeString(const QString &mode);
 
-    [[nodiscard]] int maxBackups() const;
-    void setMaxBackups(int maxBackups);
+    [[nodiscard]] int maxBackups() const { return mMaxBackups; }
+    void setMaxBackups(int maxBackups) { mMaxBackups = maxBackups; }
 
-    [[nodiscard]] int keepDays() const;
-    void setKeepDays(int keepDays);
+    [[nodiscard]] int keepDays() const { return mKeepDays; }
+    void setKeepDays(int keepDays) { mKeepDays = keepDays; }
 
-    [[nodiscard]] bool datedActiveFile() const;
-    void setDatedActiveFile(bool dated);
+    [[nodiscard]] bool datedActiveFile() const { return mDatedActiveFile; }
+    void setDatedActiveFile(bool dated) { mDatedActiveFile = dated; }
 
     void activateOptions() override;
     QString initialFileName(const QString &fileName) const override;
@@ -138,56 +138,6 @@ private:
     QString mActiveSuffix;
     QFutureSynchronizer<void> mCleanupExecutors;
 };
-
-inline QString DateRolloverStrategy::datePattern() const
-{
-    return mDatePattern;
-}
-
-inline void DateRolloverStrategy::setDatePattern(const QString &datePattern)
-{
-    mDatePattern = datePattern;
-}
-
-inline DateRolloverStrategy::NamingMode DateRolloverStrategy::mode() const
-{
-    return mMode;
-}
-
-inline void DateRolloverStrategy::setMode(NamingMode mode)
-{
-    mMode = mode;
-}
-
-inline int DateRolloverStrategy::maxBackups() const
-{
-    return mMaxBackups;
-}
-
-inline void DateRolloverStrategy::setMaxBackups(int maxBackups)
-{
-    mMaxBackups = maxBackups;
-}
-
-inline int DateRolloverStrategy::keepDays() const
-{
-    return mKeepDays;
-}
-
-inline void DateRolloverStrategy::setKeepDays(int keepDays)
-{
-    mKeepDays = keepDays;
-}
-
-inline bool DateRolloverStrategy::datedActiveFile() const
-{
-    return mDatedActiveFile;
-}
-
-inline void DateRolloverStrategy::setDatedActiveFile(bool dated)
-{
-    mDatedActiveFile = dated;
-}
 
 } // namespace Log4Qt
 

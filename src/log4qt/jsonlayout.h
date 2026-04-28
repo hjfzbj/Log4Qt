@@ -124,25 +124,25 @@ private:
     Q_DISABLE_COPY_MOVE(JsonLayout)
 
 public:
-    [[nodiscard]] bool includeTimestamp() const;
-    [[nodiscard]] bool includeLevel() const;
-    [[nodiscard]] bool includeLogger() const;
-    [[nodiscard]] bool includeThread() const;
-    [[nodiscard]] bool includeMessage() const;
-    [[nodiscard]] bool includeNdc() const;
-    [[nodiscard]] bool includeMdc() const;
-    [[nodiscard]] bool includeLocation() const;
-    [[nodiscard]] bool prettyPrint() const;
+    [[nodiscard]] bool includeTimestamp() const { return mIncludeTimestamp; }
+    [[nodiscard]] bool includeLevel()     const { return mIncludeLevel;     }
+    [[nodiscard]] bool includeLogger()    const { return mIncludeLogger;    }
+    [[nodiscard]] bool includeThread()    const { return mIncludeThread;    }
+    [[nodiscard]] bool includeMessage()   const { return mIncludeMessage;   }
+    [[nodiscard]] bool includeNdc()       const { return mIncludeNdc;       }
+    [[nodiscard]] bool includeMdc()       const { return mIncludeMdc;       }
+    [[nodiscard]] bool includeLocation()  const { return mIncludeLocation;  }
+    [[nodiscard]] bool prettyPrint()      const { return mPrettyPrint;      }
 
-    void setIncludeTimestamp(bool v);
-    void setIncludeLevel(bool v);
-    void setIncludeLogger(bool v);
-    void setIncludeThread(bool v);
-    void setIncludeMessage(bool v);
-    void setIncludeNdc(bool v);
-    void setIncludeMdc(bool v);
-    void setIncludeLocation(bool v);
-    void setPrettyPrint(bool v);
+    void setIncludeTimestamp(bool v) { mIncludeTimestamp = v; }
+    void setIncludeLevel(bool v)     { mIncludeLevel     = v; }
+    void setIncludeLogger(bool v)    { mIncludeLogger    = v; }
+    void setIncludeThread(bool v)    { mIncludeThread    = v; }
+    void setIncludeMessage(bool v)   { mIncludeMessage   = v; }
+    void setIncludeNdc(bool v)       { mIncludeNdc       = v; }
+    void setIncludeMdc(bool v)       { mIncludeMdc       = v; }
+    void setIncludeLocation(bool v)  { mIncludeLocation  = v; }
+    void setPrettyPrint(bool v)      { mPrettyPrint      = v; }
 
     /*!
      * Returns \c "application/json; charset=UTF-8".
@@ -167,26 +167,6 @@ private:
     bool mIncludeLocation  = false;
     bool mPrettyPrint      = false;
 };
-
-inline bool JsonLayout::includeTimestamp() const { return mIncludeTimestamp; }
-inline bool JsonLayout::includeLevel()     const { return mIncludeLevel;     }
-inline bool JsonLayout::includeLogger()    const { return mIncludeLogger;    }
-inline bool JsonLayout::includeThread()    const { return mIncludeThread;    }
-inline bool JsonLayout::includeMessage()   const { return mIncludeMessage;   }
-inline bool JsonLayout::includeNdc()       const { return mIncludeNdc;       }
-inline bool JsonLayout::includeMdc()       const { return mIncludeMdc;       }
-inline bool JsonLayout::includeLocation()  const { return mIncludeLocation;  }
-inline bool JsonLayout::prettyPrint()      const { return mPrettyPrint;      }
-
-inline void JsonLayout::setIncludeTimestamp(bool v) { mIncludeTimestamp = v; }
-inline void JsonLayout::setIncludeLevel(bool v)     { mIncludeLevel     = v; }
-inline void JsonLayout::setIncludeLogger(bool v)    { mIncludeLogger    = v; }
-inline void JsonLayout::setIncludeThread(bool v)    { mIncludeThread    = v; }
-inline void JsonLayout::setIncludeMessage(bool v)   { mIncludeMessage   = v; }
-inline void JsonLayout::setIncludeNdc(bool v)       { mIncludeNdc       = v; }
-inline void JsonLayout::setIncludeMdc(bool v)       { mIncludeMdc       = v; }
-inline void JsonLayout::setIncludeLocation(bool v)  { mIncludeLocation  = v; }
-inline void JsonLayout::setPrettyPrint(bool v)      { mPrettyPrint      = v; }
 
 } // namespace Log4Qt
 

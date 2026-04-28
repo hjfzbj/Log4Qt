@@ -59,11 +59,11 @@ public:
 
     explicit DefaultRolloverStrategy(QObject *parent = nullptr);
 
-    [[nodiscard]] int minIndex() const;
-    void setMinIndex(int minIndex);
+    [[nodiscard]] int minIndex() const { return mMinIndex; }
+    void setMinIndex(int minIndex) { mMinIndex = minIndex; }
 
-    [[nodiscard]] int maxIndex() const;
-    void setMaxIndex(int maxIndex);
+    [[nodiscard]] int maxIndex() const { return mMaxIndex; }
+    void setMaxIndex(int maxIndex) { mMaxIndex = maxIndex; }
 
     QString rollover(const QString &fileName) override;
 
@@ -72,26 +72,6 @@ private:
     int mMinIndex;
     int mMaxIndex;
 };
-
-inline int DefaultRolloverStrategy::minIndex() const
-{
-    return mMinIndex;
-}
-
-inline void DefaultRolloverStrategy::setMinIndex(int minIndex)
-{
-    mMinIndex = minIndex;
-}
-
-inline int DefaultRolloverStrategy::maxIndex() const
-{
-    return mMaxIndex;
-}
-
-inline void DefaultRolloverStrategy::setMaxIndex(int maxIndex)
-{
-    mMaxIndex = maxIndex;
-}
 
 } // namespace Log4Qt
 

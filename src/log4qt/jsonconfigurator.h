@@ -96,7 +96,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT JsonConfigurator
 {
 public:
-    JsonConfigurator();
+    JsonConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(JsonConfigurator)
@@ -135,9 +135,6 @@ private:
                                   const QString &prefix,
                                   Properties &properties);
 };
-
-inline JsonConfigurator::JsonConfigurator()
-{}
 
 } // namespace Log4Qt
 

@@ -59,10 +59,10 @@ class LOG4QT_EXPORT LevelMatchFilter : public Filter
 public:
     LevelMatchFilter(QObject *parent = nullptr);
 
-    [[nodiscard]] bool acceptOnMatch() const;
-    [[nodiscard]] Level levelToMatch() const;
-    void setAcceptOnMatch(bool accept);
-    void setLevelToMatch(Level level);
+    [[nodiscard]] bool acceptOnMatch() const { return mAcceptOnMatch; }
+    [[nodiscard]] Level levelToMatch() const { return mLevelToMatch; }
+    void setAcceptOnMatch(bool accept) { mAcceptOnMatch = accept; }
+    void setLevelToMatch(Level level) { mLevelToMatch = level; }
 
     Decision decide(const LoggingEvent &event) const override;
 
@@ -70,26 +70,6 @@ private:
     bool mAcceptOnMatch;
     Level mLevelToMatch;
 };
-
-inline bool LevelMatchFilter::acceptOnMatch() const
-{
-    return mAcceptOnMatch;
-}
-
-inline Level LevelMatchFilter::levelToMatch() const
-{
-    return mLevelToMatch;
-}
-
-inline void LevelMatchFilter::setAcceptOnMatch(bool accept)
-{
-    mAcceptOnMatch = accept;
-}
-
-inline void LevelMatchFilter::setLevelToMatch(Level level)
-{
-    mLevelToMatch = level;
-}
 
 } // namespace Log4Qt
 

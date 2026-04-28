@@ -45,7 +45,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT PropertyConfigurator
 {
 public:
-    PropertyConfigurator();
+    PropertyConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(PropertyConfigurator)
@@ -129,9 +129,6 @@ private:
     AppenderSharedPtr mpConfigureErrors;
     QHash<QString, AppenderSharedPtr> mAppenderRegistry;
 };
-
-inline PropertyConfigurator::PropertyConfigurator()
-{}
 
 } // namespace Log4Qt
 

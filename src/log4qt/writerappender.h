@@ -81,9 +81,13 @@ private:
 
 public:
     bool requiresLayout() const override;
-    inline QStringConverter::Encoding encoding() const;
-    inline bool immediateFlush() const;
-    inline QTextStream *writer() const;
+    QStringConverter::Encoding encoding() const
+    {
+        QMutexLocker locker(&mObjectGuard);
+        return mEncoding;
+    }
+    bool immediateFlush() const { return mImmediateFlush; }
+    QTextStream *writer() const { return mWriter; }
 
     /*!
      * Sets the codec used by the writer to \a pTextCoded.
@@ -95,7 +99,7 @@ public:
      * \sa encoding(), QTextSream::setCodec(), QTextCodec::codecForLocale()
      */
     void setEncoding(QStringConverter::Encoding encoding);
-    inline void setImmediateFlush(bool immediateFlush);
+    void setImmediateFlush(bool immediateFlush) { mImmediateFlush = immediateFlush; }
     void setWriter(QTextStream *textStream);
 
     void activateOptions() override;
@@ -142,28 +146,6 @@ private:
     mutable bool mSuppressNextFooter = false;
     void closeInternal();
 };
-
-inline QStringConverter::Encoding WriterAppender::encoding() const
-{
-    QMutexLocker locker(&mObjectGuard);
-    return mEncoding;
-}
-
-inline bool WriterAppender::immediateFlush() const
-{
-    return mImmediateFlush;
-}
-
-inline QTextStream *WriterAppender::writer() const
-{
-    return mWriter;
-}
-
-inline void WriterAppender::setImmediateFlush(bool immediateFlush)
-{
-    mImmediateFlush = immediateFlush;
-}
-
 
 } // namespace Log4Qt
 

@@ -125,12 +125,18 @@ public:
      *
      * \sa registerAppender(), unregisterAppender(), registeredAppenders()
      */
-    static Appender *createAppender(const QString &appenderClassName);
+    static Appender *createAppender(const QString &appenderClassName)
+    {
+        return instance()->doCreateAppender(appenderClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static Appender *createAppender(const char *appenderClassName);
+    static Appender *createAppender(const char *appenderClassName)
+    {
+        return instance()->doCreateAppender(QLatin1String(appenderClassName));
+    }
 
     /*!
      * Creates an object for the class \a filterClassName on the heap
@@ -139,12 +145,18 @@ public:
      *
      * \sa registerFilter(), unregisterFilter(), registeredFilters()
      */
-    static Filter *createFilter(const QString &filterClassName);
+    static Filter *createFilter(const QString &filterClassName)
+    {
+        return instance()->doCreateFilter(filterClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static Filter *createFilter(const char *filterClassName);
+    static Filter *createFilter(const char *filterClassName)
+    {
+        return instance()->doCreateFilter(QLatin1String(filterClassName));
+    }
 
     /*!
      * Creates an object for the class \a layoutClassName on the heap
@@ -153,18 +165,36 @@ public:
      *
      * \sa registerLayout(), unregisterLayout(), registeredLayouts()
      */
-    static AbstractLayout *createLayout(const QString &layoutClassName);
+    static AbstractLayout *createLayout(const QString &layoutClassName)
+    {
+        return instance()->doCreateLayout(layoutClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static AbstractLayout *createLayout(const char *layoutClassName);
+    static AbstractLayout *createLayout(const char *layoutClassName)
+    {
+        return instance()->doCreateLayout(QLatin1String(layoutClassName));
+    }
 
-    static TriggeringPolicy *createTriggeringPolicy(const QString &className);
-    static TriggeringPolicy *createTriggeringPolicy(const char *className);
+    static TriggeringPolicy *createTriggeringPolicy(const QString &className)
+    {
+        return instance()->doCreateTriggeringPolicy(className);
+    }
+    static TriggeringPolicy *createTriggeringPolicy(const char *className)
+    {
+        return instance()->doCreateTriggeringPolicy(QLatin1String(className));
+    }
 
-    static RolloverStrategy *createRolloverStrategy(const QString &className);
-    static RolloverStrategy *createRolloverStrategy(const char *className);
+    static RolloverStrategy *createRolloverStrategy(const QString &className)
+    {
+        return instance()->doCreateRolloverStrategy(className);
+    }
+    static RolloverStrategy *createRolloverStrategy(const char *className)
+    {
+        return instance()->doCreateRolloverStrategy(QLatin1String(className));
+    }
 
     /*!
      * Returns the Factory instance.
@@ -180,13 +210,19 @@ public:
     * \sa unregisterAppender(), registeredAppenders(), createAppender()
     */
     static void registerAppender(const QString &appenderClassName,
-                                 AppenderFactoryFunc appenderFactoryFunc);
+                                 AppenderFactoryFunc appenderFactoryFunc)
+    {
+        instance()->doRegisterAppender(appenderClassName, appenderFactoryFunc);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
     static void registerAppender(const char *appenderClassName,
-                                 AppenderFactoryFunc appenderFactoryFunc);
+                                 AppenderFactoryFunc appenderFactoryFunc)
+    {
+        instance()->doRegisterAppender(QLatin1String(appenderClassName), appenderFactoryFunc);
+    }
 
     /*!
      * Registers the Filter factory function \a filterFactoryFunc
@@ -197,13 +233,19 @@ public:
      * \sa unregisterFilter(), registeredFilters(), createFilter()
      */
     static void registerFilter(const QString &filterClassName,
-                               FilterFactoryFunc filterFactoryFunc);
+                               FilterFactoryFunc filterFactoryFunc)
+    {
+        instance()->doRegisterFilter(filterClassName, filterFactoryFunc);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
     static void registerFilter(const char *filterClassName,
-                               FilterFactoryFunc filterFactoryFunc);
+                               FilterFactoryFunc filterFactoryFunc)
+    {
+        instance()->doRegisterFilter(QLatin1String(filterClassName), filterFactoryFunc);
+    }
 
     /*!
      * Registers the Layout factory function \a layoutFactoryFunc
@@ -214,23 +256,41 @@ public:
      * \sa unregisterLayout(), registeredLayout(), createLayout()
      */
     static void registerLayout(const QString &layoutClassName,
-                               LayoutFactoryFunc layoutFactoryFunc);
+                               LayoutFactoryFunc layoutFactoryFunc)
+    {
+        instance()->doRegisterLayout(layoutClassName, layoutFactoryFunc);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
     static void registerLayout(const char *layoutClassName,
-                               LayoutFactoryFunc layoutFactoryFunc);
+                               LayoutFactoryFunc layoutFactoryFunc)
+    {
+        instance()->doRegisterLayout(QLatin1String(layoutClassName), layoutFactoryFunc);
+    }
 
     static void registerTriggeringPolicy(const QString &className,
-                                          TriggeringPolicyFactoryFunc func);
+                                          TriggeringPolicyFactoryFunc func)
+    {
+        instance()->doRegisterTriggeringPolicy(className, func);
+    }
     static void registerTriggeringPolicy(const char *className,
-                                          TriggeringPolicyFactoryFunc func);
+                                          TriggeringPolicyFactoryFunc func)
+    {
+        instance()->doRegisterTriggeringPolicy(QLatin1String(className), func);
+    }
 
     static void registerRolloverStrategy(const QString &className,
-                                          RolloverStrategyFactoryFunc func);
+                                          RolloverStrategyFactoryFunc func)
+    {
+        instance()->doRegisterRolloverStrategy(className, func);
+    }
     static void registerRolloverStrategy(const char *className,
-                                          RolloverStrategyFactoryFunc func);
+                                          RolloverStrategyFactoryFunc func)
+    {
+        instance()->doRegisterRolloverStrategy(QLatin1String(className), func);
+    }
 
     /*!
     * Returns a list of the class names for registered Appender factory
@@ -238,7 +298,11 @@ public:
     *
     * \sa registerAppender(), unregisterAppender()
     */
-    static QStringList registeredAppenders();
+    static QStringList registeredAppenders()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mAppenderRegistry.keys();
+    }
 
     /*!
      * Returns a list of the class names for registered Filter factory
@@ -246,7 +310,11 @@ public:
      *
      * \sa registerFilter(), unregisterFilter()
      */
-    static QStringList registeredFilters();
+    static QStringList registeredFilters()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mFilterRegistry.keys();
+    }
 
     /*!
      * Returns a list of the class names for registered Layout factory
@@ -254,29 +322,75 @@ public:
      *
      * \sa registerLayout(), unregisterLayout()
      */
-    static QStringList registeredLayouts();
+    static QStringList registeredLayouts()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mLayoutRegistry.keys();
+    }
 
-    static QStringList registeredTriggeringPolicies();
-    static QStringList registeredRolloverStrategies();
+    static QStringList registeredTriggeringPolicies()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mTriggeringPolicyRegistry.keys();
+    }
+    static QStringList registeredRolloverStrategies()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mRolloverStrategyRegistry.keys();
+    }
 
-    static void unregisterTriggeringPolicy(const QString &className);
-    static void unregisterTriggeringPolicy(const char *className);
+    static void unregisterTriggeringPolicy(const QString &className)
+    {
+        instance()->doUnregisterTriggeringPolicy(className);
+    }
+    static void unregisterTriggeringPolicy(const char *className)
+    {
+        instance()->doUnregisterTriggeringPolicy(QLatin1String(className));
+    }
 
-    static void unregisterRolloverStrategy(const QString &className);
-    static void unregisterRolloverStrategy(const char *className);
+    static void unregisterRolloverStrategy(const QString &className)
+    {
+        instance()->doUnregisterRolloverStrategy(className);
+    }
+    static void unregisterRolloverStrategy(const char *className)
+    {
+        instance()->doUnregisterRolloverStrategy(QLatin1String(className));
+    }
 
-    static HeaderFooterProvider *createHeaderFooterProvider(const QString &className);
-    static HeaderFooterProvider *createHeaderFooterProvider(const char *className);
+    static HeaderFooterProvider *createHeaderFooterProvider(const QString &className)
+    {
+        return instance()->doCreateHeaderFooterProvider(className);
+    }
+    static HeaderFooterProvider *createHeaderFooterProvider(const char *className)
+    {
+        return instance()->doCreateHeaderFooterProvider(QLatin1String(className));
+    }
 
     static void registerHeaderFooterProvider(const QString &className,
-                                              HeaderFooterProviderFactoryFunc func);
+                                              HeaderFooterProviderFactoryFunc func)
+    {
+        instance()->doRegisterHeaderFooterProvider(className, func);
+    }
     static void registerHeaderFooterProvider(const char *className,
-                                              HeaderFooterProviderFactoryFunc func);
+                                              HeaderFooterProviderFactoryFunc func)
+    {
+        instance()->doRegisterHeaderFooterProvider(QLatin1String(className), func);
+    }
 
-    static void unregisterHeaderFooterProvider(const QString &className);
-    static void unregisterHeaderFooterProvider(const char *className);
+    static void unregisterHeaderFooterProvider(const QString &className)
+    {
+        instance()->doUnregisterHeaderFooterProvider(className);
+    }
+    static void unregisterHeaderFooterProvider(const char *className)
+    {
+        instance()->doUnregisterHeaderFooterProvider(QLatin1String(className));
+    }
 
-    static QStringList registeredHeaderFooterProviders();
+    static QStringList registeredHeaderFooterProviders()
+    {
+        QMutexLocker locker(&instance()->mObjectGuard);
+        return instance()->mHeaderFooterProviderRegistry.keys();
+    }
 
     /*!
      * Sets the property \a rProperty of the object \a pObject to the
@@ -288,14 +402,20 @@ public:
      */
     static void setObjectProperty(QObject *object,
                                   const QString &property,
-                                  const QString &value);
+                                  const QString &value)
+    {
+        instance()->doSetObjectProperty(object, property, value);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
     static void setObjectProperty(QObject *object,
                                   const char *property,
-                                  const QString &value);
+                                  const QString &value)
+    {
+        instance()->doSetObjectProperty(object, QLatin1String(property), value);
+    }
 
     /*!
     * Unregisters the Appender factory function for the class
@@ -303,12 +423,18 @@ public:
     *
     * \sa registerAppender(), registeredAppenders()
     */
-    static void unregisterAppender(const QString &appenderClassName);
+    static void unregisterAppender(const QString &appenderClassName)
+    {
+        instance()->doUnregisterAppender(appenderClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static void unregisterAppender(const char *appenderClassName);
+    static void unregisterAppender(const char *appenderClassName)
+    {
+        instance()->doUnregisterAppender(QLatin1String(appenderClassName));
+    }
 
     /*!
      * Unregisters the Filter factory function for the class
@@ -316,12 +442,18 @@ public:
      *
      * \sa registerFilter(), registeredFilters()
      */
-    static void unregisterFilter(const QString &filterClassName);
+    static void unregisterFilter(const QString &filterClassName)
+    {
+        instance()->doUnregisterFilter(filterClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static void unregisterFilter(const char *filterClassName);
+    static void unregisterFilter(const char *filterClassName)
+    {
+        instance()->doUnregisterFilter(QLatin1String(filterClassName));
+    }
 
     /*!
      * Unregisters the Layout factory function for the class
@@ -329,12 +461,18 @@ public:
      *
      * \sa registerLayout(), registeredLayouts()
      */
-    static void unregisterLayout(const QString &layoutClassName);
+    static void unregisterLayout(const QString &layoutClassName)
+    {
+        instance()->doUnregisterLayout(layoutClassName);
+    }
 
     /*!
      * This is an overloaded member function, provided for convenience.
      */
-    static void unregisterLayout(const char *layoutClassName);
+    static void unregisterLayout(const char *layoutClassName)
+    {
+        instance()->doUnregisterLayout(QLatin1String(layoutClassName));
+    }
 
 private:
     Appender *doCreateAppender(const QString &appenderClassName);
@@ -383,248 +521,6 @@ private:
     QHash<QString, RolloverStrategyFactoryFunc> mRolloverStrategyRegistry;
     QHash<QString, HeaderFooterProviderFactoryFunc> mHeaderFooterProviderRegistry;
 };
-
-inline Appender *Factory::createAppender(const QString &appenderClassName)
-{
-    return instance()->doCreateAppender(appenderClassName);
-}
-
-inline Appender *Factory::createAppender(const char *appenderClassName)
-{
-    return instance()->doCreateAppender(QLatin1String(appenderClassName));
-}
-
-inline Filter *Factory::createFilter(const QString &filterClassName)
-{
-    return instance()->doCreateFilter(filterClassName);
-}
-
-inline Filter *Factory::createFilter(const char *layoutClassName)
-{
-    return instance()->doCreateFilter(QLatin1String(layoutClassName));
-}
-
-inline AbstractLayout *Factory::createLayout(const QString &layoutClassName)
-{
-    return instance()->doCreateLayout(layoutClassName);
-}
-
-inline AbstractLayout *Factory::createLayout(const char *layoutClassName)
-{
-    return instance()->doCreateLayout(QLatin1String(layoutClassName));
-}
-
-inline void Factory::registerAppender(const QString &appenderClassName,
-                                      AppenderFactoryFunc appenderFactoryFunc)
-{
-    instance()->doRegisterAppender(appenderClassName, appenderFactoryFunc);
-}
-
-inline void Factory::registerAppender(const char *appenderClassName,
-                                      AppenderFactoryFunc appenderFactoryFunc)
-{
-    instance()->doRegisterAppender(QLatin1String(appenderClassName), appenderFactoryFunc);
-}
-
-inline void Factory::registerFilter(const QString &filterClassName,
-                                    FilterFactoryFunc filterFactoryFunc)
-{
-    instance()->doRegisterFilter(filterClassName, filterFactoryFunc);
-}
-
-inline void Factory::registerFilter(const char *filterClassName,
-                                    FilterFactoryFunc filterFactoryFunc)
-{
-    instance()->doRegisterFilter(QLatin1String(filterClassName), filterFactoryFunc);
-}
-
-inline void Factory::registerLayout(const QString &filterClassName,
-                                    LayoutFactoryFunc layoutFactoryFunc)
-{
-    instance()->doRegisterLayout(filterClassName, layoutFactoryFunc);
-}
-
-inline void Factory::registerLayout(const char *layoutClassName,
-                                    LayoutFactoryFunc layoutFactoryFunc)
-{
-    instance()->doRegisterLayout(QLatin1String(layoutClassName), layoutFactoryFunc);
-}
-
-inline QStringList Factory::registeredAppenders()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mAppenderRegistry.keys();
-}
-
-inline QStringList Factory::registeredFilters()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mFilterRegistry.keys();
-}
-
-inline QStringList Factory::registeredLayouts()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mLayoutRegistry.keys();
-}
-
-inline void Factory::setObjectProperty(QObject *object,
-                                       const QString &property,
-                                       const QString &value)
-{
-    instance()->doSetObjectProperty(object, property, value);
-}
-
-inline void Factory::setObjectProperty(QObject *object,
-                                       const char *property,
-                                       const QString &value)
-{
-    instance()->doSetObjectProperty(object, QLatin1String(property), value);
-}
-
-inline void Factory::unregisterAppender(const QString &appenderClassName)
-{
-    instance()->doUnregisterAppender(appenderClassName);
-}
-
-inline void Factory::unregisterAppender(const char *appenderClassName)
-{
-    instance()->doUnregisterAppender(QLatin1String(appenderClassName));
-}
-
-inline void Factory::unregisterFilter(const QString &filterClassName)
-{
-    instance()->doUnregisterFilter(filterClassName);
-}
-
-inline void Factory::unregisterFilter(const char *filterClassName)
-{
-    instance()->doUnregisterFilter(QLatin1String(filterClassName));
-}
-
-inline void Factory::unregisterLayout(const QString &layoutClassName)
-{
-    instance()->doUnregisterLayout(layoutClassName);
-}
-
-inline void Factory::unregisterLayout(const char *layoutClassName)
-{
-    instance()->doUnregisterLayout(QLatin1String(layoutClassName));
-}
-
-inline TriggeringPolicy *Factory::createTriggeringPolicy(const QString &className)
-{
-    return instance()->doCreateTriggeringPolicy(className);
-}
-
-inline TriggeringPolicy *Factory::createTriggeringPolicy(const char *className)
-{
-    return instance()->doCreateTriggeringPolicy(QLatin1String(className));
-}
-
-inline RolloverStrategy *Factory::createRolloverStrategy(const QString &className)
-{
-    return instance()->doCreateRolloverStrategy(className);
-}
-
-inline RolloverStrategy *Factory::createRolloverStrategy(const char *className)
-{
-    return instance()->doCreateRolloverStrategy(QLatin1String(className));
-}
-
-inline void Factory::registerTriggeringPolicy(const QString &className,
-                                               TriggeringPolicyFactoryFunc func)
-{
-    instance()->doRegisterTriggeringPolicy(className, func);
-}
-
-inline void Factory::registerTriggeringPolicy(const char *className,
-                                               TriggeringPolicyFactoryFunc func)
-{
-    instance()->doRegisterTriggeringPolicy(QLatin1String(className), func);
-}
-
-inline void Factory::registerRolloverStrategy(const QString &className,
-                                               RolloverStrategyFactoryFunc func)
-{
-    instance()->doRegisterRolloverStrategy(className, func);
-}
-
-inline void Factory::registerRolloverStrategy(const char *className,
-                                               RolloverStrategyFactoryFunc func)
-{
-    instance()->doRegisterRolloverStrategy(QLatin1String(className), func);
-}
-
-inline QStringList Factory::registeredTriggeringPolicies()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mTriggeringPolicyRegistry.keys();
-}
-
-inline QStringList Factory::registeredRolloverStrategies()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mRolloverStrategyRegistry.keys();
-}
-
-inline void Factory::unregisterTriggeringPolicy(const QString &className)
-{
-    instance()->doUnregisterTriggeringPolicy(className);
-}
-
-inline void Factory::unregisterTriggeringPolicy(const char *className)
-{
-    instance()->doUnregisterTriggeringPolicy(QLatin1String(className));
-}
-
-inline void Factory::unregisterRolloverStrategy(const QString &className)
-{
-    instance()->doUnregisterRolloverStrategy(className);
-}
-
-inline void Factory::unregisterRolloverStrategy(const char *className)
-{
-    instance()->doUnregisterRolloverStrategy(QLatin1String(className));
-}
-
-inline HeaderFooterProvider *Factory::createHeaderFooterProvider(const QString &className)
-{
-    return instance()->doCreateHeaderFooterProvider(className);
-}
-
-inline HeaderFooterProvider *Factory::createHeaderFooterProvider(const char *className)
-{
-    return instance()->doCreateHeaderFooterProvider(QLatin1String(className));
-}
-
-inline void Factory::registerHeaderFooterProvider(const QString &className,
-                                                   HeaderFooterProviderFactoryFunc func)
-{
-    instance()->doRegisterHeaderFooterProvider(className, func);
-}
-
-inline void Factory::registerHeaderFooterProvider(const char *className,
-                                                   HeaderFooterProviderFactoryFunc func)
-{
-    instance()->doRegisterHeaderFooterProvider(QLatin1String(className), func);
-}
-
-inline void Factory::unregisterHeaderFooterProvider(const QString &className)
-{
-    instance()->doUnregisterHeaderFooterProvider(className);
-}
-
-inline void Factory::unregisterHeaderFooterProvider(const char *className)
-{
-    instance()->doUnregisterHeaderFooterProvider(QLatin1String(className));
-}
-
-inline QStringList Factory::registeredHeaderFooterProviders()
-{
-    QMutexLocker locker(&instance()->mObjectGuard);
-    return instance()->mHeaderFooterProviderRegistry.keys();
-}
 
 } // namespace Log4Qt
 

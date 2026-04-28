@@ -80,8 +80,8 @@ private:
     Q_DISABLE_COPY_MOVE(AbstractStringLayout)
 
 public:
-    [[nodiscard]] QString charset() const;
-    void setCharset(const QString &charset);
+    [[nodiscard]] QString charset() const { return mCharset; }
+    void setCharset(const QString &charset) { mCharset = charset; }
 
     /*!
      * Returns \c "text/plain; charset=<charset>".
@@ -124,16 +124,6 @@ public:
 private:
     QString mCharset;
 };
-
-inline QString AbstractStringLayout::charset() const
-{
-    return mCharset;
-}
-
-inline void AbstractStringLayout::setCharset(const QString &charset)
-{
-    mCharset = charset;
-}
 
 } // namespace Log4Qt
 

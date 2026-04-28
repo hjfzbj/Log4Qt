@@ -39,35 +39,22 @@ class LOG4QT_EXPORT SimpleLayout : public AbstractStringLayout
     Q_PROPERTY(bool showLevel READ showLevel WRITE setShowLevel)
 
 public:
-    SimpleLayout(QObject *parent = nullptr);
+    SimpleLayout(QObject *parent = nullptr)
+        : AbstractStringLayout(parent)
+        , mShowLevel{true}
+    {}
 
 private:
     Q_DISABLE_COPY_MOVE(SimpleLayout)
     bool mShowLevel;
 
 public:
-    [[nodiscard]] bool showLevel() const;
-    void setShowLevel(bool show);
+    [[nodiscard]] bool showLevel() const { return mShowLevel; }
+    void setShowLevel(bool show) { mShowLevel = show; }
 
     QString format(const LoggingEvent &event) override;
 
 };
-
-inline SimpleLayout::SimpleLayout(QObject *parent)
-    : AbstractStringLayout(parent)
-    , mShowLevel{true}
-{
-}
-
-inline bool SimpleLayout::showLevel() const
-{
-    return mShowLevel;
-}
-
-inline void SimpleLayout::setShowLevel(bool show)
-{
-    mShowLevel = show;
-}
 
 } // namespace Log4Qt
 

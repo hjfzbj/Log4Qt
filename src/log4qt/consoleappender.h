@@ -94,7 +94,7 @@ public:
     /*!
      * Sets the target to the value specified by the \a target constant.
      */
-    void setTarget(Target target);
+    void setTarget(Target target) { mTarget = target; }
 
     virtual void activateOptions() override;
     virtual void close() override;
@@ -108,11 +108,6 @@ private:
     std::unique_ptr<QTextStream> mtextStream;
     void closeInternal();
 };
-
-inline void ConsoleAppender::setTarget(Target target)
-{
-    mTarget = target;
-}
 
 } // namespace Log4Qt
 

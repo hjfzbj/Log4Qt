@@ -67,7 +67,9 @@ class LOG4QT_EXPORT DatabaseLayout : public AbstractLayout
 
 
 public:
-    DatabaseLayout(QObject *parent = nullptr);
+    DatabaseLayout(QObject *parent = nullptr) :
+        AbstractLayout(parent)
+    {}
     // virtual ~DatabaseLayout(); // Use compiler default
 private:
     Q_DISABLE_COPY_MOVE(DatabaseLayout)
@@ -95,12 +97,6 @@ private:
     QString mLevel;
     QString mMessage;
 };
-
-
-inline DatabaseLayout::DatabaseLayout(QObject *parent) :
-    Layout(parent)
-{}
-
 
 } // namespace Log4Qt
 

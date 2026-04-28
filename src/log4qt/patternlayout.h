@@ -114,8 +114,12 @@ private:
     Q_DISABLE_COPY_MOVE(PatternLayout)
 
 public:
-    [[nodiscard]] QString conversionPattern() const;
-    void setConversionPattern(const QString &pattern);
+    [[nodiscard]] QString conversionPattern() const { return mPattern; }
+    void setConversionPattern(const QString &pattern)
+    {
+        mPattern = pattern;
+        updatePatternFormatter();
+    }
 
     /*!
      * Sets the conversion pattern to the value specified by the
@@ -123,9 +127,9 @@ public:
      */
     void setConversionPattern(ConversionPattern conversionPattern);
 
-    [[nodiscard]] QString headerPattern() const;
+    [[nodiscard]] QString headerPattern() const { return mHeaderPattern; }
     void setHeaderPattern(const QString &pattern);
-    [[nodiscard]] QString footerPattern() const;
+    [[nodiscard]] QString footerPattern() const { return mFooterPattern; }
     void setFooterPattern(const QString &pattern);
 
     [[nodiscard]] QString header() const override;
@@ -151,27 +155,6 @@ private:
     std::unique_ptr<PatternFormatter> mHeaderFormatter;
     std::unique_ptr<PatternFormatter> mFooterFormatter;
 };
-
-inline QString PatternLayout::conversionPattern() const
-{
-    return PatternLayout::mPattern;
-}
-
-inline void PatternLayout::setConversionPattern(const QString &pattern)
-{
-    mPattern = pattern;
-    updatePatternFormatter();
-}
-
-inline QString PatternLayout::headerPattern() const
-{
-    return mHeaderPattern;
-}
-
-inline QString PatternLayout::footerPattern() const
-{
-    return mFooterPattern;
-}
 
 } // namespace Log4Qt
 

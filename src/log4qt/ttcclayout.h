@@ -127,13 +127,25 @@ private:
     Q_DISABLE_COPY_MOVE(TTCCLayout)
 
 public:
-    [[nodiscard]] bool categoryPrefixing() const;
-    [[nodiscard]] bool contextPrinting() const;
-    [[nodiscard]] QString dateFormat() const;
-    [[nodiscard]] bool threadPrinting() const;
-    void setCategoryPrefixing(bool categoryPrefixing);
-    void setContextPrinting(bool contextPrinting);
-    void setDateFormat(const QString &dateFormat);
+    [[nodiscard]] bool categoryPrefixing() const { return mCategoryPrefixing; }
+    [[nodiscard]] bool contextPrinting() const { return mContextPrinting; }
+    [[nodiscard]] QString dateFormat() const { return mDateFormat; }
+    [[nodiscard]] bool threadPrinting() const { return mThreadPrinting; }
+    void setCategoryPrefixing(bool categoryPrefixing)
+    {
+        mCategoryPrefixing = categoryPrefixing;
+        updatePatternFormatter();
+    }
+    void setContextPrinting(bool contextPrinting)
+    {
+        mContextPrinting = contextPrinting;
+        updatePatternFormatter();
+    }
+    void setDateFormat(const QString &dateFormat)
+    {
+        mDateFormat = dateFormat;
+        updatePatternFormatter();
+    }
 
     /*!
     * Sets the date format to the value specified by the \a dateFormat
@@ -141,7 +153,11 @@ public:
     */
     void setDateFormat(DateFormat dateFormat);
 
-    void setThreadPrinting(bool threadPrinting);
+    void setThreadPrinting(bool threadPrinting)
+    {
+        mThreadPrinting = threadPrinting;
+        updatePatternFormatter();
+    }
     virtual QString format(const LoggingEvent &event) override;
 
 private:
@@ -154,51 +170,6 @@ private:
     bool mThreadPrinting;
     std::unique_ptr<PatternFormatter> mPatternFormatter;
 };
-
-inline bool TTCCLayout::categoryPrefixing() const
-{
-    return mCategoryPrefixing;
-}
-
-inline bool TTCCLayout::contextPrinting() const
-{
-    return mContextPrinting;
-}
-
-inline QString TTCCLayout::dateFormat() const
-{
-    return mDateFormat;
-}
-
-inline bool TTCCLayout::threadPrinting() const
-{
-    return mThreadPrinting;
-}
-
-inline void TTCCLayout::setCategoryPrefixing(bool categoryPrefixing)
-{
-    mCategoryPrefixing = categoryPrefixing;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setContextPrinting(bool contextPrinting)
-{
-    mContextPrinting = contextPrinting;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setDateFormat(const QString &dateFormat)
-{
-    mDateFormat = dateFormat;
-    updatePatternFormatter();
-}
-
-inline void TTCCLayout::setThreadPrinting(bool threadPrinting)
-{
-    mThreadPrinting = threadPrinting;
-    updatePatternFormatter();
-}
-
 
 } // namespace Log4Qt
 

@@ -54,8 +54,8 @@ public:
     CronExpression() = default;
     explicit CronExpression(const QString &expression);
 
-    bool isValid() const;
-    QString errorString() const;
+    bool isValid() const { return mValid; }
+    QString errorString() const { return mErrorString; }
 
     /*!
      * Returns the next QDateTime at or after \a from that matches
@@ -81,16 +81,6 @@ private:
     bool mValid{false};
     QString mErrorString;
 };
-
-inline bool CronExpression::isValid() const
-{
-    return mValid;
-}
-
-inline QString CronExpression::errorString() const
-{
-    return mErrorString;
-}
 
 } // namespace Log4Qt
 

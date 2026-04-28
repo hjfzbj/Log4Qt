@@ -59,8 +59,8 @@ class LOG4QT_EXPORT CronTriggeringPolicy : public TriggeringPolicy
 public:
     explicit CronTriggeringPolicy(QObject *parent = nullptr);
 
-    QString schedule() const;
-    void setSchedule(const QString &schedule);
+    QString schedule() const { return mSchedule; }
+    void setSchedule(const QString &schedule) { mSchedule = schedule; }
 
     void activateOptions() override;
 
@@ -76,16 +76,6 @@ private:
     CronExpression mCronExpression;
     QDateTime mNextFireTime;
 };
-
-inline QString CronTriggeringPolicy::schedule() const
-{
-    return mSchedule;
-}
-
-inline void CronTriggeringPolicy::setSchedule(const QString &schedule)
-{
-    mSchedule = schedule;
-}
 
 } // namespace Log4Qt
 

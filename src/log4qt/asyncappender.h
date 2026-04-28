@@ -121,30 +121,30 @@ public:
 
     // --- Property accessors ---------------------------------------------------
 
-    int bufferSize() const;
-    void setBufferSize(int size);
+    int bufferSize() const { return mBufferSize; }
+    void setBufferSize(int size) { mBufferSize = size; }
 
-    bool blocking() const;
-    void setBlocking(bool blocking);
+    bool blocking() const { return mBlocking; }
+    void setBlocking(bool blocking) { mBlocking = blocking; }
 
-    int shutdownTimeout() const;
-    void setShutdownTimeout(int timeoutMs);
+    int shutdownTimeout() const { return mShutdownTimeout; }
+    void setShutdownTimeout(int timeoutMs) { mShutdownTimeout = timeoutMs; }
 
-    Level discardThreshold() const;
-    void setDiscardThreshold(Level level);
+    Level discardThreshold() const { return mDiscardThreshold; }
+    void setDiscardThreshold(Level level) { mDiscardThreshold = level; }
 
-    QueueFullPolicy queueFullPolicy() const;
+    QueueFullPolicy queueFullPolicy() const { return mQueueFullPolicy; }
     void setQueueFullPolicy(QueueFullPolicy policy);
 
     QString queueFullPolicyString() const;
     void setQueueFullPolicyString(const QString &policy);
 
-    QString errorRef() const;
-    void setErrorRef(const QString &name);
+    QString errorRef() const { return mErrorRef; }
+    void setErrorRef(const QString &name) { mErrorRef = name; }
 
     void setErrorAppender(const AppenderSharedPtr &appender);
 
-    qint64 discardedCount() const;
+    qint64 discardedCount() const { return mDiscardedCount.load(std::memory_order_relaxed); }
 
     // --- Lifecycle ------------------------------------------------------------
 
@@ -184,44 +184,6 @@ private:
 
     std::atomic<qint64> mDiscardedCount{0};
 };
-
-// --- Inline implementations --------------------------------------------------
-
-inline int AsyncAppender::bufferSize() const
-{ return mBufferSize; }
-
-inline void AsyncAppender::setBufferSize(int size)
-{ mBufferSize = size; }
-
-inline bool AsyncAppender::blocking() const
-{ return mBlocking; }
-
-inline void AsyncAppender::setBlocking(bool blocking)
-{ mBlocking = blocking; }
-
-inline int AsyncAppender::shutdownTimeout() const
-{ return mShutdownTimeout; }
-
-inline void AsyncAppender::setShutdownTimeout(int timeoutMs)
-{ mShutdownTimeout = timeoutMs; }
-
-inline Level AsyncAppender::discardThreshold() const
-{ return mDiscardThreshold; }
-
-inline void AsyncAppender::setDiscardThreshold(Level level)
-{ mDiscardThreshold = level; }
-
-inline AsyncAppender::QueueFullPolicy AsyncAppender::queueFullPolicy() const
-{ return mQueueFullPolicy; }
-
-inline QString AsyncAppender::errorRef() const
-{ return mErrorRef; }
-
-inline void AsyncAppender::setErrorRef(const QString &name)
-{ mErrorRef = name; }
-
-inline qint64 AsyncAppender::discardedCount() const
-{ return mDiscardedCount.load(std::memory_order_relaxed); }
 
 } // namespace Log4Qt
 

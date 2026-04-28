@@ -92,7 +92,7 @@ class LoggerRepository;
 class LOG4QT_EXPORT XmlConfigurator
 {
 public:
-    XmlConfigurator();
+    XmlConfigurator() {}
 
 private:
     Q_DISABLE_COPY_MOVE(XmlConfigurator)
@@ -131,9 +131,6 @@ private:
                                   const QString &prefix,
                                   Properties &properties);
 };
-
-inline XmlConfigurator::XmlConfigurator()
-{}
 
 } // namespace Log4Qt
 

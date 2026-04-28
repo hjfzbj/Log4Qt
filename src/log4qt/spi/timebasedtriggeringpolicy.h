@@ -83,19 +83,19 @@ public:
 
     explicit TimeBasedTriggeringPolicy(QObject *parent = nullptr);
 
-    [[nodiscard]] QString datePattern() const;
-    void setDatePattern(const QString &datePattern);
+    [[nodiscard]] QString datePattern() const { return mDatePattern; }
+    void setDatePattern(const QString &datePattern) { mDatePattern = datePattern; }
 
-    [[nodiscard]] int interval() const;
-    void setInterval(int interval);
+    [[nodiscard]] int interval() const { return mInterval; }
+    void setInterval(int interval) { mInterval = interval; }
 
-    [[nodiscard]] bool modulate() const;
-    void setModulate(bool modulate);
+    [[nodiscard]] bool modulate() const { return mModulate; }
+    void setModulate(bool modulate) { mModulate = modulate; }
 
-    [[nodiscard]] int maxRandomDelay() const;
-    void setMaxRandomDelay(int maxRandomDelay);
+    [[nodiscard]] int maxRandomDelay() const { return mMaxRandomDelay; }
+    void setMaxRandomDelay(int maxRandomDelay) { mMaxRandomDelay = maxRandomDelay; }
 
-    [[nodiscard]] Frequency frequency() const;
+    [[nodiscard]] Frequency frequency() const { return mFrequency; }
 
     void activateOptions() override;
 
@@ -116,51 +116,6 @@ private:
     int mMaxRandomDelay{0};
     QDateTime mRollOverTime;
 };
-
-inline QString TimeBasedTriggeringPolicy::datePattern() const
-{
-    return mDatePattern;
-}
-
-inline void TimeBasedTriggeringPolicy::setDatePattern(const QString &datePattern)
-{
-    mDatePattern = datePattern;
-}
-
-inline int TimeBasedTriggeringPolicy::interval() const
-{
-    return mInterval;
-}
-
-inline void TimeBasedTriggeringPolicy::setInterval(int interval)
-{
-    mInterval = interval;
-}
-
-inline bool TimeBasedTriggeringPolicy::modulate() const
-{
-    return mModulate;
-}
-
-inline void TimeBasedTriggeringPolicy::setModulate(bool modulate)
-{
-    mModulate = modulate;
-}
-
-inline int TimeBasedTriggeringPolicy::maxRandomDelay() const
-{
-    return mMaxRandomDelay;
-}
-
-inline void TimeBasedTriggeringPolicy::setMaxRandomDelay(int maxRandomDelay)
-{
-    mMaxRandomDelay = maxRandomDelay;
-}
-
-inline TimeBasedTriggeringPolicy::Frequency TimeBasedTriggeringPolicy::frequency() const
-{
-    return mFrequency;
-}
 
 } // namespace Log4Qt
 

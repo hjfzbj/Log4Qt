@@ -68,12 +68,12 @@ class LOG4QT_EXPORT LevelRangeFilter : public Filter
 public:
     LevelRangeFilter(QObject *parent = nullptr);
 
-    [[nodiscard]] bool acceptOnMatch() const;
-    [[nodiscard]] Level levelMax() const;
-    [[nodiscard]] Level levelMin() const;
-    void setAcceptOnMatch(bool accept);
-    void setLevelMax(Level level);
-    void setLevelMin(Level level);
+    [[nodiscard]] bool acceptOnMatch() const { return mAcceptOnMatch; }
+    [[nodiscard]] Level levelMax() const { return mLevelMax; }
+    [[nodiscard]] Level levelMin() const { return mLevelMin; }
+    void setAcceptOnMatch(bool accept) { mAcceptOnMatch = accept; }
+    void setLevelMax(Level level) { mLevelMax = level; }
+    void setLevelMin(Level level) { mLevelMin = level; }
 
     Decision decide(const LoggingEvent &event) const override;
 
@@ -82,36 +82,6 @@ private:
     Level mLevelMin;
     Level mLevelMax;
 };
-
-inline bool LevelRangeFilter::acceptOnMatch() const
-{
-    return mAcceptOnMatch;
-}
-
-inline Level LevelRangeFilter::levelMax() const
-{
-    return mLevelMax;
-}
-
-inline Level LevelRangeFilter::levelMin() const
-{
-    return mLevelMin;
-}
-
-inline void LevelRangeFilter::setAcceptOnMatch(bool accept)
-{
-    mAcceptOnMatch = accept;
-}
-
-inline void LevelRangeFilter::setLevelMax(Level level)
-{
-    mLevelMax = level;
-}
-
-inline void LevelRangeFilter::setLevelMin(Level level)
-{
-    mLevelMin = level;
-}
 
 } // namespace Log4Qt
 

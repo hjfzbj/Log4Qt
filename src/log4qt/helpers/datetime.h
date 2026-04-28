@@ -66,7 +66,8 @@ public:
      *
      * \sa QDateTime::QDateTime(const QDateTime &other)
      */
-    DateTime(const QDateTime &other);
+    DateTime(const QDateTime &other) : QDateTime(other)
+    {}
 
     DateTime(const DateTime &other);
 
@@ -79,12 +80,18 @@ public:
      */
     DateTime(QDate date,
              QTime time,
-             QTimeZone = QTimeZone(QTimeZone::LocalTime));
+             QTimeZone timeZone = QTimeZone(QTimeZone::LocalTime)) :
+        QDateTime(date, time, timeZone)
+    {}
 
     /*!
      * Assigns \a other to this DateTime and returns a reference to it.
      */
-    DateTime &operator=(const DateTime &other);
+    DateTime &operator=(const DateTime &other)
+    {
+        QDateTime::operator=(other);
+        return *this;
+    }
 
     /*!
      * Returns the datetime as a string. The \a format parameter
@@ -184,38 +191,19 @@ public:
      */
     static void setProvider(Provider provider);
 
-    static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone);
+    static DateTime fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone)
+    {
+        return DateTime(QDateTime::fromMSecsSinceEpoch(msecs, timeZone));
+    }
 
-    static DateTime fromMSecsSinceEpoch(qint64 msecs);
+    static DateTime fromMSecsSinceEpoch(qint64 msecs)
+    {
+        return DateTime(QDateTime::fromMSecsSinceEpoch(msecs));
+    }
 
 private:
     QString formatDateTime(const QString &format) const;
 };
-
-inline DateTime::DateTime(const QDateTime &other) : QDateTime(other)
-{}
-
-inline DateTime::DateTime(QDate date,
-                          QTime time,
-                          QTimeZone timeZone) :
-    QDateTime(date, time, timeZone)
-{}
-
-inline DateTime &DateTime::operator=(const DateTime &other)
-{
-    QDateTime::operator=(other);
-    return *this;
-}
-
-inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs)
-{
-    return DateTime(QDateTime::fromMSecsSinceEpoch(msecs));
-}
-
-inline DateTime DateTime::fromMSecsSinceEpoch(qint64 msecs, QTimeZone timeZone)
-{
-    return DateTime(QDateTime::fromMSecsSinceEpoch(msecs, timeZone));
-}
 
 } // namespace Log4Qt
 

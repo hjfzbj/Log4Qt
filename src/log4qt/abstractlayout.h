@@ -70,10 +70,10 @@ public:
     [[nodiscard]] virtual QString contentType() const;
     [[nodiscard]] virtual QString footer() const;
     [[nodiscard]] virtual QString header() const;
-    [[nodiscard]] inline QString name() const;
-    inline void setFooter(const QString &footer);
-    inline void setHeader(const QString &header);
-    inline void setName(const QString &name);
+    [[nodiscard]] QString name() const { return objectName(); }
+    void setFooter(const QString &footer) { mFooter = footer; }
+    void setHeader(const QString &header) { mHeader = header; }
+    void setName(const QString &name) { setObjectName(name); }
 
     /*!
      * Sets a per-layout header/footer provider. When set and the provider
@@ -146,26 +146,6 @@ private:
     static HeaderFooterProviderSharedPtr s_globalProvider;
     static QReadWriteLock s_providerLock;
 };
-
-inline QString AbstractLayout::name() const
-{
-    return objectName();
-}
-
-inline void AbstractLayout::setFooter(const QString &footer)
-{
-    mFooter = footer;
-}
-
-inline void AbstractLayout::setHeader(const QString &header)
-{
-    mHeader = header;
-}
-
-inline void AbstractLayout::setName(const QString &name)
-{
-    setObjectName(name);
-}
 
 using LayoutSharedPtr = Log4QtSharedPtr<AbstractLayout>;
 
