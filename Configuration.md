@@ -506,6 +506,18 @@ The JSON structure maps directly to the flat property keys. Nested objects
 produce dot-separated keys. Boolean and numeric values are automatically
 stringified.
 
+> **Selecting the appender/layout/filter class:** use the `type` key — **not**
+> `class` or `@Class`. Unlike Log4j's XML `class="..."` attribute, Log4Qt uses a
+> `type` key in every format. So write `"type": "org.apache.log4j.ConsoleAppender"`
+> (the legacy `org.apache.log4j.*` names, the `Log4Qt::*` names, and the short
+> aliases such as `Console` are all accepted). Any other key — including `@Class`
+> — is treated as an ordinary property and ignored for class selection, which
+> produces a *"Missing appender type"* error.
+>
+> The Log4j1 class-as-value form (`log4j.appender.X = classname`) cannot be
+> expressed in JSON, because a JSON object cannot be both a string and hold
+> nested keys. The `type` key is the JSON-native replacement.
+
 ### Complete Example
 
 ```json
@@ -596,6 +608,14 @@ stringified.
 The XML structure uses element names as key segments. The root element (e.g.
 `<configuration>`) is skipped; its children become top-level keys. XML
 attributes on an element are flattened as child properties.
+
+> **Selecting the appender/layout/filter class:** use a `type` element — **not**
+> a `class` attribute as in Log4j's XML format. Write
+> `<type>org.apache.log4j.ConsoleAppender</type>`, not
+> `<console class="org.apache.log4j.ConsoleAppender">`. Because attributes
+> flatten to child properties, `type="..."` as an attribute works too
+> (`<console type="Console">`), but `class="..."` does not — it becomes a
+> `.class` property and is ignored for class selection.
 
 ### Complete Example
 

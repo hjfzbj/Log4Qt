@@ -50,10 +50,10 @@ As an alternative to `log4qt.properties`, you can use a `log4qt.json` file:
         "rootLogger": "DEBUG, console",
         "appender": {
             "console": {
-                "@class": "org.apache.log4j.ConsoleAppender",
+                "type": "org.apache.log4j.ConsoleAppender",
                 "target": "STDOUT_TARGET",
                 "layout": {
-                    "@class": "org.apache.log4j.TTCCLayout",
+                    "type": "org.apache.log4j.TTCCLayout",
                     "dateFormat": "ISO8601"
                 }
             }
@@ -68,10 +68,12 @@ As an alternative to `log4qt.properties`, you can use a `log4qt.json` file:
 }
 ```
 
-Nested objects produce dot-separated property keys, and the `@class` key sets the class
-name for the parent object. Place the file next to your executable or in the working
-directory. When both `log4qt.properties` and `log4qt.json` exist, the `.properties` file
-takes priority.
+Nested objects produce dot-separated property keys, and the `type` key sets the class
+(appender, layout, filter, …) for the parent object — **not** `class` or `@class`. The
+value accepts the legacy `org.apache.log4j.*` names, the `Log4Qt::*` names, or the short
+aliases (e.g. `Console`, `TTCCLayout`). Place the file next to your executable or in the
+working directory. When both `log4qt.properties` and `log4qt.json` exist, the `.properties`
+file takes priority.
 
 You can also configure programmatically:
 
@@ -92,9 +94,11 @@ As an alternative to `.properties` and `.json`, you can use a `log4qt.xml` file:
 <log4j>
     <rootLogger>DEBUG, console</rootLogger>
     <appender>
-        <console class="org.apache.log4j.ConsoleAppender">
+        <console>
+            <type>org.apache.log4j.ConsoleAppender</type>
             <target>STDOUT_TARGET</target>
-            <layout class="org.apache.log4j.TTCCLayout">
+            <layout>
+                <type>org.apache.log4j.TTCCLayout</type>
                 <dateFormat>ISO8601</dateFormat>
             </layout>
         </console>
@@ -108,8 +112,10 @@ As an alternative to `.properties` and `.json`, you can use a `log4qt.xml` file:
 </log4j>
 ```
 
-Nested elements produce dot-separated property keys, and the `class` attribute sets the
-class name for the element. Priority order: `.properties` > `.json` > `.xml`.
+Nested elements produce dot-separated property keys, and a `<type>` element sets the class
+for the parent element — **not** a `class` attribute as in Log4j's XML. (Attributes flatten
+to child properties, so `type="..."` as an attribute also works, but `class="..."` does
+not.) Priority order: `.properties` > `.json` > `.xml`.
 
 You can also configure programmatically:
 
